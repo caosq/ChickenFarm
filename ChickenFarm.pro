@@ -23,6 +23,8 @@ INCLUDEPATH += Comm/FreeModbus/config \
             Widget/Label \
             Widget/Button \
             Widget/Keyboard \
+            Widget/Plot \
+            Widget/Diagram \
             Device \
             DataManage \
             Form/Module \
@@ -101,6 +103,18 @@ SOURCES += \
         Widget/Button/button.cpp \
         Widget/Button/modebutton.cpp \
         Widget/Button/statebutton.cpp \
+        Widget/Diagram/barchartwidget.cpp \
+        Widget/Diagram/curvetracker.cpp \
+        Widget/Diagram/dotlineplot.cpp \
+        Widget/Diagram/historycurve.cpp \
+        Widget/Diagram/qwtcorewidget.cpp \
+        Widget/Diagram/realtimecurve.cpp \
+        Widget/Event/currenteventtable.cpp \
+        Widget/Event/eventdata.cpp \
+        Widget/Event/eventdatabase.cpp \
+        Widget/Event/eventmonitor.cpp \
+        Widget/Event/eventtable.cpp \
+        Widget/Event/historyeventtable.cpp \
         Widget/Keyboard/akeyboard.cpp \
         Widget/Keyboard/keybutton.cpp \
         Widget/Keyboard/pwdkeyboard.cpp \
@@ -108,6 +122,24 @@ SOURCES += \
         Widget/Label/datalabel.cpp \
         Widget/Label/textcontrol.cpp \
         Widget/Label/textlabel.cpp \
+        Widget/Plot/axiscurve.cpp \
+        Widget/Plot/g_qwtplot.cpp \
+        Widget/Plot/g_qwtscaledraw.cpp \
+        Widget/Plot/glegenditem.cpp \
+        Widget/Plot/gplotcanvas.cpp \
+        Widget/Plot/gplotgrid.cpp \
+        Widget/Plot/gplotpicker.cpp \
+        Widget/Plot/gqwtlegendbase.cpp \
+        Widget/Plot/gqwtlegenditem.cpp \
+        Widget/Plot/gqwtplotzoomer.cpp \
+        Widget/Plot/gqwtscrollbar.cpp \
+        Widget/Plot/gqwtscrollbarwidget.cpp \
+        Widget/Plot/gtoolbutton.cpp \
+        Widget/Plot/gzoomwidget.cpp \
+        Widget/Plot/plotwidget.cpp \
+        Widget/Plot/qhistorycurve.cpp \
+        Widget/Plot/qrealtimecurve.cpp \
+        Widget/Plot/qwtscrollbarbutton.cpp \
         main.cpp \
         Form/mainform.cpp
 
@@ -158,15 +190,45 @@ HEADERS += \
         Form/mainform.h \
         Widget/Button/analogvalbutton.h \
         Widget/Button/button.h \
-    Widget/Button/modebutton.h \
+        Widget/Button/modebutton.h \
         Widget/Button/statebutton.h \
-    Widget/Keyboard/akeyboard.h \
-    Widget/Keyboard/keybutton.h \
-    Widget/Keyboard/pwdkeyboard.h \
-    Widget/Keyboard/skeyboard.h \
+    Widget/Diagram/barchartwidget.h \
+    Widget/Diagram/curvetracker.h \
+    Widget/Diagram/dotlineplot.h \
+    Widget/Diagram/historycurve.h \
+    Widget/Diagram/qwtcorewidget.h \
+    Widget/Diagram/realtimecurve.h \
+    Widget/Event/currenteventtable.h \
+    Widget/Event/eventdata.h \
+    Widget/Event/eventdatabase.h \
+    Widget/Event/eventmonitor.h \
+    Widget/Event/eventtable.h \
+    Widget/Event/historyeventtable.h \
+        Widget/Keyboard/akeyboard.h \
+        Widget/Keyboard/keybutton.h \
+        Widget/Keyboard/pwdkeyboard.h \
+        Widget/Keyboard/skeyboard.h \
         Widget/Label/datalabel.h \
-    Widget/Label/textcontrol.h \
-        Widget/Label/textlabel.h \
+        Widget/Label/textcontrol.h \
+        Widget/Label/textlabel.h \ \
+    Widget/Plot/axiscurve.h \
+    Widget/Plot/g_qwtplot.h \
+    Widget/Plot/g_qwtscaledraw.h \
+    Widget/Plot/glegenditem.h \
+    Widget/Plot/gplotcanvas.h \
+    Widget/Plot/gplotgrid.h \
+    Widget/Plot/gplotpicker.h \
+    Widget/Plot/gqwtlegendbase.h \
+    Widget/Plot/gqwtlegenditem.h \
+    Widget/Plot/gqwtplotzoomer.h \
+    Widget/Plot/gqwtscrollbar.h \
+    Widget/Plot/gqwtscrollbarwidget.h \
+    Widget/Plot/gtoolbutton.h \
+    Widget/Plot/gzoomwidget.h \
+    Widget/Plot/plotwidget.h \
+    Widget/Plot/qhistorycurve.h \
+    Widget/Plot/qrealtimecurve.h \
+    Widget/Plot/qwtscrollbarbutton.h
 
 FORMS += \
         Form/Module/axialfan.ui \

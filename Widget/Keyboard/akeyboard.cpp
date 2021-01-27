@@ -105,14 +105,17 @@ void aKeyBoard::setupUi()
 
     //清除
     clearButton = new keyButton(this);
+    clearButton->setText("清除");
     clearButton->setGeometry(229, 168, 66, 58);
 
     //取消
     cancelButton = new keyButton(this);
+    cancelButton->setText("取消");
     cancelButton->setGeometry(229, 233, 66, 58);
 
     //确认
     enterButton = new keyButton(this);
+    enterButton->setText("确认");
     enterButton->setGeometry(157, 299, 138, 56);
 
    // retranslateUi(translate::instance()->currentLanguage());

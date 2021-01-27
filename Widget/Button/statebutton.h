@@ -4,12 +4,13 @@
 #include <QObject>
 #include <QWidget>
 #include <QMap>
+#include <QPainter>
 #include "button.h"
 #include "datamonitor.h"
 
 enum eButtonState{
-    StateOff = 0,
-    StateOn = 1,
+    State0 = 0,
+    State1 = 1,
     Error = 2
 };
 
@@ -26,7 +27,12 @@ class StateButton : public Button
 {
     Q_OBJECT
 public:
-    StateButton();
+    StateButton(QWidget *parent = nullptr);
+
+    //祖父按键
+    static StateButton *forefather();
+
+    void setDeafultState(eButtonState state);
 
     //获取默认状态值
     eButtonState getDefaultState();
@@ -47,7 +53,7 @@ public:
     void setPixmap(eButtonState state,QPixmap *pixmap);
 
     //设置文字。state决定状态，text是对应状态要显示的文字
-    void setText(eButtonState state,const QString text);
+    void setText(eButtonState state,const QString &text);
 
     //设置状态值激活状态下的文字颜色(使能状态下的文字颜色)
     void setStateActiveTextColor(eButtonState state,QColor color);
@@ -60,21 +66,51 @@ public:
     //设置点击，触发点击信号
     void setClicked();
 
-private:
-    Monitor*    m_pMonitor;
-    QMap<eButtonState, int>  m_StateValMap;
-    QVector<sStateStyle>      m_StateStyleVector;
+    //设置父类字号大小
+    void setFatherFontSize(int size);
 
-    eButtonState             m_CurrentState;
+    //设置父类图片
+    //state决定按下或抬起，filePath：图片位置
+    //father这两个函数作用于全部abutton实体，但必须是在father初始化之后
+    void setFatherPixmap(eButtonState state, QString filePath);
 
 protected:
+    void paintEvent(QPaintEvent *e);
 
-    eButtonState m_eDefaultState;
-    eButtonState m_eCurrentState;
+private slots:
+    void fontSlot();
+
 
 public slots:
     void setValue(unsigned int val);
     void clickedSlot();
+signals:
+    void fontChange();
+
+protected:
+    static StateButton *father;
+    static QFont       fatherFont;
+    static QPixmap     *pixmap0;
+    static QPixmap     *pixmap1;
+
+    bool defValState;
+    bool enableValMarker;
+    bool save;
+    bool automaticAttack;
+
+    eDataType   m_eDataType;
+
+private:
+    Monitor*    m_pMonitor;
+    QMap<eButtonState, int>  m_StateValMap;
+    QVector<sStateStyle>     m_StateStyleVector;
+
+    eButtonState             m_CurrentState;
+    eButtonState             m_DefaultState;
+protected:
+
+    eButtonState m_eDefaultState;
+    eButtonState m_eCurrentState;
 };
 
 

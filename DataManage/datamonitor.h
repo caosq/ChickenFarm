@@ -5,6 +5,7 @@
 #include "device.h"
 
 #include <QObject>
+#include <QMap>
 
 #define MONITOR_DATA_MAX_NUM        200     //最大可监控点位数，根据实际情况调整
 
@@ -28,14 +29,17 @@ class Monitor : public QObject
 {
     Q_OBJECT
 public:
-    explicit  Monitor();
+    explicit  Monitor(void* pvVal, eDataType emDataType, uint16_t usDataId, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
 
     friend class DataMonitor;
 
     void setValRange(int32_t iMaxVal, int32_t iMinVal);
     void setValType(eDataType emDataType);
     void setValue(uint32_t uiVal);
+
+    uint8_t  getValType();
     uint32_t getCurVal();
+    void* getCurValAddr();
 
 private:
     void*      m_pvVal;
@@ -46,25 +50,26 @@ private:
     eDataType  m_eDataType;  //数据类型
 
 signals:
-    void valChanged(uint32_t);
+    void valChanged(Monitor*);
 };
 
-typedef struct sMonitorList /**/
+/*typedef struct sMonitorList
 {
     Monitor*  pMonitor;
 
     struct sMonitorList*  pNext;
     struct sMonitorList*  pLast;
 }sMonitorList;
+*/
 
-typedef struct sMonitorDataList /**/
+typedef struct sMonitorMapList /**/
 {
     pthread_t      sMonitorThread;
-    sMonitorList*  psMonitorList;
+    QMap<void*, Monitor*> m_MonitorMap;
 
-    struct sMonitorDataList*  pNext;
-    struct sMonitorDataList*  pLast;
-}sMonitorDataList;
+    struct sMonitorMapList*  pNext;
+    struct sMonitorMapList*  pLast;
+}sMonitorMapList;
 
 
 class DataMonitor : public QObject
@@ -72,9 +77,9 @@ class DataMonitor : public QObject
     Q_OBJECT
 public:
     static uint16_t g_usMonitorID;
-    static sMonitorDataList*  g_psMonitorDataList;
+    static sMonitorMapList*  g_psMonitorMapList;
 
-    static Monitor* monitorRegist(void* pvVal, eDataType  emDataType, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
+    static Monitor* monitorRegist(void* pvVal, eDataType emDataType, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
     static void* monitorPollTask(void *pvArg);
 
     static DataMonitor* getInstance();
@@ -85,8 +90,6 @@ private:
     static DataMonitor*       g_pDataMonitor;
 
 };
-
-
 
 
 #endif // DATAMONITOR_H

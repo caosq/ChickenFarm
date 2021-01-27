@@ -5,6 +5,8 @@
 #include "modular.h"
 #include "analogvalbutton.h"
 #include "datalabel.h"
+#include "statebutton.h"
+#include "modebutton.h"
 
 namespace Ui {
 class ModularChiller;
@@ -73,6 +75,10 @@ public:
 
     AnalogValButton *m_pButton;
     DataLabel *m_pLabel;
+
+    StateButton *debugMod;
+
+    ModeButton *waterType;
 
 private:
     Ui::ModularChiller *ui;

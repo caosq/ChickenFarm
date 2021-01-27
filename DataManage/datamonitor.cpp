@@ -3,13 +3,17 @@
 #include "stddef.h"
 #include <unistd.h>
 
-sMonitorDataList* DataMonitor::g_psMonitorDataList = nullptr;
-DataMonitor*      DataMonitor::g_pDataMonitor = nullptr;
-uint16_t          DataMonitor::g_usMonitorID = 0;
+sMonitorMapList* DataMonitor::g_psMonitorMapList = nullptr;
+DataMonitor*     DataMonitor::g_pDataMonitor = nullptr;
+uint16_t         DataMonitor::g_usMonitorID = 0;
 
-Monitor::Monitor()
+Monitor::Monitor(void* pvVal, eDataType emDataType, uint16_t usDataId, int32_t iMaxVal, int32_t iMinVal)
 {
-
+    this->m_pvVal      = pvVal;
+    this->m_iMaxVal    = iMaxVal;
+    this->m_iMinVal    = iMinVal;
+    this->m_eDataType  = emDataType;
+    this->m_usDataId   = usDataId;
 }
 
 void Monitor::setValRange(int32_t iMaxVal, int32_t iMinVal)
@@ -31,7 +35,7 @@ void Monitor::setValue(uint32_t uiVal)
     int8_t   cValue  = 0;
     int16_t  sValue  = 0;
 
-    if(m_pvVal != nullptr && uiVal <= m_iMaxVal && uiVal >= m_iMinVal)
+    if(m_pvVal != nullptr && uiVal <= uint32_t(m_iMaxVal) && uiVal >= uint32_t(m_iMinVal))
     {
         if(m_eDataType == Uint8t)
         {
@@ -60,9 +64,20 @@ void Monitor::setValue(uint32_t uiVal)
     }
 }
 
+uint8_t Monitor::getValType()
+{
+    return m_eDataType;
+}
+
+
 uint32_t Monitor::getCurVal()
 {
     return m_uiDataVal;
+}
+
+void* Monitor::getCurValAddr()
+{
+    return m_pvVal;
 }
 
 DataMonitor::DataMonitor()
@@ -88,14 +103,16 @@ void* DataMonitor::monitorPollTask(void *pvArg)
     int16_t  sValue  = 0;
     uint32_t uiDataVal = 0;
 
-    sMonitorList* pmMonitorList = static_cast<sMonitorList*>(pvArg);
+    QMap<uint16_t, Monitor*>::iterator it;
+    QMap<uint16_t, Monitor*>* pMonitorMap = static_cast< QMap<uint16_t, Monitor*> *>(pvArg);
+
     Monitor*      pMonitor = nullptr;
 
     while(1)
     {
-        for(; pmMonitorList != nullptr; pmMonitorList = pmMonitorList->pNext)
+        for(it=pMonitorMap->begin(); it!=pMonitorMap->end(); ++it)
         {
-            pMonitor = pmMonitorList->pMonitor;
+            pMonitor = it.value();
             if(pMonitor->m_eDataType == Uint8t)
             {
                 ucValue = *static_cast<uint8_t*>(pMonitor->m_pvVal);
@@ -118,7 +135,8 @@ void* DataMonitor::monitorPollTask(void *pvArg)
             }
             if(pMonitor->m_uiDataVal != uiDataVal)
             {
-                emit pMonitor->valChanged(pMonitor->m_uiDataVal);
+                pMonitor->m_uiDataVal = uiDataVal;
+                emit pMonitor->valChanged(pMonitor);
             }
         }
     }
@@ -132,9 +150,8 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, eDataType eDataType, int32_t iM
     int8_t   cValue;
     int16_t  sValue;
 
-    Monitor*          pMonitor = new Monitor();
-    sMonitorList*     pmMonitorList     = nullptr;
-    sMonitorDataList* pmMonitorDataList = nullptr;
+    Monitor*         pMonitor = nullptr;
+    sMonitorMapList* pmMonitorMapList = nullptr;
 
     if(pvVal == nullptr)
     {
@@ -143,33 +160,41 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, eDataType eDataType, int32_t iM
     if(g_usMonitorID/MONITOR_DATA_MAX_NUM == 0)
     {
         g_usMonitorID = 0;
-        pmMonitorDataList = new sMonitorDataList;
+        pmMonitorMapList = new sMonitorMapList;
 
-        if(g_psMonitorDataList == nullptr)
+        if(g_psMonitorMapList == nullptr)
         {
-            g_psMonitorDataList = pmMonitorDataList;
+            g_psMonitorMapList = pmMonitorMapList;
         }
         else
         {
-            g_psMonitorDataList->pLast->pNext = pmMonitorDataList;
+            g_psMonitorMapList->pLast->pNext = pmMonitorMapList;
         }
-        g_psMonitorDataList->pLast = pmMonitorDataList;
+        g_psMonitorMapList->pLast = pmMonitorMapList;
 
-        if( pthread_create(&pmMonitorDataList->sMonitorThread, nullptr, DataMonitor::monitorPollTask, static_cast<void*>(pmMonitorDataList->psMonitorList)) < 0 )
+        if( pthread_create(&pmMonitorMapList->sMonitorThread, nullptr, DataMonitor::monitorPollTask, static_cast<void*>(&pmMonitorMapList->m_MonitorMap)) < 0 )
         {
             return nullptr;
         }
     }
     else
     {
-        pmMonitorDataList = g_psMonitorDataList->pLast;
+        pmMonitorMapList = g_psMonitorMapList->pLast;
     }
-    pMonitor->m_pvVal      = pvVal;
-    pMonitor->m_iMaxVal    = iMaxVal;
-    pMonitor->m_iMinVal    = iMinVal;
-    pMonitor->m_eDataType  = eDataType;
-    pMonitor->m_usDataId   = g_usMonitorID;
 
+    if(pmMonitorMapList->m_MonitorMap.contains(pvVal))
+    {
+        return pmMonitorMapList->m_MonitorMap.value(pvVal);
+    }
+    else
+    {
+        pMonitor = new Monitor(pvVal, eDataType, g_usMonitorID, iMaxVal, iMinVal);
+        pmMonitorMapList->m_MonitorMap.insert(pvVal,pMonitor);
+    }
+    if(pMonitor == nullptr)
+    {
+        return nullptr;
+    }
     if(eDataType == Uint8t)
     {
         ucValue = *static_cast<uint8_t*>(pvVal);
@@ -190,19 +215,6 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, eDataType eDataType, int32_t iM
         sValue = *static_cast<int16_t*>(pvVal);
         pMonitor->m_uiDataVal = uint32_t(sValue);
     }
-    pmMonitorList->pMonitor = pMonitor;
-    pmMonitorList->pNext = nullptr;
-
-    if(pmMonitorDataList->psMonitorList == nullptr)
-    {
-        pmMonitorDataList->psMonitorList->pLast = pmMonitorList;
-    }
-    else
-    {
-        pmMonitorDataList->psMonitorList->pLast->pNext = pmMonitorList;
-    }
-    pmMonitorDataList->psMonitorList->pLast = pmMonitorList;
-
     g_usMonitorID++;
     return pMonitor;
 }

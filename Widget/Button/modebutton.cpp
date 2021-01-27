@@ -3,17 +3,17 @@
 #define SP_X 3
 #define SP_Y 3
 
-#define M_BC "#00238a"
+#define M_BC "#008888"
 #define M_TC "#dfd8c8"
 #define M_HL "#678db2"
 #define M_HLTC "#ffffff"
 
 privateMenu::menuStyle ModeButton::fatherStyle =
 {
-    QColor(M_BC),
-    QColor(M_HL),
-    QColor(M_TC),
-    QColor(M_HLTC)
+    M_BC,
+    M_HL,
+    M_TC,
+    M_HLTC
 };
 
 privateMenu::privateMenu(QWidget *parent) :
@@ -61,12 +61,12 @@ void privateMenu::setColorStyle(privateMenu::menuStyle style)
     setBackgroundColor(style._Background);
     setHighlightColor(style._Highlight);
     setHightlightTextColor(style._HightlightText);
-    setTextColor(style._Text);
+    setTextColor(style._Text);  
 }
 
-void privateMenu::setBackgroundColor(QColor color)
+void privateMenu::setBackgroundColor(QString color)
 {
-    QPalette palette = this->palette();
+/*    QPalette palette = this->palette();
     palette.setBrush(this->backgroundRole(),QBrush(color));
     palette.setBrush(QPalette::Normal,QPalette::Dark,QBrush(color));
     palette.setBrush(QPalette::Normal,QPalette::Light,QBrush(color));
@@ -74,30 +74,55 @@ void privateMenu::setBackgroundColor(QColor color)
     palette.setBrush(QPalette::Normal,QPalette::Shadow,QBrush(color));
 
     setPalette(palette);
+*/
+//    setStyleSheet("background-color: rgba(191, 64, 64, 100)");
+//    setStyleSheet("background-color:  #678db2");
+
+     privateMenu::m_styleSheet._Background = color;
+     setMenuStyleSheet();
 }
 
-void privateMenu::setHighlightColor(QColor color)
+void privateMenu::setHighlightColor(QString color)
 {
-    QPalette palette = this->palette();
+/*    QPalette palette = this->palette();
     palette.setBrush(QPalette::Normal,QPalette::Highlight,QBrush(color));
     setPalette(palette);
+*/
+    privateMenu::m_styleSheet._Highlight = color;
+    setMenuStyleSheet();
 }
 
-void privateMenu::setTextColor(QColor color)
+void privateMenu::setTextColor(QString color)
 {
-    QPalette palette = this->palette();
+/*    QPalette palette = this->palette();
     palette.setBrush(QPalette::Normal,QPalette::WindowText,QBrush(color));
     palette.setBrush(QPalette::Normal,QPalette::ButtonText,QBrush(color));
     setPalette(palette);
+*/
+    privateMenu::m_styleSheet._Text = color;
+    setMenuStyleSheet();
+
 }
 
-void privateMenu::setHightlightTextColor(QColor color)
+void privateMenu::setHightlightTextColor(QString color)
 {
-    QPalette palette = this->palette();
+/*    QPalette palette = this->palette();
     palette.setBrush(QPalette::Normal,QPalette::HighlightedText,QBrush(color));
 
     setPalette(palette);
+*/
+    privateMenu::m_styleSheet._HightlightText = color;
+    setMenuStyleSheet();
+
 }
+
+void privateMenu::setMenuStyleSheet()
+{
+    QString strStyle = "background-color: " + m_styleSheet._Background;
+
+    setStyleSheet(strStyle);
+}
+
 
 void privateMenu::setCurrentItem(int id)
 {
@@ -127,7 +152,7 @@ void privateMenu::actionSlot()
 }
 
 ModeButton* ModeButton::father = nullptr;
-QFont ModeButton::fatherFont = textControl::instance()->font(textControl::size20);
+QFont ModeButton::fatherFont = textControl::instance()->font(textControl::size16);
 QPixmap *ModeButton::pixmap = nullptr;
 
 ModeButton::ModeButton(QWidget *parent) :
@@ -232,7 +257,6 @@ void ModeButton::paintEvent(QPaintEvent *e)
         painter.setBrush(Qt::green);
         painter.drawEllipse(SP_X,SP_Y,5,5);
     }
-
 }
 
 void ModeButton::initMenu()
@@ -283,7 +307,10 @@ void ModeButton::setValue(unsigned int val)
     currentText = _menu->currentText(intval);
     defValState = (defVal == intval) ? true:false;
 
-    m_pMonitor->setValue(val);
+    if(m_pMonitor)
+    {
+        m_pMonitor->setValue(val);
+    }
     update();
 }
 
@@ -331,6 +358,42 @@ void ModeButton::setTextSize(int size)
     font.setPointSize(size);
     setFont(font);
 }
+
+void ModeButton::setFatherFontSize(int size)
+{
+    if(this == father)
+    {
+        if( fatherFont.pointSize() != size )
+        {
+            fatherFont.setPointSize(size);
+            emit fontChange();
+        }
+    }
+}
+
+void ModeButton::setFatherPixmap(QString filePath)
+{
+    if(father == this)
+    {
+        if(pixmap)
+        {
+            pixmap->load(filePath);
+        }
+        else
+        {
+            pixmap = new QPixmap(filePath);
+        }
+    }
+}
+
+void ModeButton::setFatherItemStyle(privateMenu::menuStyle style)
+{
+    if(father == this)
+    {
+        fatherStyle = style;
+    }
+}
+
 
 void ModeButton::setClicked()
 {

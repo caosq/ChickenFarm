@@ -120,7 +120,6 @@ private:
     static QPixmap *_pix0;
     static QPixmap *_pix1;
 
-
     Monitor*    m_pMonitor;
     Monitor*    m_pMaxMonitor;
     Monitor*    m_pMinMonitor;

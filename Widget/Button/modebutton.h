@@ -15,20 +15,20 @@ class privateMenu : public QMenu
     Q_OBJECT
 public:
     typedef struct{
-        QColor _Background;
-        QColor _Highlight;
-        QColor _Text;
-        QColor _HightlightText;
+        QString _Background;
+        QString _Highlight;
+        QString _Text;
+        QString _HightlightText;
     }menuStyle;
 
     friend class ModeButton;
     explicit privateMenu(QWidget *parent = nullptr);
 
     void setColorStyle(menuStyle style);
-    void setBackgroundColor(QColor color);
-    void setHighlightColor(QColor color);
-    void setTextColor(QColor color);
-    void setHightlightTextColor(QColor color);
+    void setBackgroundColor(QString color);
+    void setHighlightColor(QString color);
+    void setTextColor(QString color);
+    void setHightlightTextColor(QString color);
 
 private:
     void setCurrentItem(int id);
@@ -37,6 +37,8 @@ private:
     void setItem(int id,QString text);
     bool replaceItemId(int old_id,int new_id);
     void removeItem(int id);
+
+    void setMenuStyleSheet();
 
 private slots:
     void actionSlot();
@@ -47,6 +49,7 @@ signals:
  private:
     QMap<int,QAction *> _acmap;
 
+    menuStyle m_styleSheet;
 };
 
 
@@ -105,6 +108,26 @@ public:
     //设置默认值
     void setDefaultValue(int defValue);
 
+    //设置父类字号大小
+    void setFatherFontSize(int size);
+
+    //设置父类图片
+    //state决定按下或抬起，filePath：图片位置
+    //father这两个函数作用于全部abutton实体，但必须是在father初始化之后
+    void setFatherPixmap(QString filePath);
+
+    //设置祖父类的显示风格
+    //menuStyle结构体决定了下拉框的风格
+    //_Background 设置背景色
+    //_Highlight 选中时的高亮颜色
+    //_Text 下拉的文字颜色(非高亮颜色)
+    //_HightlightText 下拉的文章颜色(高亮颜色)
+    void setFatherItemStyle(privateMenu::menuStyle style);
+
+    //使能默认值标记功能
+    void enableDefaultMarker(bool ok){enableValMarker = ok;}
+    //设置祖父的操作权限
+
 protected:
     void paintEvent(QPaintEvent *e);
 
@@ -118,6 +141,9 @@ private slots:
     void clickedSlot();
     void valueSlot(int tempVal);
     void hideMenu();
+
+signals:
+    void fontChange();
 
 private:
     Monitor*    m_pMonitor;

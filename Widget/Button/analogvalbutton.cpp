@@ -156,11 +156,11 @@ void AnalogValButton::setFatherFontSize(int size)
 
 void AnalogValButton::setFatherPixmap(STATE state, QString filePath)
 {
-    if( father == this )
+    if(father == this)
     {
-        if( press == state )
+        if(press == state)
         {
-            if( _pix0 )
+            if(_pix0)
             {
                 _pix0->load(filePath);
             }
@@ -244,7 +244,7 @@ void AnalogValButton::setValue(uint32_t val)
     {
         m_pMonitor->setValue(val);
     }
-    QPushButton::setText(m_strCurrentText);
+    setText(m_strCurrentText);
     update();
 }
 
@@ -410,9 +410,8 @@ void AnalogValButton::paintEvent(QPaintEvent *e)
             painter.drawPixmap(0, 0, this->width(), this->height(), *m_pRelaseImg);
             painter.drawText(m_iMargin, 0, this->width(),this->height(), m_alignment, m_strCurrentText);
         }
-
     }
-    else if(m_pPressImg && m_pRelaseImg )
+    else if(_pix0 && _pix1)
     {
         QPainter painter(this);
         if( !isEnabled() )
@@ -425,16 +424,15 @@ void AnalogValButton::paintEvent(QPaintEvent *e)
         }
         if( this->isDown() )
         {
-            painter.drawPixmap(1, 1, this->width(), this->height(), *m_pPressImg);
+            painter.drawPixmap(1, 1, this->width(), this->height(), *_pix0);
             painter.drawText(m_iMargin + 1, 1, this->width(),this->height(), m_alignment, m_strCurrentText);
 
         }
         else
         {
-            painter.drawPixmap(0, 0, this->width(), this->height(), *m_pRelaseImg);
+            painter.drawPixmap(0, 0, this->width(), this->height(), *_pix1);
             painter.drawText(m_iMargin,0,this->width(), this->height(), m_alignment, m_strCurrentText);
         }
-
     }
     else
     {
@@ -451,16 +449,16 @@ void AnalogValButton::paintEvent(QPaintEvent *e)
         painter.drawText(m_iMargin, 0, this->width(), this->height(), m_alignment, m_strCurrentText);
     }
 
-      this->setStyleSheet("background-color: rgba(191, 64, 64, 0);border:none");
+   //this->setStyleSheet("background-color: transparent; border:none");
 
-//    if( !defValState && enableValMarker )
-//    {
+   if( !defValState && enableValMarker )
+   {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setPen(Qt::NoPen);
         painter.setBrush(Qt::green);
         painter.drawEllipse(SP_X, SP_Y, 5, 5);
-//    }
+    }
 }
 
 void AnalogValButton::setTextAlignment(Qt::Alignment flag)
