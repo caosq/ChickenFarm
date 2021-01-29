@@ -80,6 +80,9 @@ public:
 
     ModeButton *waterType;
 
+private slots:
+    void on_pushButton_clicked();
+
 private:
     Ui::ModularChiller *ui;
 };

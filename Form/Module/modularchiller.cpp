@@ -1,5 +1,7 @@
 #include "modularchiller.h"
 #include "ui_modularchiller.h"
+#include <QMessageBox>
+#include "messagebox.h"
 
 #define AB_PRESS_PIX ":UI/baseFile/abPress.png"
 #define AB_RELEASE_PIX ":UI/baseFile/abRelease.png"
@@ -57,4 +59,11 @@ ModularChiller::ModularChiller(QWidget *parent) :
 ModularChiller::~ModularChiller()
 {
     delete ui;
+}
+
+void ModularChiller::on_pushButton_clicked()
+{
+    static messageBox universalMsg;
+    universalMsg.setInformativeText("hello");
+    universalMsg.show();
 }

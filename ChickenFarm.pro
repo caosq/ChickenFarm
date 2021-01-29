@@ -11,7 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ChickenFarm
 TEMPLATE = app
 
-INCLUDEPATH += Comm/FreeModbus/config \
+INCLUDEPATH += /usr/local/qwt/qwt-6.1.2-x64/include \
+            Comm/FreeModbus/config \
             Comm/FreeModbus/driver \
             Comm/FreeModbus/utils \
             Comm/FreeModbus/master/functions \
@@ -25,13 +26,19 @@ INCLUDEPATH += Comm/FreeModbus/config \
             Widget/Keyboard \
             Widget/Plot \
             Widget/Diagram \
+            Widget/Dialog \
+            Widget/Message \
+            Widget/Time \
             Device \
             DataManage \
             Form/Module \
             Form \
-            System
+            System \
+            Main
 
-LIBS += -lrt \
+
+LIBS += -L "/usr/local/qwt/qwt-6.1.2-x64/lib" -lqwt \
+        -lrt \
         -lpthread \
 
 
@@ -82,6 +89,7 @@ SOURCES += \
         Comm/FreeModbus/utils/mbutils.c \
         Comm/modbus.cpp \
         DataManage/datamonitor.cpp \
+        DataManage/datasave.cpp \
         Device/bump.cpp \
         Device/controller.cpp \
         Device/device.cpp \
@@ -103,12 +111,15 @@ SOURCES += \
         Widget/Button/button.cpp \
         Widget/Button/modebutton.cpp \
         Widget/Button/statebutton.cpp \
+        Widget/Button/ubutton.cpp \
+        Widget/Button/ubuttonbk.cpp \
         Widget/Diagram/barchartwidget.cpp \
         Widget/Diagram/curvetracker.cpp \
         Widget/Diagram/dotlineplot.cpp \
         Widget/Diagram/historycurve.cpp \
         Widget/Diagram/qwtcorewidget.cpp \
         Widget/Diagram/realtimecurve.cpp \
+        Widget/Dialog/dialogbase.cpp \
         Widget/Event/currenteventtable.cpp \
         Widget/Event/eventdata.cpp \
         Widget/Event/eventdatabase.cpp \
@@ -122,6 +133,7 @@ SOURCES += \
         Widget/Label/datalabel.cpp \
         Widget/Label/textcontrol.cpp \
         Widget/Label/textlabel.cpp \
+        Widget/Message/messagebox.cpp \
         Widget/Plot/axiscurve.cpp \
         Widget/Plot/g_qwtplot.cpp \
         Widget/Plot/g_qwtscaledraw.cpp \
@@ -140,7 +152,10 @@ SOURCES += \
         Widget/Plot/qhistorycurve.cpp \
         Widget/Plot/qrealtimecurve.cpp \
         Widget/Plot/qwtscrollbarbutton.cpp \
-        main.cpp \
+        Widget/Time/analogclock.cpp \
+        Widget/Time/m_calender.cpp \
+        Widget/Time/timesetting.cpp \
+        Main/main.cpp \
         Form/mainform.cpp
 
 HEADERS += \
@@ -170,6 +185,7 @@ HEADERS += \
         Comm/FreeModbus/utils/mbutils.h \
         Comm/modbus.h \
         DataManage/datamonitor.h \
+    DataManage/datasave.h \
         Device/bump.h \
         Device/controller.h \
         Device/device.h \
@@ -192,12 +208,15 @@ HEADERS += \
         Widget/Button/button.h \
         Widget/Button/modebutton.h \
         Widget/Button/statebutton.h \
+    Widget/Button/ubutton.h \
+    Widget/Button/ubuttonbk.h \
     Widget/Diagram/barchartwidget.h \
     Widget/Diagram/curvetracker.h \
     Widget/Diagram/dotlineplot.h \
     Widget/Diagram/historycurve.h \
     Widget/Diagram/qwtcorewidget.h \
     Widget/Diagram/realtimecurve.h \
+    Widget/Dialog/dialogbase.h \
     Widget/Event/currenteventtable.h \
     Widget/Event/eventdata.h \
     Widget/Event/eventdatabase.h \
@@ -211,6 +230,7 @@ HEADERS += \
         Widget/Label/datalabel.h \
         Widget/Label/textcontrol.h \
         Widget/Label/textlabel.h \ \
+    Widget/Message/messagebox.h \
     Widget/Plot/axiscurve.h \
     Widget/Plot/g_qwtplot.h \
     Widget/Plot/g_qwtscaledraw.h \
@@ -228,7 +248,10 @@ HEADERS += \
     Widget/Plot/plotwidget.h \
     Widget/Plot/qhistorycurve.h \
     Widget/Plot/qrealtimecurve.h \
-    Widget/Plot/qwtscrollbarbutton.h
+    Widget/Plot/qwtscrollbarbutton.h \
+    Widget/Time/analogclock.h \
+    Widget/Time/m_calender.h \
+    Widget/Time/timesetting.h
 
 FORMS += \
         Form/Module/axialfan.ui \

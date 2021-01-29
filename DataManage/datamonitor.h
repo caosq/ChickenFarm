@@ -28,7 +28,9 @@ enum eDataType{
 class Monitor : public QObject
 {
     Q_OBJECT
+
 public:
+
     explicit  Monitor(void* pvVal, eDataType emDataType, uint16_t usDataId, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
 
     friend class DataMonitor;
