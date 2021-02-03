@@ -9,35 +9,42 @@
 #include "datamonitor.h"
 #include "textcontrol.h"
 
-enum eLabelType
-{
-    Data,
-    Text,
-    Color,
-    Image
-};
 
-enum eLabelStyle
-{
-    Circular,   //画圆
-    Rectangle,  //画矩形方块
-    NoStyle     //没有风格
-};
 
 class DataLabel : public QLabel
 {
     Q_OBJECT
 public:
 
-    explicit DataLabel(QWidget *parent = nullptr, eLabelType emLabelType = Data, eDataType emDataType = Uint16t);
+    enum eLabelType
+    {
+        Data,
+        Text,
+        Color,
+        Image
+    };
+
+    enum eLabelStyle
+    {
+        Circular,   //画圆
+        Rectangle,  //画矩形方块
+        NoStyle     //没有风格
+    };
+
+
+    explicit DataLabel(QWidget *parent = nullptr, eLabelType emLabelType = Data,
+                       Monitor::DataType emDataType = Monitor::Uint16t);
 
     static DataLabel *forefather();
 
     //获取绑定的数据地址
-    bool setMonitorData(void* pvVal = nullptr, eDataType emDataType = Uint16t);
+    bool setMonitorData(void* pvVal = nullptr, Monitor::DataType emDataType = Monitor::Uint16t);
+
+    //设置数据的属性
+    void setDataParameter(QString unit = "",uint8_t dot = 0, Monitor::DataType emDataType = Monitor::Uint16t);
 
     //设置数据类型
-    void setDataType(eDataType emDataType);
+    void setDataType(Monitor::DataType emDataType);
 
     //设置数据单位
     void setUnit(QString unit = "");
@@ -76,7 +83,7 @@ public:
     //void setText(const QString text);
 
     //设置字符串显示，同时设置字号大小
-    void setText(const QString text, int size = 12);
+    void setText(const QString text, int size = 14);
 
     //设置字符串显示，同时设置字号大小
     void setText(const QString text,textControl::textSize size);
@@ -126,7 +133,7 @@ private:
 
     eLabelType  m_eLabelType;
     eLabelStyle m_eLabelStyle;
-    eDataType   m_eDataType;
+    Monitor::DataType   m_eDataType;
 
     uint8_t     m_ucDecPoint;
     QString     m_strUnit;

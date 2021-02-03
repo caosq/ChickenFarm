@@ -1,6 +1,6 @@
 #include "g_qwtscaledraw.h"
 
-#define DEF_POINT_SIZE  14
+#define DEF_POINT_SIZE  12
 #define DEF_TEXT_COLOR "#ffffff"
 #define DEF_FONT_FAMILEY "Bitstream Charter"
 

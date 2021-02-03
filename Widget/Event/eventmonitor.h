@@ -31,7 +31,7 @@ public:
     explicit EventMonitor(QString strDirPath = "", QObject *parent = nullptr);
 
     //绑定要监视的数据地址以及相应要显示的文字
-    void registMonitorItem(void* pvVal, eDataType emDataType, QString strContext,
+    void registMonitorItem(void* pvVal, Monitor::DataType emDataType, QString strContext,
                         QColor colorOccurred = QColor(Qt::red), QColor colorCompleted = QColor("#0bd80b"),
                         int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
     //移除监视地址

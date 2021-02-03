@@ -13,7 +13,3 @@ SystemMonitor::~SystemMonitor()
     delete ui;
 }
 
-void SystemMonitor::on_pushButton_clicked()
-{
-
-}

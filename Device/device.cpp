@@ -1,6 +1,7 @@
 #include "device.h"
 
-Device::Device()
+Device::Device(QWidget *parent) :
+    QWidget(parent)
 {
 
 }

@@ -2,6 +2,8 @@
 
 #define BGC_CMD "background-color:rgba(%1,%2,%3,%4);"
 
+//#define BGC_CMD "background-color:rgba(1,2,3,4);"
+
 gPlotCanvas::gPlotCanvas(QwtPlot *parent) :
     QwtPlotCanvas(parent)
 {

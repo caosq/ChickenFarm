@@ -28,7 +28,7 @@ void CurrentEventTable::setClearAction(EventMonitor::clearAction action)
     m_pEventMonitor->setClearAction(action);
 }
 
-void CurrentEventTable::registMonitorItem(void* pvVal, eDataType emDataType, QString strContext,
+void CurrentEventTable::registMonitorItem(void* pvVal, Monitor::DataType emDataType, QString strContext,
                                QColor colorOccurred, QColor colorCompleted, int32_t iMaxVal, int32_t iMinVal)
 {
     m_pEventMonitor->registMonitorItem(pvVal, emDataType, strContext,  colorOccurred, colorCompleted, iMaxVal, iMinVal);

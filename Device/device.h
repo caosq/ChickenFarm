@@ -2,16 +2,22 @@
 #define DEVICE_H
 
 #include <QObject>
+#include <QWidget>
 
-class Device : public QObject
+class Device : public QWidget
 {
     Q_OBJECT
 public:
-    explicit Device();
+    explicit Device(QWidget *parent = nullptr);
 
     void dataChanged(void* pvArg);
+
 signals:
     void valChanged(void* pvArg);
+
+public:
+
+     uint8_t       m_usDeviceIndex = 0;          //设备标号
 
 };
 

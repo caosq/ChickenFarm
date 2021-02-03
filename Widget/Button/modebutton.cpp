@@ -3,7 +3,7 @@
 #define SP_X 3
 #define SP_Y 3
 
-#define M_BC "#008888"
+#define M_BC "#27CEE0"
 #define M_TC "#dfd8c8"
 #define M_HL "#678db2"
 #define M_HLTC "#ffffff"
@@ -158,7 +158,7 @@ QPixmap *ModeButton::pixmap = nullptr;
 ModeButton::ModeButton(QWidget *parent) :
     Button(parent),m_pMonitor(nullptr)
 {
-    _dtype = eDataType::Uint16t;
+    _dtype = Monitor::Uint16t;
 
     defValState = true;
     enableValMarker = true;
@@ -198,7 +198,7 @@ ModeButton* ModeButton::forefather()
     return father;
 }
 
-bool ModeButton::setMonitorData(void* pvVal, eDataType emDataType)
+bool ModeButton::setMonitorData(void* pvVal, Monitor::DataType emDataType)
 {
     m_pMonitor = DataMonitor::monitorRegist(pvVal, emDataType);
 

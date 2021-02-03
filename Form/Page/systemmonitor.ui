@@ -428,7 +428,7 @@ border-image: url(:/UI/Frame/按键.png);</string>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>5</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="modularAirPage">
     <widget class="QFrame" name="frame_3">

@@ -15,7 +15,7 @@ EventMonitor::EventMonitor(QString strDirPath, QObject *parent) :
 
 }
 
-void EventMonitor::registMonitorItem(void* pvVal, eDataType emDataType, QString strContext,
+void EventMonitor::registMonitorItem(void* pvVal, Monitor::DataType emDataType, QString strContext,
                                QColor colorOccurred, QColor colorCompleted, int32_t iMaxVal, int32_t iMinVal)
 {
     sEventItem tempEvent = {strContext, colorOccurred, colorCompleted};

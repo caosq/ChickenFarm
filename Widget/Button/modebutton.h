@@ -64,7 +64,7 @@ public:
     static ModeButton* forefather();
 
     //设置数据地址
-    bool setMonitorData(void* pvVal = nullptr, eDataType emDataType = Uint16t);
+    bool setMonitorData(void* pvVal = nullptr, Monitor::DataType emDataType = Monitor::Uint16t);
 
     //设置字体颜色，group决定color所属状态
     void setTextColor(QPalette::ColorGroup group,QColor color);
@@ -159,7 +159,7 @@ private:
     bool save;
     bool automaticAttack;
 
-    eDataType _dtype;
+    Monitor::DataType _dtype;
 
     privateMenu *_menu;
 

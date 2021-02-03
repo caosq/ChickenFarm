@@ -3,8 +3,8 @@
 #define CHILDREN_SPEC 5
 #define DEF_LENGTH 750
 
-#define RIGHT_BT_PATH ":/images/baseFile/scRightBt.png"
-#define LEFT_BT_PATH ":/images/baseFile/scLeftBt.png"
+#define RIGHT_BT_PATH ":/UI/baseFile/scRightBt.png"
+#define LEFT_BT_PATH ":/UI/baseFile/scLeftBt.png"
 
 #include <QDebug>
 

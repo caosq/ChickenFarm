@@ -41,7 +41,7 @@ public:
     eButtonState getCurrentState();
 
     //设置数据的绑定
-    bool setMonitorData(void* pvVal = nullptr, eDataType emDataType = Uint16t);
+    bool setMonitorData(void* pvVal = nullptr, Monitor::DataType emDataType = Monitor::Uint16t);
 
     //设置数据与状态值的绑定关系
     bool setValueMap(eButtonState state, int val);
@@ -98,7 +98,7 @@ protected:
     bool save;
     bool automaticAttack;
 
-    eDataType   m_eDataType;
+    Monitor::DataType   m_eDataType;
 
 private:
     Monitor*    m_pMonitor;

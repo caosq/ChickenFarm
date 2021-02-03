@@ -64,7 +64,7 @@ StateButton *StateButton::forefather()
     return father;
 }
 
-bool StateButton::setMonitorData(void* pvVal, eDataType emDataType)
+bool StateButton::setMonitorData(void* pvVal, Monitor::DataType emDataType)
 {
     m_pMonitor = DataMonitor::monitorRegist(pvVal, emDataType);
 
@@ -233,7 +233,7 @@ void StateButton::paintEvent(QPaintEvent *e)
         {
             if(State0 == m_CurrentState)
             {
-                painter.drawPixmap(1,1,this->width(),this->height(),*(m_StateStyleVector[State0].pImage));
+                painter.drawPixmap(1,1,this->width()+100,this->height(),*(m_StateStyleVector[State0].pImage));
                 if(isEnabled())
                 {
                     painter.setPen(m_StateStyleVector[State0].activeColor);

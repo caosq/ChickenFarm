@@ -10,8 +10,8 @@
 #define SCALE_MAX       10
 #define SCALE_STEP      1
 
-#define WIDGET_WIDTH    850
-#define WIDGET_HIGHT    548
+#define WIDGET_WIDTH    920
+#define WIDGET_HIGHT    650
 
 #define MAX_CURVE   15
 
@@ -266,7 +266,8 @@ void g_qwtPlot::setStyle1()
 {
     _canvas->setFrameStyle(QFrame::Plain | QFrame::Panel);
     _canvas->setBorderRadius(0);
-    _canvas->setBackGroundColor(QColor(49,183,226,50));
+    _canvas->setBackGroundColor(QColor(0,0,0,255));
+
     setCanvas( _canvas );
 
     _grid->setMajorPen( QColor(49,183,226,80), 1, Qt::SolidLine );

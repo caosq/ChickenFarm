@@ -24,20 +24,20 @@ public:
     static AnalogValButton *forefather();
 
     //绑定数据地址
-    bool setMonitorData(void* pvVal = nullptr, eDataType emDataType = Uint16t);
+    bool setMonitorData(void* pvVal = nullptr, Monitor::DataType emDataType = Monitor::Uint16t);
 
     //当某个数据的最大最小是变量时可以使用该函数
-    bool setMaxValMonitor(void* pvVa = nullptr, eDataType emDataType = Uint16t);
+    bool setMaxValMonitor(void* pvVa = nullptr, Monitor::DataType emDataType = Monitor::Uint16t);
 
     //设置最小值的数据地址
-    bool setMinValMonitor(void* pvVal = nullptr, eDataType emDataType = Uint16t);
+    bool setMinValMonitor(void* pvVal = nullptr, Monitor::DataType emDataType = Monitor::Uint16t);
 
     //设置数据参数
-    void setDataParameter(eDataType emDataType, QString strUnit, uint8_t ucDecPoint,
-                          int32_t iMaxVal, int32_t iMinVal, int32_t iDefaultVal);
+    void setDataParameter(QString strUnit, uint8_t ucDecPoint, int32_t iDefaultVal,
+                          int32_t iMaxVal, int32_t iMinVal, Monitor::DataType emDataType);
 
     //设置数据类型
-    void setDataType(eDataType emDataType);
+    void setDataType(Monitor::DataType emDataType);
 
     //设置数据单位
     void setUnit(QString unit = "");
@@ -92,6 +92,10 @@ public:
     //father这两个函数作用于全部abutton实体，但必须是在father初始化之后
     void setFatherPixmap(STATE state, QString filePath);
 
+    //使能默认值标记
+    void enableDefaultMarker(bool ok){enableValMarker = ok;}
+
+
 protected:
     void paintEvent(QPaintEvent *e);
 
@@ -124,7 +128,7 @@ private:
     Monitor*    m_pMaxMonitor;
     Monitor*    m_pMinMonitor;
 
-    eDataType   m_eDataType;
+    Monitor::DataType   m_eDataType;
     QString     m_strUnit;
     QString     m_strCurrentText;
 

@@ -20,7 +20,7 @@ AnalogValButton::AnalogValButton(QWidget *parent) :
 {
     m_strUnit = "";
     m_ucDecPoint = 0;
-    m_eDataType = Uint16t;
+    m_eDataType = Monitor::Uint16t;
 
     defValState = true;
     enableValMarker = true;
@@ -57,21 +57,21 @@ AnalogValButton *AnalogValButton::forefather()
     return father;
 }
 
-bool AnalogValButton::setMonitorData(void* pvVal, eDataType emDataType)
+bool AnalogValButton::setMonitorData(void* pvVal, Monitor::DataType emDataType)
 {
     m_pMonitor = DataMonitor::monitorRegist(pvVal, emDataType);
 
     if(m_pMonitor != nullptr)
     {
-        connect(m_pMonitor, SIGNAL(valChange(uint)), this, SLOT(setValue(uint)));
+        connect(m_pMonitor, SIGNAL(valChanged(uint)), this, SLOT(setValue(uint)));
         setValue(m_pMonitor->getCurVal());
         return true;
     }
     return false;
 }
 
-void AnalogValButton::setDataParameter(eDataType emDataType, QString strUnit, uint8_t ucDecPoint,
-                                       int32_t iMaxVal, int32_t iMinVal, int32_t iDefaultVal)
+void AnalogValButton::setDataParameter(QString strUnit, uint8_t ucDecPoint, int32_t iDefaultVal,
+                                       int32_t iMaxVal, int32_t iMinVal, Monitor::DataType emDataType)
 {
     m_strUnit     = strUnit;
     m_iDefaultVal = iDefaultVal;
@@ -86,6 +86,7 @@ void AnalogValButton::setDataParameter(eDataType emDataType, QString strUnit, ui
         m_pMonitor->setValRange(iMaxVal, iMinVal);
         m_pMonitor->setValType(emDataType);
     }
+    setValue(m_iDefaultVal);
 }
 
 void AnalogValButton::setDecPoint(uint8_t ucDecPoint)
@@ -97,7 +98,7 @@ void AnalogValButton::setDecPoint(uint8_t ucDecPoint)
     m_ucDecPoint = ucDecPoint;
 }
 
-void AnalogValButton::setDataType(eDataType emDataType)
+void AnalogValButton::setDataType(Monitor::DataType emDataType)
 {
     m_eDataType = emDataType;
     if(m_pMonitor)
@@ -110,7 +111,7 @@ void AnalogValButton::setDataType(eDataType emDataType)
     }
 }
 
-bool AnalogValButton::setMaxValMonitor(void* pvVal, eDataType emDataType)
+bool AnalogValButton::setMaxValMonitor(void* pvVal, Monitor::DataType emDataType)
 {
     if(m_pMaxMonitor == nullptr)
     {
@@ -126,7 +127,7 @@ bool AnalogValButton::setMaxValMonitor(void* pvVal, eDataType emDataType)
     }
 }
 
-bool AnalogValButton::setMinValMonitor(void* pvVal, eDataType emDataType)
+bool AnalogValButton::setMinValMonitor(void* pvVal, Monitor::DataType emDataType)
 {
     if(m_pMinMonitor == nullptr)
     {
@@ -203,38 +204,38 @@ void AnalogValButton::setValue(uint32_t val)
 
     switch(m_eDataType)
     {
-    case eDataType::Uint8t:
-    case eDataType::Uint16t:
-    case eDataType::Uint32t:
+    case Monitor::Uint8t:
+    case Monitor::Uint16t:
+    case Monitor::Uint32t:
     {
         uint32_t tempval = uint32_t(defVal);
         m_iCurrentVal = val;
         defValState = (tempval == val) ? true:false;
-        m_strCurrentText = QString::number( val/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(m_strUnit );
+        m_strCurrentText = QString::number( val/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(" ").append(m_strUnit );
     }
         break;
-    case eDataType::Int8t:
+    case Monitor::Int8t:
     {
         int8_t tempval = val;
         m_iCurrentVal = tempval;
         defValState = (defVal == tempval) ? true:false;
-        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(m_strUnit );
+        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(" ").append(m_strUnit );
     }
         break;
-    case eDataType::Int16t:
+    case Monitor::Int16t:
     {
         int16_t tempval = val;
         m_iCurrentVal = tempval;
         defValState = (defVal == tempval) ? true:false;
-        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(m_strUnit );
+        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(" ").append(m_strUnit );
     }
         break;
-    case eDataType::Int32t:
+    case Monitor::Int32t:
     {
         int32_t tempval = val;
         m_iCurrentVal = tempval;
         defValState = (defVal == tempval) ? true:false;
-        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(m_strUnit );
+        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(" ").append(m_strUnit );
     }
         break;
     default:
@@ -253,26 +254,26 @@ void AnalogValButton::setMaxValue(uint32_t val)
 
     switch(m_eDataType)
     {
-    case eDataType::Uint8t:
-    case eDataType::Uint16t:
-    case eDataType::Uint32t:
+    case Monitor::Uint8t:
+    case Monitor::Uint16t:
+    case Monitor::Uint32t:
     {
         m_iMaxVal = val;
     }
         break;
-    case eDataType::Int8t:
+    case Monitor::Int8t:
     {
         int8_t tempval = val;
         m_iMaxVal = tempval;
     }
         break;
-    case eDataType::Int16t:
+    case Monitor::Int16t:
     {
         int16_t tempval = val;
         m_iMaxVal = tempval;
     }
         break;
-    case eDataType::Int32t:
+    case Monitor::Int32t:
     {
         int32_t tempval = val;
         m_iMaxVal = tempval;
@@ -292,26 +293,26 @@ void AnalogValButton::setMinValue(uint32_t val)
 
     switch(m_eDataType)
     {
-    case eDataType::Uint8t:
-    case eDataType::Uint16t:
-    case eDataType::Uint32t:
+    case Monitor::Uint8t:
+    case Monitor::Uint16t:
+    case Monitor::Uint32t:
     {
         m_iMinVal = val;
     }
         break;
-    case eDataType::Int8t:
+    case Monitor::Int8t:
     {
         int8_t tempval = val;
         m_iMinVal = tempval;
     }
         break;
-    case eDataType::Int16t:
+    case Monitor::Int16t:
     {
         int16_t tempval = val;
         m_iMinVal = tempval;
     }
         break;
-    case eDataType::Int32t:
+    case Monitor::Int32t:
     {
         int32_t tempval = val;
         m_iMinVal = tempval;
@@ -426,7 +427,6 @@ void AnalogValButton::paintEvent(QPaintEvent *e)
         {
             painter.drawPixmap(1, 1, this->width(), this->height(), *_pix0);
             painter.drawText(m_iMargin + 1, 1, this->width(),this->height(), m_alignment, m_strCurrentText);
-
         }
         else
         {
@@ -448,8 +448,6 @@ void AnalogValButton::paintEvent(QPaintEvent *e)
         }
         painter.drawText(m_iMargin, 0, this->width(), this->height(), m_alignment, m_strCurrentText);
     }
-
-   //this->setStyleSheet("background-color: transparent; border:none");
 
    if( !defValState && enableValMarker )
    {

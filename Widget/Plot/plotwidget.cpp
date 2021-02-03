@@ -1,17 +1,17 @@
 #include "plotwidget.h"
 
-#define ZOOM_PIX_OFF ":/images/baseFile/zoomOff.png"
-#define ZOOM_PIX_ON ":/images/baseFile/zoomOn.png"
-#define ZOOM_CLEAR ":/images/baseFile/zero.png"
-#define ZOOM_REDUCE ":/images/baseFile/reduce.png"
+#define ZOOM_PIX_OFF ":/UI/baseFile/zoomOff.png"
+#define ZOOM_PIX_ON ":/UI/baseFile/zoomOn.png"
+#define ZOOM_CLEAR ":/UI/baseFile/zero.png"
+#define ZOOM_REDUCE ":/UI/baseFile/reduce.png"
 
 //DEF_ZOOM_MARGIN_RIGHT_SPACE
 #define DEF_ZM_RS 90
 //DEF_ZOOM_MARGIN_BOTTOM_SPACE
-#define DEF_ZM_BS 110
+#define DEF_ZM_BS 140
 
-#define DEF_WIDTH 850
-#define DEF_HEIGHT 580
+#define DEF_WIDTH 920
+#define DEF_HEIGHT 600
 
 #define SCBAR_W_SPEC 40
 #define SCBAR_H_SPEC 5

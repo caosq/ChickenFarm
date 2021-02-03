@@ -5,6 +5,7 @@
 #include "modularair.h"
 #include "modularchiller.h"
 #include "chilledbump.h"
+#include "curve.h"
 
 namespace Ui {
 class MainForm;
@@ -25,6 +26,8 @@ private:
     ChilledBump*    m_psChilledBump_1;
     ChilledBump*    m_psChilledBump_2;
     ChilledBump*    m_psChilledBump_3;
+
+    Curve*          m_psCurve;
 
 };
 

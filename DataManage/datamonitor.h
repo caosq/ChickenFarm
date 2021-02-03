@@ -14,29 +14,29 @@
 
 typedef void(QObject::*pvObjEvent)(void* pvArg);
 
-enum eDataType{
-    Single,
-    Boolean,
-    Int8t,
-    Uint8t,
-    Int16t,
-    Uint16t,
-    Int32t,
-    Uint32t,
-};
-
 class Monitor : public QObject
 {
     Q_OBJECT
 
 public:
 
-    explicit  Monitor(void* pvVal, eDataType emDataType, uint16_t usDataId, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
+    enum DataType{
+        Single,
+        Boolean,
+        Int8t,
+        Uint8t,
+        Int16t,
+        Uint16t,
+        Int32t,
+        Uint32t,
+    };
+
+    explicit  Monitor(void* pvVal, DataType eDataType, uint16_t usDataId, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
 
     friend class DataMonitor;
 
     void setValRange(int32_t iMaxVal, int32_t iMinVal);
-    void setValType(eDataType emDataType);
+    void setValType(DataType emDataType);
     void setValue(uint32_t uiVal);
 
     uint8_t  getValType();
@@ -49,7 +49,7 @@ private:
     int32_t    m_iMaxVal;
     int32_t    m_iMinVal;
     uint16_t   m_usDataId;    //全局标示
-    eDataType  m_eDataType;  //数据类型
+    DataType  m_DataType;  //数据类型
 
 signals:
     void valChanged(Monitor*);
@@ -81,7 +81,7 @@ public:
     static uint16_t g_usMonitorID;
     static sMonitorMapList*  g_psMonitorMapList;
 
-    static Monitor* monitorRegist(void* pvVal, eDataType emDataType, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
+    static Monitor* monitorRegist(void* pvVal, Monitor::DataType emDataType, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
     static void* monitorPollTask(void *pvArg);
 
     static DataMonitor* getInstance();

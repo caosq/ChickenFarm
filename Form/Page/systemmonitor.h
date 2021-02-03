@@ -15,9 +15,6 @@ public:
     explicit SystemMonitor(QWidget *parent = nullptr);
     ~SystemMonitor();
 
-private slots:
-    void on_pushButton_clicked();
-
 private:
     Ui::SystemMonitor *ui;
 };

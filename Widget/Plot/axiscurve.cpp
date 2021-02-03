@@ -14,7 +14,7 @@ axisCurve::axisCurve(QWidget *parent) :
 {
     plotLayout()->setAlignCanvasToScales( true );
 
-    canvas()->setStyleSheet("background-color:rgba(0,0,0,0);");
+    canvas()->setStyleSheet("background-color:rgba(100,0,0,255);");
 
 
     _scaleXDraw = new g_qwtScaleDraw;

@@ -9,7 +9,7 @@
 DataLabel *DataLabel::father = nullptr;
 QFont *DataLabel::fatherFont = nullptr;
 
-DataLabel::DataLabel(QWidget *parent, eLabelType mLabelType, eDataType meDataType):
+DataLabel::DataLabel(QWidget *parent, eLabelType mLabelType, Monitor::DataType meDataType):
     QLabel(parent)
 {
     m_eLabelType = mLabelType;
@@ -44,7 +44,7 @@ DataLabel *DataLabel::forefather()
     return father;
 }
 
-bool DataLabel::setMonitorData(void* pvVal, eDataType emDataType)
+bool DataLabel::setMonitorData(void* pvVal, Monitor::DataType emDataType)
 {
     m_pMonitor = DataMonitor::monitorRegist(pvVal, emDataType);
 
@@ -57,7 +57,14 @@ bool DataLabel::setMonitorData(void* pvVal, eDataType emDataType)
     return false;
 }
 
-void DataLabel::setDataType(eDataType emDataType)
+void DataLabel::setDataParameter(QString unit, uint8_t dot, Monitor::DataType emDataType)
+{
+    m_strUnit = unit;
+    m_eDataType = emDataType;
+    setDecPoint(dot);
+}
+
+void DataLabel::setDataType(Monitor::DataType emDataType)
 {
     m_eDataType = emDataType;
     if(m_pMonitor)
@@ -199,26 +206,26 @@ void DataLabel::showData(unsigned int val)
 {
     switch(m_eDataType)
     {
-    case eDataType::Uint8t:
-    case eDataType::Uint16t:
-    case eDataType::Uint32t:
+    case Monitor::Uint8t:
+    case Monitor::Uint16t:
+    case Monitor::Uint32t:
     {
         setText(QString::number( val/uint32_t(qPow(10, m_ucDecPoint)), '.', m_ucDecPoint).append(m_strUnit) );
     }
         break;
-    case eDataType::Int8t:
+    case Monitor::Int8t:
     {
         int8_t tempval = val;
         setText(QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(m_strUnit) );
     }
         break;
-    case eDataType::Int16t:
+    case Monitor::Int16t:
     {
         int16_t tempval = val;
         setText(QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(m_strUnit) );
     }
         break;
-    case eDataType::Int32t:
+    case Monitor::Int32t:
     {
         int32_t tempval = val;
         setText(QString::number( tempval/uint32_t(qPow(10, m_ucDecPoint)), '.', m_ucDecPoint).append(m_strUnit) );
@@ -236,9 +243,9 @@ void DataLabel::showText(unsigned int val)
 
     switch(m_eDataType)
     {
-    case eDataType::Uint8t:
-    case eDataType::Uint16t:
-    case eDataType::Uint32t:
+    case Monitor::Uint8t:
+    case Monitor::Uint16t:
+    case Monitor::Uint32t:
     {
         if( m_TextMap.contains(val) )
         {
@@ -246,7 +253,7 @@ void DataLabel::showText(unsigned int val)
         }
     }
         break;
-    case eDataType::Int8t:
+    case Monitor::Int8t:
     {
         int8_t tempval = val;
         if( m_TextMap.contains(tempval) )
@@ -255,7 +262,7 @@ void DataLabel::showText(unsigned int val)
         }
     }
         break;
-    case eDataType::Int16t:
+    case Monitor::Int16t:
     {
         int16_t tempval = val;
         if( m_TextMap.contains(tempval) )
@@ -264,7 +271,7 @@ void DataLabel::showText(unsigned int val)
         }
     }
         break;
-    case eDataType::Int32t:
+    case Monitor::Int32t:
     {
         int32_t tempval = val;
         if( m_TextMap.contains(tempval) )
@@ -287,9 +294,9 @@ void DataLabel::showColor(unsigned int val)
     temp.backgroundColor = QColor(Qt::black);
 
     switch(m_eDataType){
-    case eDataType::Uint8t:
-    case eDataType::Uint16t:
-    case eDataType::Uint32t:
+    case Monitor::Uint8t:
+    case Monitor::Uint16t:
+    case Monitor::Uint32t:
     {
         if( m_TextMap.contains(val) )
         {
@@ -297,7 +304,7 @@ void DataLabel::showColor(unsigned int val)
         }
     }
         break;
-    case eDataType::Int8t:
+    case Monitor::Int8t:
     {
         int8_t tempval = val;
         if( m_TextMap.contains(tempval) )
@@ -306,7 +313,7 @@ void DataLabel::showColor(unsigned int val)
         }
     }
         break;
-    case eDataType::Int16t:
+    case Monitor::Int16t:
     {
         int16_t tempval = val;
         if( m_TextMap.contains(tempval) )
@@ -315,7 +322,7 @@ void DataLabel::showColor(unsigned int val)
         }
     }
         break;
-    case eDataType::Int32t:
+    case Monitor::Int32t:
     {
         int32_t tempval = val;
         if( m_TextMap.contains(tempval) )
@@ -336,29 +343,29 @@ void DataLabel::showImage(unsigned int val)
     temp.pixmap = 0;
 
     switch(m_eDataType){
-    case eDataType::Uint8t:
-    case eDataType::Uint16t:
-    case eDataType::Uint32t:{
+    case Monitor::Uint8t:
+    case Monitor::Uint16t:
+    case Monitor::Uint32t:{
         if( m_TextMap.contains(val) ){
             temp = m_TextMap.value(val);
         }
     }
         break;
-    case eDataType::Int8t:{
+    case Monitor::Int8t:{
         int8_t tempval = val;
         if( m_TextMap.contains(tempval) ){
             temp = m_TextMap.value(val);
         }
     }
         break;
-    case eDataType::Int16t:{
+    case Monitor::Int16t:{
         int16_t tempval = val;
         if( m_TextMap.contains(tempval) ){
             temp = m_TextMap.value(val);
         }
     }
         break;
-    case eDataType::Int32t:{
+    case Monitor::Int32t:{
         int32_t tempval = val;
         if( m_TextMap.contains(tempval) ){
             temp = m_TextMap.value(val);
@@ -368,7 +375,6 @@ void DataLabel::showImage(unsigned int val)
     default:
         break;
     }
-
     if(temp.pixmap)
     {
         setPixmap(*(temp.pixmap));

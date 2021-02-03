@@ -12,79 +12,64 @@ namespace Ui {
 class ModularChiller;
 }
 
-class ModularChiller : public QWidget
+class ModularChiller : public Device
 {
     Q_OBJECT
+public:
+
+    typedef enum
+    {
+        CMD_OPEN  = 0x00AA,
+        CMD_CLOSE = 0x0055,
+    }SwitchCmd;
+
+    typedef enum   /*运行模式*/
+    {
+        RUN_MODE_COOL     = 1,      //供冷
+        RUN_MODE_HEAT     = 2,      //供热
+        RUN_MODE_DEFROST  = 3,      //化霜
+    }RunningMode;
+
+
+    uint16_t      m_usUnitID;          //机型ID
+    uint16_t      m_usProtocolVer;     //协议版本
+
+    SwitchCmd     m_eSwitchCmd;        //启停命令
+    RunningMode   m_eRunningModeCmd;   //机组运行工作模式设定
+
+    int16_t       m_sRetWaterTemp;     //平均回水温度
+    bool          m_xCommErr;          //通讯故障
+    bool          m_xErrClean;         //故障清除
+
+    static uint8_t  m_usModularChillerCount;  //机组数量
+
+private:
+
+    QVector<TextLabel*> m_Labels;
+
+
+    StateButton   *m_pSwitchCmdBtn;        //启停命令
+    ModeButton    *m_pRunningModeCmdBtn;   //机组运行工作模式设定
+
+    DataLabel     *m_pRetWaterTempLabel;     //平均回水温度
+    DataLabel     *m_pCommErrLabel;          //通讯故障
+    DataLabel     *m_pErrCleanLabel;         //故障清除
+
+private:
+    void initLabel();
+    void initButton();
+
 
 public:
     explicit ModularChiller(QWidget *parent = nullptr);
     ~ModularChiller();
 
-    uint16_t      m_UnitID;                 //机型ID
-    uint16_t      m_ProtocolVer;            //协议版本
-
-    //eFuncMode     m_FuncMode;               //功能设定
-    //eRunningMode  m_RunningMode;            //运行模式设定
-    //eSwitchCmd    m_SwitchCmd;              //启停命令
-    //eSwitchCmd    m_SwitchState;            //启停状态(实际下发命令)
-
-    int16_t       m_sRetAirTemp;               //回风温度
-    int16_t       m_SupAir_T;               //送风温度
-
-    uint16_t      m_RetAir_Vol;             //回风风量
-    uint16_t      m_SupAir_Vol;             //送风风量
-    uint16_t      m_usFreAir_Vol;             //新风风
-    uint16_t      m_RetAirDamper_Ang;       //回风阀当前开度
-    uint16_t      m_FreAirDamper_Ang;       //新风阀当前开
-    uint16_t      m_CoolTempSet;            //制冷温度值设定
-    uint16_t      m_HeatTempSet;            //制热温度值设定
-    uint16_t      m_FreAirSet_Vol;          //目标新风风量设定
-
-    int16_t       m_AmbientIn_T;             //室内环境温度(群控检测)
-    int16_t       m_AmbientInSelf_T;         //室内环境温度
-    uint16_t      m_AmbientIn_H;             //室内环境湿度(群控检测)
-    uint16_t      m_AmbientInSelf_H;         //室内环境湿度
-    int16_t       m_AmbientOutSelf_T;        //室外环境温度
-    uint16_t      m_AmbientOutSelf_H;        //室外环境湿度
-    uint16_t      m_CO2PPM;                  //CO2平均浓度(群控检测)
-    uint16_t      m_CO2PPMSelf;              //CO2平均浓度
-    uint16_t      m_CO2AdjustThr_V;          //CO2浓度调节阈值
-    uint16_t      m_CO2AdjustDeviat;         //CO2浓度调节
-
-    bool          m_xCommErr;                 //通讯故障
-    bool          m_StopErrFlag;             //停整机故障标志
-    bool          m_ErrClean;                //故障清除
-    bool          m_CO2SenErr;               //CO2传感器故障(群控下发)
-    bool          m_TempSenInErr;            //室内温度传感器故障(群控下发)
-    bool          m_HumiSenInErr;            //室内湿度传感器故障(群控下发)
-    bool          m_TempSenInSelfErr;        //室内温度传感器故障(机组)
-    bool          m_HumiSenInSelfErr;        //室内湿度传感器故障(机组)
-    bool          m_RetAirSenErr;            //回风风速传感器故障
-    bool          m_FreAirSenErr;            //新风风速传感器故障
-    bool          m_CO2SenSelfErr_1;         //CO2传感器故障1(机组)
-    bool          m_CO2SenSelfErr_2;         //CO2传感器故障2(机组)
-    bool          m_SupAirDamperState;       //送风风阀状态
-    bool          m_WetMode;                 //湿膜加湿
-    bool          m_CompRunning;             //压缩机运行
-    uint16_t      m_HumidityMax;             //设定湿度max
-    uint16_t      m_HumidityMin;             //设定湿度min
-
-
-    Modular* m_psModular1;
-    Modular* m_psModular2;
-
-    AnalogValButton *m_pButton;
-    DataLabel *m_pLabel;
-
-    StateButton *debugMod;
-
-    ModeButton *waterType;
-
-private slots:
-    void on_pushButton_clicked();
 
 private:
     Ui::ModularChiller *ui;
+
+    QVector<Modular*>  m_Modulars;
+
 };
 
 #endif // MODULARCHILLER_H

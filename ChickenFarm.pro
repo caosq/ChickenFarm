@@ -32,6 +32,7 @@ INCLUDEPATH += /usr/local/qwt/qwt-6.1.2-x64/include \
             Device \
             DataManage \
             Form/Module \
+            Form/Page \
             Form \
             System \
             Main
@@ -105,6 +106,7 @@ SOURCES += \
         Form/Module/pressuresensor.cpp \
         Form/Module/temphumisensor.cpp \
         Form/Module/tempsensor.cpp \
+        Form/Page/curve.cpp \
         Form/Page/systemmonitor.cpp \
         System/system.cpp \
         Widget/Button/analogvalbutton.cpp \
@@ -201,6 +203,7 @@ HEADERS += \
         Form/Module/pressuresensor.h \
         Form/Module/temphumisensor.h \
         Form/Module/tempsensor.h \
+    Form/Page/curve.h \
         Form/Page/systemmonitor.h \
         System/system.h \
         Form/mainform.h \
@@ -264,6 +267,7 @@ FORMS += \
         Form/Module/pressuresensor.ui \
         Form/Module/temphumisensor.ui \
         Form/Module/tempsensor.ui \
+        Form/Page/curve.ui \
         Form/Page/systemmonitor.ui \
         Form/mainform.ui
 

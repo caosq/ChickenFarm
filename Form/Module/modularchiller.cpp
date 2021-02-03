@@ -11,8 +11,34 @@
 
 #define MB_PIX2 ":UI/baseFile/mbPix2.png"
 
+#define MODULAR_NUM_IN_CHILLER  2
+
+#define MODULAR_UP_MARGIN     30
+#define MODULAR_LEFT_MARGIN   15
+
+
+#define LABEL_COLUMNS  2
+#define LABEL_ROWS     3
+
+#define LABEL_SIZE       140, 25
+#define LABEL_FONT_SIZE  14
+
+#define LABEL_UP_MARGIN     30
+#define LABEL_LEFT_MARGIN   80
+#define LABEL_INTERVAL_H    260
+#define LABEL_INTERVAL_V    35
+
+#define DATA_LABEL_SIZE  110, 25
+
+#define DATA_LABEL_UP_MARGIN    30
+#define DATA_LABEL_LEFT_MARGIN  210
+#define DATA_LABEL_INTERVAL_H   300
+#define DATA_LABEL_INTERVAL_V   35
+
+uint8_t ModularChiller::m_usModularChillerCount = 0;
+
 ModularChiller::ModularChiller(QWidget *parent) :
-    QWidget(parent),
+    Device(parent),
     ui(new Ui::ModularChiller)
 {
     ui->setupUi(this);
@@ -20,50 +46,47 @@ ModularChiller::ModularChiller(QWidget *parent) :
    // m_psModular1 = new Modular(ui->frame_4);
    // m_psModular2 = new Modular(ui->frame_5);
 
-    AnalogValButton::forefather()->setFatherPixmap(AnalogValButton::press,AB_PRESS_PIX);
-    AnalogValButton::forefather()->setFatherPixmap(AnalogValButton::release,AB_RELEASE_PIX);
+    ModularChiller::m_usModularChillerCount++;
+    this->m_usDeviceIndex = m_usModularChillerCount;
 
-    m_pButton = new AnalogValButton(ui->frame_2);
-    m_pButton->setGeometry(0,0,100,30);
-
-    // m_pLabel = new DataLabel(ui->frame_2);
-
-     //m_pLabel->setText("hahha");
-
-
-    StateButton::forefather()->setFatherPixmap(eButtonState::State0,SBUTTON_STATE0);
-    StateButton::forefather()->setFatherPixmap(eButtonState::State1,SBUTTON_STATE1);
-    StateButton::forefather()->setFatherFontSize(12);
-
-    debugMod = new StateButton(ui->frame_2);
-    debugMod->setGeometry(200,0,100,30);
-    debugMod->setStateText(eButtonState::State0,tr("屏蔽"));
-    debugMod->setStateText(eButtonState::State1,tr("开启"));
-    debugMod->setDeafultState(eButtonState::State0);
-
-
-    ModeButton::forefather()->setFatherPixmap(MB_PIX2);
-
-    waterType = new ModeButton(ui->frame_2);
-    waterType->setGeometry(100,0,100,30);
-    waterType->setItem(0,tr("无  "));
-    waterType->setItem(1,tr("类型一"));
-    waterType->setItem(2,tr("类型二"));
-    waterType->setItem(3,tr("类型三"));
-    waterType->setItem(4,tr("类型四"));
-    waterType->setDefaultValue(0);
-
-
+    Modular *psModular = nullptr;
+    for( uint8_t i = 0; i < MODULAR_NUM_IN_CHILLER; i++)
+    {
+        psModular = new Modular(ui->frame);
+        psModular->setGeometry(MODULAR_LEFT_MARGIN + i * psModular->width(), ui->frame_2->height(),
+                               psModular->width(), psModular->height());
+        m_Modulars.append(psModular);
+    }
+    initLabel();
 }
+
+void ModularChiller::initLabel()
+{
+    TextLabel *pLabel = nullptr;
+
+    for(uint8_t n = 0; n < LABEL_ROWS; n++)
+    {
+        for(uint8_t m = 0; m < LABEL_COLUMNS; m++)
+        {
+            pLabel = new TextLabel(ui->frame_2);
+            pLabel->setGeometry( LABEL_LEFT_MARGIN + m * LABEL_INTERVAL_H,
+                                 LABEL_UP_MARGIN + n * LABEL_INTERVAL_V,
+                                 LABEL_SIZE);
+            m_Labels.append(pLabel);
+        }
+    }
+    m_Labels[0]->setText(tr("模块状态"), LABEL_FONT_SIZE);
+    m_Labels[1]->setText(tr("进水温度"), LABEL_FONT_SIZE);
+    m_Labels[2]->setText(tr("出水温度"), LABEL_FONT_SIZE);
+    m_Labels[3]->setText(tr("运行标志"), LABEL_FONT_SIZE);
+    m_Labels[4]->setText(tr("水流开关"), LABEL_FONT_SIZE);
+
+    ui->label->setText(QString::number(this->m_usDeviceIndex) + "# 机组");
+    //ui->label->setGeometry(128, 15, ui->label->width(), ui->label->height());
+}
+
 
 ModularChiller::~ModularChiller()
 {
     delete ui;
-}
-
-void ModularChiller::on_pushButton_clicked()
-{
-    static messageBox universalMsg;
-    universalMsg.setInformativeText("hello");
-    universalMsg.show();
 }

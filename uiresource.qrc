@@ -119,5 +119,6 @@
         <file>UI/baseFile/zero.png</file>
         <file>UI/baseFile/zoomOff.png</file>
         <file>UI/baseFile/zoomOn.png</file>
+        <file>UI/Frame/TableBk.png</file>
     </qresource>
 </RCC>
