@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ModularChillerPage</class>
+ <widget class="QWidget" name="ModularChillerPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>920</width>
+    <height>633</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QStackedWidget" name="modularChillerStackedWidget">
+   <property name="geometry">
+    <rect>
+     <x>248</x>
+     <y>16</y>
+     <width>673</width>
+     <height>569</height>
+    </rect>
+   </property>
+   <widget class="QWidget" name="page_2"/>
+  </widget>
+  <widget class="QFrame" name="frame_1">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>400</y>
+     <width>249</width>
+     <height>193</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame_6{
+border-image: url(:/UI/Widget/System_Chiller_5.png);}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>48</y>
+     <width>249</width>
+     <height>313</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame_5{
+border-image: url(:/UI/Widget/System_Chiller_1.png);}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

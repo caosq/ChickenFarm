@@ -31,9 +31,9 @@ INCLUDEPATH += /usr/local/qwt/qwt-6.1.2-x64/include \
             Widget/Time \
             Device \
             DataManage \
-            Form/Module \
-            Form/Page \
-            Form \
+            Window/Module \
+            Window/Page \
+            Window/Form \
             System \
             Main
 
@@ -91,23 +91,20 @@ SOURCES += \
         Comm/modbus.cpp \
         DataManage/datamonitor.cpp \
         DataManage/datasave.cpp \
-        Device/bump.cpp \
         Device/controller.cpp \
         Device/device.cpp \
-        Device/fan.cpp \
-        Device/sensor.cpp \
-        Form/Module/axialfan.cpp \
-        Form/Module/butterflyvalve.cpp \
-        Form/Module/chilledbump.cpp \
-        Form/Module/co2sensor.cpp \
-        Form/Module/modular.cpp \
-        Form/Module/modularair.cpp \
-        Form/Module/modularchiller.cpp \
-        Form/Module/pressuresensor.cpp \
-        Form/Module/temphumisensor.cpp \
-        Form/Module/tempsensor.cpp \
-        Form/Page/curve.cpp \
-        Form/Page/systemmonitor.cpp \
+        Window/Module/axialfan.cpp \
+        Window/Module/butterflyvalve.cpp \
+        Window/Module/chilledbump.cpp \
+        Window/Module/co2sensor.cpp \
+        Window/Module/modular.cpp \
+        Window/Module/modularair.cpp \
+        Window/Module/modularchiller.cpp \
+        Window/Module/pressuresensor.cpp \
+        Window/Module/temphumisensor.cpp \
+        Window/Module/tempsensor.cpp \
+        Window/Form/curve.cpp \
+        Window/Form/systemmonitor.cpp \
         System/system.cpp \
         Widget/Button/analogvalbutton.cpp \
         Widget/Button/button.cpp \
@@ -158,7 +155,13 @@ SOURCES += \
         Widget/Time/m_calender.cpp \
         Widget/Time/timesetting.cpp \
         Main/main.cpp \
-        Form/mainform.cpp
+        Window/Form/mainform.cpp \
+        Window/Page/axialfanpage.cpp \
+        Window/Page/bumppage.cpp \
+        Window/Page/modularairpage.cpp \
+        Window/Page/modularchillerpage.cpp \
+        Window/Page/sensorpage.cpp \
+        Window/Page/valvepage.cpp
 
 HEADERS += \
         Comm/FreeModbus/config/mbconfig.h \
@@ -187,26 +190,23 @@ HEADERS += \
         Comm/FreeModbus/utils/mbutils.h \
         Comm/modbus.h \
         DataManage/datamonitor.h \
-    DataManage/datasave.h \
-        Device/bump.h \
+        DataManage/datasave.h \
         Device/controller.h \
         Device/device.h \
-        Device/fan.h \
-        Device/sensor.h \
-        Form/Module/axialfan.h \
-        Form/Module/butterflyvalve.h \
-        Form/Module/chilledbump.h \
-        Form/Module/co2sensor.h \
-        Form/Module/modular.h \
-        Form/Module/modularair.h \
-        Form/Module/modularchiller.h \
-        Form/Module/pressuresensor.h \
-        Form/Module/temphumisensor.h \
-        Form/Module/tempsensor.h \
-    Form/Page/curve.h \
-        Form/Page/systemmonitor.h \
+        Window/Module/axialfan.h \
+        Window/Module/butterflyvalve.h \
+        Window/Module/chilledbump.h \
+        Window/Module/co2sensor.h \
+        Window/Module/modular.h \
+        Window/Module/modularair.h \
+        Window/Module/modularchiller.h \
+        Window/Module/pressuresensor.h \
+        Window/Module/temphumisensor.h \
+        Window/Module/tempsensor.h \
+        Window/Form/curve.h \
+        Window/Form/systemmonitor.h \
         System/system.h \
-        Form/mainform.h \
+        Window/Form/mainform.h \
         Widget/Button/analogvalbutton.h \
         Widget/Button/button.h \
         Widget/Button/modebutton.h \
@@ -254,22 +254,34 @@ HEADERS += \
     Widget/Plot/qwtscrollbarbutton.h \
     Widget/Time/analogclock.h \
     Widget/Time/m_calender.h \
-    Widget/Time/timesetting.h
+    Widget/Time/timesetting.h \
+    Window/Page/axialfanpage.h \
+    Window/Page/bumppage.h \
+    Window/Page/modularairpage.h \
+    Window/Page/modularchillerpage.h \
+    Window/Page/sensorpage.h \
+    Window/Page/valvepage.h
 
 FORMS += \
-        Form/Module/axialfan.ui \
-        Form/Module/butterflyvalve.ui \
-        Form/Module/chilledbump.ui \
-        Form/Module/co2sensor.ui \
-        Form/Module/modular.ui \
-        Form/Module/modularair.ui \
-        Form/Module/modularchiller.ui \
-        Form/Module/pressuresensor.ui \
-        Form/Module/temphumisensor.ui \
-        Form/Module/tempsensor.ui \
-        Form/Page/curve.ui \
-        Form/Page/systemmonitor.ui \
-        Form/mainform.ui
+        Window/Module/axialfan.ui \
+        Window/Module/butterflyvalve.ui \
+        Window/Module/chilledbump.ui \
+        Window/Module/co2sensor.ui \
+        Window/Module/modular.ui \
+        Window/Module/modularair.ui \
+        Window/Module/modularchiller.ui \
+        Window/Module/pressuresensor.ui \
+        Window/Module/temphumisensor.ui \
+        Window/Module/tempsensor.ui \
+        Window/Form/curve.ui \
+        Window/Form/systemmonitor.ui \
+        Window/Form/mainform.ui \
+        Window/Page/axialfanpage.ui \
+        Window/Page/bumppage.ui \
+        Window/Page/modularairpage.ui \
+        Window/Page/modularchillerpage.ui \
+        Window/Page/sensorpage.ui \
+        Window/Page/valvepage.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

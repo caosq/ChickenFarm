@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ModularChiller</class>
+ <widget class="QWidget" name="ModularChiller">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>641</width>
+    <height>581</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>-10</x>
+     <y>20</y>
+     <width>661</width>
+     <height>569</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame{border-image: url(:/UI/Widget/System_Air_1.png);}
+</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QFrame" name="frame_2">
+    <property name="geometry">
+     <rect>
+      <x>16</x>
+      <y>16</y>
+      <width>625</width>
+      <height>145</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#frame_2{
+border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="label_24">
+     <property name="geometry">
+      <rect>
+       <x>24</x>
+       <y>8</y>
+       <width>25</width>
+       <height>129</height>
+      </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>252</red>
+           <green>175</green>
+           <blue>62</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>252</red>
+           <green>175</green>
+           <blue>62</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>190</red>
+           <green>190</green>
+           <blue>190</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
+     <property name="toolTipDuration">
+      <number>-1</number>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string>机
+组
+参
+数</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignJustify|Qt::AlignTop</set>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>0</y>
+     <width>101</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="palette">
+    <palette>
+     <active>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>239</red>
+         <green>41</green>
+         <blue>41</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </active>
+     <inactive>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>239</red>
+         <green>41</green>
+         <blue>41</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </inactive>
+     <disabled>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>190</red>
+         <green>190</green>
+         <blue>190</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </disabled>
+    </palette>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font: 63 oblique 16pt &quot;URW Gothic L&quot;;</string>
+   </property>
+   <property name="text">
+    <string>xxx #机组</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

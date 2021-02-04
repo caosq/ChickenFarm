@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SensorPage</class>
+ <widget class="QWidget" name="SensorPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>920</width>
+    <height>633</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QFrame" name="frame_12">
+   <property name="geometry">
+    <rect>
+     <x>31</x>
+     <y>440</y>
+     <width>417</width>
+     <height>137</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame_12{
+border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_5">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>8</y>
+      <width>401</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_5"/>
+   </widget>
+  </widget>
+  <widget class="QFrame" name="frame_13">
+   <property name="geometry">
+    <rect>
+     <x>464</x>
+     <y>24</y>
+     <width>441</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame_13{
+border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_6">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>8</y>
+      <width>425</width>
+      <height>153</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_6"/>
+   </widget>
+  </widget>
+  <widget class="QFrame" name="frame_14">
+   <property name="geometry">
+    <rect>
+     <x>472</x>
+     <y>248</y>
+     <width>417</width>
+     <height>137</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame_14{
+border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_7">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>8</y>
+      <width>401</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_7"/>
+   </widget>
+  </widget>
+  <widget class="QFrame" name="frame_15">
+   <property name="geometry">
+    <rect>
+     <x>472</x>
+     <y>432</y>
+     <width>417</width>
+     <height>137</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame_15{
+border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_8">
+    <property name="geometry">
+     <rect>
+      <x>8</x>
+      <y>8</y>
+      <width>401</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_8"/>
+   </widget>
+  </widget>
+  <widget class="QFrame" name="frame_9">
+   <property name="geometry">
+    <rect>
+     <x>32</x>
+     <y>24</y>
+     <width>417</width>
+     <height>385</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame_9{
+border-image: url(:/UI/Widget/System_Sensor_1.png);}
+</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_4">
+    <property name="geometry">
+     <rect>
+      <x>16</x>
+      <y>16</y>
+      <width>385</width>
+      <height>353</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_4"/>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

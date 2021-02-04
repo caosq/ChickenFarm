@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AxialFanPage</class>
+ <widget class="QWidget" name="AxialFanPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>920</width>
+    <height>633</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QWidget" name="gridLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>296</x>
+     <y>16</y>
+     <width>609</width>
+     <height>593</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2"/>
+  </widget>
+  <widget class="QFrame" name="frame_10">
+   <property name="geometry">
+    <rect>
+     <x>16</x>
+     <y>56</y>
+     <width>265</width>
+     <height>377</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame_10
+{border-image: url(:/UI/Widget/System_Bump_1.png);}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
