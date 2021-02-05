@@ -2,6 +2,11 @@
 #define AXIALFANPAGE_H
 
 #include <QWidget>
+#include "textlabel.h"
+#include "statebutton.h"
+#include "modebutton.h"
+#include "datalabel.h"
+#include "analogvalbutton.h"
 
 namespace Ui {
 class AxialFanPage;
@@ -10,6 +15,20 @@ class AxialFanPage;
 class AxialFanPage : public QWidget
 {
     Q_OBJECT
+
+private:
+
+    QVector<TextLabel*> m_Labels;
+    QVector<QWidget*>   m_Widgets;
+
+    StateButton     *m_pSwitchCmdBtn;        //启停命令
+    AnalogValButton *m_pFreqSetBtn;          //频率设置
+
+    StateButton    *m_pErrorCleanCmdBtn;   //故障清除
+
+private:
+    void initLabel();
+    void initButton();
 
 public:
     explicit AxialFanPage(QWidget *parent = nullptr);

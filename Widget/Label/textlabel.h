@@ -15,7 +15,7 @@ public:
     //这个类不具备数据绑定监视功能
     explicit TextLabel(QWidget *parent = nullptr);
 
-    TextLabel(int size = 20,QColor textColor = Qt::white,QWidget *parent = nullptr);
+    TextLabel(int size = 20, QColor textColor = Qt::white,QWidget *parent = nullptr);
 
     static TextLabel *forefather();
 
@@ -46,6 +46,8 @@ public:
 private:
     static TextLabel   *father;
     static QFont    fatherFont;
+
+    int m_iTextSize = 14;
 
 private slots:
     void fontSlot();

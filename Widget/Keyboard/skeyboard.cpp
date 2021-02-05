@@ -91,9 +91,12 @@ void skeyboard::hideSlot()
 
 void skeyboard::setAlwaysStay(bool state)
 {
-    if( state ){
+    if(state)
+    {
 //        disconnect(ScreenSaver::instance(),SIGNAL(isTimeToBack()),this,SLOT(hideSlot()));
-    }else{
+    }
+    else
+    {
 //        connect(ScreenSaver::instance(),SIGNAL(isTimeToBack()),this,SLOT(hideSlot()));
     }
 }

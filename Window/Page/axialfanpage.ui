@@ -24,7 +24,7 @@
    </property>
    <layout class="QGridLayout" name="gridLayout_2"/>
   </widget>
-  <widget class="QFrame" name="frame_10">
+  <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
      <x>16</x>

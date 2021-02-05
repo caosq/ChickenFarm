@@ -22,19 +22,9 @@ StateButton::StateButton(QWidget *parent) :
     m_DefaultState = State0;
     m_CurrentState = State0;
 
-    sStateStyle strTextuct0 = {
-        pixmap0,
-        "",
-        QColor(activeColor_COLOR),
-        QColor(INactiveColor_COLOR),
-        0};
+    StateStyle strTextuct0 = {pixmap0, "", QColor(activeColor_COLOR), QColor(INactiveColor_COLOR), 0};
 
-    sStateStyle strTextuct1 = {
-        pixmap1,
-        "",
-        QColor(activeColor_COLOR),
-        QColor(INactiveColor_COLOR),
-        1};
+    StateStyle strTextuct1 = {pixmap1, "", QColor(activeColor_COLOR), QColor(INactiveColor_COLOR), 1};
 
     m_StateStyleVector.resize(0);
     m_StateStyleVector.append(strTextuct0);
@@ -42,8 +32,6 @@ StateButton::StateButton(QWidget *parent) :
 
     m_StateValMap.insert(State0, 0);
     m_StateValMap.insert(State1, 1);
-
-    setFixedSize(75,30);
 
     //setPermission(fatherLevel);
     if(father)
@@ -77,38 +65,38 @@ bool StateButton::setMonitorData(void* pvVal, Monitor::DataType emDataType)
     return false;
 }
 
-void StateButton::setDeafultState(eButtonState state)
+void StateButton::setDeafultState(ButtonState state)
 {
     m_DefaultState = state;
     defValState = (m_DefaultState == m_CurrentState) ? true:false;
     update();
 }
 
-bool StateButton::setValueMap(eButtonState state,int val)
+bool StateButton::setValueMap(ButtonState state,int val)
 {
     m_StateValMap.insert(state,val);
     return true;
 }
 
-void StateButton::setStateText(eButtonState state, QString strText)
+void StateButton::setStateText(ButtonState state, QString strText)
 {
     m_StateStyleVector[state].strText = strText;
     update();
 }
 
-void StateButton::setPixmap(eButtonState state, QPixmap *pixmap)
+void StateButton::setPixmap(ButtonState state, QPixmap *pixmap)
 {
     m_StateStyleVector[state].pImage = pixmap;
     update();
 }
 
-void StateButton::setStateActiveTextColor(eButtonState state, QColor color)
+void StateButton::setStateActiveTextColor(ButtonState state, QColor color)
 {
      m_StateStyleVector[state].activeColor = color;
     update();
 }
 
-void StateButton::setStateInactiveTextColor(eButtonState state, QColor color)
+void StateButton::setStateInactiveTextColor(ButtonState state, QColor color)
 {
      m_StateStyleVector[state].inactiveColor = color;
     update();
@@ -126,7 +114,7 @@ void StateButton::setFatherFontSize(int size)
     }
 }
 
-void StateButton::setFatherPixmap(eButtonState state, QString filePath)
+void StateButton::setFatherPixmap(ButtonState state, QString filePath)
 {
     if(father == this)
     {
@@ -138,7 +126,8 @@ void StateButton::setFatherPixmap(eButtonState state, QString filePath)
             {
                 pixmap0->load(filePath);
             }
-            else{
+            else
+            {
                 pixmap0 = new QPixmap(filePath);
             }
         }
@@ -163,7 +152,7 @@ void StateButton::setFatherPixmap(eButtonState state, QString filePath)
 
 void StateButton::setValue(unsigned int val)
 {
-    eButtonState state =  m_StateValMap.key(val);
+    ButtonState state =  m_StateValMap.key(val);
     if(Error != state)
     {
         m_CurrentState = state;
@@ -179,7 +168,7 @@ void StateButton::setTextSize(int size)
     setFont(font);
 }
 
-void StateButton::setText(eButtonState state, const QString &text)
+void StateButton::setText(ButtonState state, const QString &text)
 {
     if( State0 == state )
     {
@@ -209,13 +198,13 @@ void StateButton::fontSlot()
 void StateButton::clickedSlot()
 {
     int tempVal = 0;
-    if( m_CurrentState == eButtonState::State0)
+    if( m_CurrentState == ButtonState::State0)
     {
-        tempVal = m_StateValMap.value(eButtonState::State1);
+        tempVal = m_StateValMap.value(ButtonState::State1);
     }
-    else if( m_CurrentState == eButtonState::State1)
+    else if( m_CurrentState == ButtonState::State1)
     {
-        tempVal = m_StateValMap.value(eButtonState::State0);
+        tempVal = m_StateValMap.value(ButtonState::State0);
     }
     else
     {
@@ -233,7 +222,7 @@ void StateButton::paintEvent(QPaintEvent *e)
         {
             if(State0 == m_CurrentState)
             {
-                painter.drawPixmap(1,1,this->width()+100,this->height(),*(m_StateStyleVector[State0].pImage));
+                painter.drawPixmap(1,1,this->width(),this->height(),*(m_StateStyleVector[State0].pImage));
                 if(isEnabled())
                 {
                     painter.setPen(m_StateStyleVector[State0].activeColor);

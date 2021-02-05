@@ -69,9 +69,9 @@ void ChilledBump::initButton()
 {
     //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame);
-    m_pSwitchCmdBtn->setStateText(eButtonState::State0,tr("关闭"));
-    m_pSwitchCmdBtn->setStateText(eButtonState::State1,tr("开启"));
-    m_pSwitchCmdBtn->setDeafultState(eButtonState::State0);
+    m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
+    m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
+    m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //频率设置
@@ -127,8 +127,8 @@ void ChilledBump::initButton()
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
     {
-        m = i / 1;
-        n = i % 1;
+        m = i / LABEL_COLUMNS;
+        n = i % LABEL_COLUMNS;
         m_Widgets[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + n * DATA_LABEL_INTERVAL_H,
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);

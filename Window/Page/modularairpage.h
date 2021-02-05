@@ -35,8 +35,11 @@ private:
     AnalogValButton  *m_pHumiSetBtn;     //目标湿度设定
     AnalogValButton  *m_pCO2SetBtn;      //目标CO2设定
 
-    DataLabel      *m_pPowerLabel;           //实时功率
-    DataLabel      *m_pTotalEnergyLabel;     //累计耗电量
+    StateButton    *m_pErrorCleanCmdBtn;   //故障清除
+
+    DataLabel      *m_pPowerLabel;         //实时功率
+    DataLabel      *m_pTotalEnergyLabel;   //累计耗电量
+
 
 private:
     void initDevice();
@@ -46,6 +49,9 @@ private:
 public:
     explicit ModularAirPage(QWidget *parent = nullptr);
     ~ModularAirPage();
+
+private slots:
+    void on_pushButton_clicked();
 
 private:
     Ui::ModularAirPage *ui;

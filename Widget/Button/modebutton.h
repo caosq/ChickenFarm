@@ -25,10 +25,10 @@ public:
     explicit privateMenu(QWidget *parent = nullptr);
 
     void setColorStyle(menuStyle style);
-    void setBackgroundColor(QString color);
-    void setHighlightColor(QString color);
-    void setTextColor(QString color);
-    void setHightlightTextColor(QString color);
+    void setBackgroundColor(QColor color);
+    void setHighlightColor(QColor color);
+    void setTextColor(QColor color);
+    void setHightlightTextColor(QColor color);
 
 private:
     void setCurrentItem(int id);

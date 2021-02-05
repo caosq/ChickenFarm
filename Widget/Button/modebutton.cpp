@@ -1,3 +1,4 @@
+//#include <QFontMetrics>
 #include "modebutton.h"
 
 #define SP_X 3
@@ -20,16 +21,19 @@ privateMenu::privateMenu(QWidget *parent) :
     QMenu(parent)
 {
     setContentsMargins(-15,0,0,0);
-    setMinimumWidth(parent->width());
+    setMaximumWidth(parent->width());
 }
 
 void privateMenu::setItem(int id, QString text)
 {
-    if( !_acmap.contains(id) ){
+    if( !_acmap.contains(id) )
+    {
         QAction *temp = addAction(text,this,SLOT(actionSlot()));
         temp->setData(id);
         _acmap.insert(id,temp);
-    }else{
+    }
+    else
+    {
         QAction *temp = _acmap.value(id);
         temp->setText(text);
     }
@@ -64,9 +68,9 @@ void privateMenu::setColorStyle(privateMenu::menuStyle style)
     setTextColor(style._Text);  
 }
 
-void privateMenu::setBackgroundColor(QString color)
+void privateMenu::setBackgroundColor(QColor color)
 {
-/*    QPalette palette = this->palette();
+    QPalette palette = this->palette();
     palette.setBrush(this->backgroundRole(),QBrush(color));
     palette.setBrush(QPalette::Normal,QPalette::Dark,QBrush(color));
     palette.setBrush(QPalette::Normal,QPalette::Light,QBrush(color));
@@ -74,46 +78,30 @@ void privateMenu::setBackgroundColor(QString color)
     palette.setBrush(QPalette::Normal,QPalette::Shadow,QBrush(color));
 
     setPalette(palette);
-*/
-//    setStyleSheet("background-color: rgba(191, 64, 64, 100)");
-//    setStyleSheet("background-color:  #678db2");
 
-     privateMenu::m_styleSheet._Background = color;
-     setMenuStyleSheet();
 }
 
-void privateMenu::setHighlightColor(QString color)
+void privateMenu::setHighlightColor(QColor color)
 {
-/*    QPalette palette = this->palette();
+    QPalette palette = this->palette();
     palette.setBrush(QPalette::Normal,QPalette::Highlight,QBrush(color));
     setPalette(palette);
-*/
-    privateMenu::m_styleSheet._Highlight = color;
-    setMenuStyleSheet();
+
 }
 
-void privateMenu::setTextColor(QString color)
+void privateMenu::setTextColor(QColor color)
 {
-/*    QPalette palette = this->palette();
+    QPalette palette = this->palette();
     palette.setBrush(QPalette::Normal,QPalette::WindowText,QBrush(color));
     palette.setBrush(QPalette::Normal,QPalette::ButtonText,QBrush(color));
     setPalette(palette);
-*/
-    privateMenu::m_styleSheet._Text = color;
-    setMenuStyleSheet();
-
 }
 
-void privateMenu::setHightlightTextColor(QString color)
+void privateMenu::setHightlightTextColor(QColor color)
 {
-/*    QPalette palette = this->palette();
+    QPalette palette = this->palette();
     palette.setBrush(QPalette::Normal,QPalette::HighlightedText,QBrush(color));
-
     setPalette(palette);
-*/
-    privateMenu::m_styleSheet._HightlightText = color;
-    setMenuStyleSheet();
-
 }
 
 void privateMenu::setMenuStyleSheet()

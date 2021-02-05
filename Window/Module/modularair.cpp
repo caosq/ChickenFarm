@@ -10,14 +10,14 @@
 
 #define LABEL_UP_MARGIN     30
 #define LABEL_LEFT_MARGIN   30
-#define LABEL_INTERVAL_H    300
+#define LABEL_INTERVAL_H    290
 #define LABEL_INTERVAL_V    35
 
-#define DATA_LABEL_SIZE  110, 25
+#define DATA_LABEL_SIZE  100, 25
 
 #define DATA_LABEL_UP_MARGIN    30
-#define DATA_LABEL_LEFT_MARGIN  210
-#define DATA_LABEL_INTERVAL_H   300
+#define DATA_LABEL_LEFT_MARGIN  190
+#define DATA_LABEL_INTERVAL_H   290
 #define DATA_LABEL_INTERVAL_V   35
 
 uint8_t ModularAir::m_usModularAirCount = 0;
@@ -93,9 +93,9 @@ void ModularAir::initButton()
 {
      //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame);
-    m_pSwitchCmdBtn->setStateText(eButtonState::State0,tr("关闭"));
-    m_pSwitchCmdBtn->setStateText(eButtonState::State1,tr("开启"));
-    m_pSwitchCmdBtn->setDeafultState(eButtonState::State0);
+    m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
+    m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
+    m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //机组运行工作模式设定

@@ -51,11 +51,13 @@ void aKeyBoard::initValueShow(double value, double max, double min, int dot)
 
     //最大值标签
     maxValuelLabel->setText(QString::number(max/qPow(10,dot),'.',dot));
+
     //最小值标签
     minValuelLabel->setText(QString::number(min/qPow(10,dot),'.',dot));
 
     if( _fontMetrics->width(maxValuelLabel->text()) > maxValuelLabel->width() ||
-            _fontMetrics->width(minValuelLabel->text()) > minValuelLabel->width()){
+        _fontMetrics->width(minValuelLabel->text()) > minValuelLabel->width())
+    {
         maxValuelLabel->setText(OVERFLOW_STR);
         minValuelLabel->setText(OVERFLOW_STR);
     }
@@ -71,15 +73,19 @@ void aKeyBoard::setupUi()
     maxLabel = new TextLabel(this);
     maxLabel->setAlignment(Qt::AlignCenter);
     maxLabel->setGeometry(12,6,50,30);
+    maxLabel->setText("最大",textControl::size20);
 
     maxValuelLabel = new TextLabel(this);
     maxValuelLabel->setTextSize(22);
     maxValuelLabel->setAlignment(Qt::AlignCenter);
     maxValuelLabel->setGeometry(55,6,95,30);
 
+
+
     minLabel = new TextLabel(this);
     minLabel->setAlignment(Qt::AlignCenter);
     minLabel->setGeometry(153,6,50,30);
+    minLabel->setText(tr("最小"), textControl::size20);
 
     minValuelLabel = new TextLabel(this);
     minValuelLabel->setTextSize(22);
@@ -87,6 +93,9 @@ void aKeyBoard::setupUi()
     minValuelLabel->setGeometry(203,6,95,30);
 
     _fontMetrics = new QFontMetrics(minValuelLabel->font());
+
+
+
 
     //数值0
     digitButton[0] = new keyButton(this);
@@ -152,10 +161,10 @@ void aKeyBoard::setChinese()
     cancelButton->setText("退出");
     enterButton->setText("确认");
 
-    //maxLabel->setTextSize(textControl::size20);
+    maxLabel->setTextSize(textControl::size20);
     maxLabel->setText("最大");
 
-   // minLabel->setTextSize(textControl::size20);
+    minLabel->setTextSize(textControl::size20);
     minLabel->setText("最小");
 }
 
@@ -165,10 +174,10 @@ void aKeyBoard::setEnglish()
     cancelButton->setText("CE");
     enterButton->setText("ENT");
 
-  //  maxLabel->setTextSize(textControl::size20);
+    maxLabel->setTextSize(textControl::size20);
     maxLabel->setText("Max");
 
-//    minLabel->setTextSize(textControl::size20);
+    minLabel->setTextSize(textControl::size20);
     minLabel->setText("Min");
 }
 
@@ -276,8 +285,9 @@ void aKeyBoard::clearClicked()
 
 aKeyBoard *aKeyBoard::instance()
 {
-    if( core == NULL ){
-        core = new aKeyBoard;
+    if(core == nullptr)
+    {
+        core = new aKeyBoard();
     }
     return core;
 }

@@ -40,7 +40,7 @@ TextLabel *TextLabel::forefather()
 
 void TextLabel::setText(const QString text)
 {
-    setText(text);
+    setText(text, m_iTextSize);
 }
 
 void TextLabel::setText(const QString text, int size)
@@ -79,6 +79,7 @@ void TextLabel::setTextSize(int size)
     font.setPointSize(size);
 
     setFont(font);
+    m_iTextSize = size;
 }
 
 void TextLabel::setTextSize(textControl::textSize size)

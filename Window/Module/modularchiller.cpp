@@ -86,9 +86,9 @@ void ModularChiller::initButton()
 {
     //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame_2);
-    m_pSwitchCmdBtn->setStateText(eButtonState::State0,tr("关闭"));
-    m_pSwitchCmdBtn->setStateText(eButtonState::State1,tr("开启"));
-    m_pSwitchCmdBtn->setDeafultState(eButtonState::State0);
+    m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
+    m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
+    m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //机组运行工作模式设定
