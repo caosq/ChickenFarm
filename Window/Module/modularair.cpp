@@ -13,7 +13,7 @@
 #define LABEL_INTERVAL_H    290
 #define LABEL_INTERVAL_V    35
 
-#define DATA_LABEL_SIZE  100, 25
+#define DATA_LABEL_SIZE  80, 25
 
 #define DATA_LABEL_UP_MARGIN    30
 #define DATA_LABEL_LEFT_MARGIN  190
@@ -309,7 +309,6 @@ void ModularAir::initButton()
     m_pFreAirSenErrLabel->setAlignment(Qt::AlignLeft);
     m_pFreAirSenErrLabel->setValueMap(0,tr("正常"));
     m_pFreAirSenErrLabel->setValueMap(1,tr("故障"));
-    m_pFreAirSenErrLabel->setBackGroundColor("#165588");
     m_pFreAirSenErrLabel->setText("#165588", LABEL_FONT_SIZE);
     m_Widgets.append(m_pFreAirSenErrLabel);
 

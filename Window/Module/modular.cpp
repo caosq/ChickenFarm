@@ -6,21 +6,20 @@
 #define LABEL_COLUMNS  1
 #define LABEL_ROWS     8
 
-#define LABEL_SIZE       140, 25
+#define LABEL_SIZE       120, 25
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN     30
-#define LABEL_LEFT_MARGIN   15
+#define LABEL_LEFT_MARGIN   20
 #define LABEL_INTERVAL_H    300
 #define LABEL_INTERVAL_V    35
 
-#define DATA_LABEL_SIZE  110, 25
+#define DATA_LABEL_SIZE  100, 25
 
 #define DATA_LABEL_UP_MARGIN    30
-#define DATA_LABEL_LEFT_MARGIN  180
-#define DATA_LABEL_INTERVAL_H   300
+#define DATA_LABEL_LEFT_MARGIN  160
+#define DATA_LABEL_INTERVAL_H   220
 #define DATA_LABEL_INTERVAL_V   35
-
 
 Compressor::Compressor(QWidget *parent) :
     QWidget(parent)
@@ -101,7 +100,6 @@ void Modular::initButton()
     m_pModularStateLabel->setValueMap(1,tr("开机中"));
     m_pModularStateLabel->setValueMap(0,tr("关机中"));
     m_pModularStateLabel->setValueMap(1,tr("运行中"));
-    m_pModularStateLabel->setBackGroundColor("#165588");
     m_pModularStateLabel->setText("#165588", LABEL_FONT_SIZE);
     m_Widgets.append(m_pModularStateLabel);
 
@@ -110,7 +108,6 @@ void Modular::initButton()
     m_pInputWaterTempLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pInputWaterTempLabel->setAlignment(Qt::AlignLeft);
     m_pInputWaterTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
-    m_pInputWaterTempLabel->setBackGroundColor("#165588");
     m_pInputWaterTempLabel->setText("***", LABEL_FONT_SIZE);
     m_Widgets.append(m_pInputWaterTempLabel);
 
@@ -118,7 +115,6 @@ void Modular::initButton()
     m_pOutputWaterTempLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pOutputWaterTempLabel->setAlignment(Qt::AlignLeft);
     m_pOutputWaterTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
-    m_pOutputWaterTempLabel->setBackGroundColor("#165588");
     m_pOutputWaterTempLabel->setText("***", LABEL_FONT_SIZE);
     m_Widgets.append(m_pOutputWaterTempLabel);
 
@@ -127,7 +123,6 @@ void Modular::initButton()
     m_pRunningFlagLabel->setAlignment(Qt::AlignLeft);
     m_pRunningFlagLabel->setValueMap(0,tr("关闭"));
     m_pRunningFlagLabel->setValueMap(1,tr("运行"));
-    m_pRunningFlagLabel->setBackGroundColor("#165588");
     m_pRunningFlagLabel->setText("#165588", LABEL_FONT_SIZE);
     m_Widgets.append(m_pRunningFlagLabel);
 
@@ -136,7 +131,6 @@ void Modular::initButton()
     m_pWaterValveLabel->setAlignment(Qt::AlignLeft);
     m_pWaterValveLabel->setValueMap(0,tr("关闭"));
     m_pWaterValveLabel->setValueMap(1,tr("运行"));
-    m_pWaterValveLabel->setBackGroundColor("#165588");
     m_pWaterValveLabel->setText("#165588", LABEL_FONT_SIZE);
     m_Widgets.append(m_pWaterValveLabel);
 
@@ -145,7 +139,6 @@ void Modular::initButton()
     m_pErrorFlagLabel->setAlignment(Qt::AlignLeft);
     m_pErrorFlagLabel->setValueMap(0,tr("关闭"));
     m_pErrorFlagLabel->setValueMap(1,tr("运行"));
-    m_pErrorFlagLabel->setBackGroundColor("#165588");
     m_pErrorFlagLabel->setText("#165588", LABEL_FONT_SIZE);
     m_Widgets.append(m_pErrorFlagLabel);
 
@@ -154,7 +147,6 @@ void Modular::initButton()
     m_pAlarmFlagLabel->setAlignment(Qt::AlignLeft);
     m_pAlarmFlagLabel->setValueMap(0,tr("关闭"));
     m_pAlarmFlagLabel->setValueMap(1,tr("运行"));
-    m_pAlarmFlagLabel->setBackGroundColor("#165588");
     m_pAlarmFlagLabel->setText("#165588", LABEL_FONT_SIZE);
     m_Widgets.append(m_pAlarmFlagLabel);
 
@@ -162,14 +154,13 @@ void Modular::initButton()
     m_pRunnningCompCountLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pRunnningCompCountLabel->setAlignment(Qt::AlignLeft);
     m_pRunnningCompCountLabel->setDataParameter("个", 1, Monitor::Uint16t);
-    m_pRunnningCompCountLabel->setBackGroundColor("#165588");
     m_pRunnningCompCountLabel->setText("***", LABEL_FONT_SIZE);
     m_Widgets.append(m_pRunnningCompCountLabel);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
     {
-        m = i / 1;
-        n = i % 1;
+        m = i / LABEL_COLUMNS;
+        n = i % LABEL_COLUMNS;
         m_Widgets[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + n * DATA_LABEL_INTERVAL_H,
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);

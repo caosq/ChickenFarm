@@ -18,7 +18,8 @@ class ModularAirPage : public QWidget
 {
     Q_OBJECT
 
-public:    QVector<ModularAir*> m_ModularAirs;
+public:
+    QVector<ModularAir*> m_ModularAirs;
 
 private:
 

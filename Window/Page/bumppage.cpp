@@ -7,20 +7,32 @@
 #define LABEL_COLUMNS_2  1
 #define LABEL_ROWS_2     2
 
-#define LABEL_SIZE       140, 25
+#define LABEL_SIZE       120, 26
 #define LABEL_FONT_SIZE  14
 
-#define LABEL_UP_MARGIN     30
-#define LABEL_LEFT_MARGIN   30
-#define LABEL_INTERVAL_H    300
-#define LABEL_INTERVAL_V    35
+#define LABEL_UP_MARGIN_1     30
+#define LABEL_LEFT_MARGIN_1   30
+#define LABEL_INTERVAL_H_1    300
+#define LABEL_INTERVAL_V_1    40
 
-#define DATA_LABEL_SIZE  110, 25
+#define LABEL_UP_MARGIN_2     60
+#define LABEL_LEFT_MARGIN_2   30
+#define LABEL_INTERVAL_H_2    300
+#define LABEL_INTERVAL_V_2    40
 
-#define DATA_LABEL_UP_MARGIN    30
-#define DATA_LABEL_LEFT_MARGIN  210
-#define DATA_LABEL_INTERVAL_H   300
-#define DATA_LABEL_INTERVAL_V   35
+#define DATA_LABEL_SIZE  100, 26
+
+#define DATA_LABEL_UP_MARGIN_1    30
+#define DATA_LABEL_LEFT_MARGIN_1  140
+#define DATA_LABEL_INTERVAL_H_1   300
+#define DATA_LABEL_INTERVAL_V_1   40
+
+#define DATA_LABEL_UP_MARGIN_2    60
+#define DATA_LABEL_LEFT_MARGIN_2  150
+#define DATA_LABEL_INTERVAL_H_2   300
+#define DATA_LABEL_INTERVAL_V_2   40
+
+#define BUMP_NUM   3
 
 BumpPage::BumpPage(QWidget *parent) :
     QWidget(parent),
@@ -28,6 +40,7 @@ BumpPage::BumpPage(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    initDevice();
     initLabel();
     initButton();
 }
@@ -36,6 +49,21 @@ BumpPage::~BumpPage()
 {
     delete ui;
 }
+
+void BumpPage::initDevice()
+{
+    ChilledBump* pChilledBump = nullptr;
+    for(uint8_t n = 0, x = 0, y = 0; n < BUMP_NUM; n++)
+    {
+        x = n / 2;
+        y = n % 2;
+
+        pChilledBump = new ChilledBump();
+        m_ChilledBumps.append(pChilledBump);
+        ui->gridLayout->addWidget(pChilledBump, x, y );
+    }
+}
+
 
 void BumpPage::initLabel()
 {
@@ -46,8 +74,8 @@ void BumpPage::initLabel()
         for(uint8_t m = 0; m < LABEL_COLUMNS_1; m++)
         {
             pLabel = new TextLabel(ui->frame);
-            pLabel->setGeometry( LABEL_LEFT_MARGIN + m * LABEL_INTERVAL_H,
-                                 LABEL_UP_MARGIN + n * LABEL_INTERVAL_V,
+            pLabel->setGeometry( LABEL_LEFT_MARGIN_1 + m * LABEL_INTERVAL_H_1,
+                                 LABEL_UP_MARGIN_1 + n * LABEL_INTERVAL_V_1,
                                  LABEL_SIZE);
             m_Labels_1.append(pLabel);
         }
@@ -64,8 +92,8 @@ void BumpPage::initLabel()
         for(uint8_t m = 0; m < LABEL_COLUMNS_2; m++)
         {
             pLabel = new TextLabel(ui->frame_1);
-            pLabel->setGeometry( LABEL_LEFT_MARGIN + m * LABEL_INTERVAL_H,
-                                 LABEL_UP_MARGIN + n * LABEL_INTERVAL_V,
+            pLabel->setGeometry( LABEL_LEFT_MARGIN_2 + m * LABEL_INTERVAL_H_2,
+                                 LABEL_UP_MARGIN_2 + n * LABEL_INTERVAL_V_2,
                                  LABEL_SIZE);
             m_Labels_2.append(pLabel);
         }
@@ -97,17 +125,16 @@ void BumpPage::initButton()
     m_pErrorCleanCmdBtn->setDeafultState(StateButton::State0);
     m_Widgets_1.append(m_pErrorCleanCmdBtn);
 
-
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets_1.count(); i++)
     {
         m = i / LABEL_COLUMNS_1;
         n = i % LABEL_COLUMNS_1;
-        m_Widgets_1[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + n * DATA_LABEL_INTERVAL_H,
-                                  DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
+        m_Widgets_1[i]->setGeometry(DATA_LABEL_LEFT_MARGIN_1 + n * DATA_LABEL_INTERVAL_H_1,
+                                  DATA_LABEL_UP_MARGIN_1 + m * DATA_LABEL_INTERVAL_V_1,
                                   DATA_LABEL_SIZE);
     }
     //实时功率
-    m_pPowerLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pPowerLabel = new DataLabel(ui->frame_1, DataLabel::Text);
     m_pPowerLabel->setAlignment(Qt::AlignLeft);
     m_pPowerLabel->setDataParameter("kW", 1, Monitor::Uint16t);
     m_pPowerLabel->setBackGroundColor("#165588");
@@ -115,7 +142,7 @@ void BumpPage::initButton()
     m_Widgets_2.append(m_pPowerLabel);
 
     //累计耗电量
-    m_pTotalEnergyLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pTotalEnergyLabel = new DataLabel(ui->frame_1, DataLabel::Text);
     m_pTotalEnergyLabel->setAlignment(Qt::AlignLeft);
     m_pTotalEnergyLabel->setDataParameter("kWh", 1, Monitor::Uint16t);
     m_pTotalEnergyLabel->setBackGroundColor("#165588");
@@ -126,8 +153,8 @@ void BumpPage::initButton()
     {
         m = i / LABEL_COLUMNS_2;
         n = i % LABEL_COLUMNS_2;
-        m_Widgets_2[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + n * DATA_LABEL_INTERVAL_H,
-                                  DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
+        m_Widgets_2[i]->setGeometry(DATA_LABEL_LEFT_MARGIN_2 + n * DATA_LABEL_INTERVAL_H_2,
+                                  DATA_LABEL_UP_MARGIN_2 + m * DATA_LABEL_INTERVAL_V_2,
                                   DATA_LABEL_SIZE);
     }
 

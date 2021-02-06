@@ -9,6 +9,7 @@
 #include "statebutton.h"
 #include "modebutton.h"
 #include "analogvalbutton.h"
+#include "chilledbump.h"
 
 namespace Ui {
 class BumpPage;
@@ -17,6 +18,8 @@ class BumpPage;
 class BumpPage : public QWidget
 {
     Q_OBJECT
+public:
+    QVector<ChilledBump*> m_ChilledBumps;
 
 private:
     QVector<TextLabel*> m_Labels_1;
@@ -34,6 +37,7 @@ private:
     DataLabel      *m_pTotalEnergyLabel;   //累计耗电量
 
 private:
+    void initDevice();
     void initLabel();
     void initButton();
 

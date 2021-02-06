@@ -7,6 +7,8 @@
 #include "modebutton.h"
 #include "datalabel.h"
 #include "analogvalbutton.h"
+#include "axialfan.h"
+#include "windowfan.h"
 
 namespace Ui {
 class AxialFanPage;
@@ -15,6 +17,9 @@ class AxialFanPage;
 class AxialFanPage : public QWidget
 {
     Q_OBJECT
+public:
+    QVector<AxialFan*> m_AxialFans;
+    QVector<WindowFan*> m_WindowFans;
 
 private:
 
@@ -24,9 +29,10 @@ private:
     StateButton     *m_pSwitchCmdBtn;        //启停命令
     AnalogValButton *m_pFreqSetBtn;          //频率设置
 
-    StateButton    *m_pErrorCleanCmdBtn;   //故障清除
+    StateButton    *m_pErrorCleanCmdBtn;     //故障清除
 
 private:
+    void initDevice();
     void initLabel();
     void initButton();
 

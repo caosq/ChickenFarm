@@ -22,8 +22,6 @@
 #define LABEL_INTERVAL_H_2    300
 #define LABEL_INTERVAL_V_2    40
 
-
-
 #define DATA_LABEL_SIZE  100, 26
 
 #define DATA_LABEL_UP_MARGIN_1    30
@@ -35,8 +33,6 @@
 #define DATA_LABEL_LEFT_MARGIN_2  170
 #define DATA_LABEL_INTERVAL_H_2   300
 #define DATA_LABEL_INTERVAL_V_2   40
-
-
 
 #define MODULAR_NUM   2
 
@@ -58,12 +54,12 @@ ModularAirPage::~ModularAirPage()
 
 void ModularAirPage::initDevice()
 {
-    ModularAir* m_psModularAir = nullptr;
+    ModularAir* pModularAir = nullptr;
     for(uint8_t n = 0; n < MODULAR_NUM; n++)
     {
-        m_psModularAir = new ModularAir();
-        m_ModularAirs.append(m_psModularAir);
-        ui->modularAirStackedWidget->insertWidget(n, m_psModularAir);
+        pModularAir = new ModularAir();
+        m_ModularAirs.append(pModularAir);
+        ui->modularAirStackedWidget->insertWidget(n, pModularAir);
     }
 }
 

@@ -17,8 +17,8 @@ class AxialFan;
 class AxialFan : public Device
 {
     Q_OBJECT
-public:
 
+public:
     typedef enum
     {
         CMD_CLOSE = 0,
@@ -27,8 +27,8 @@ public:
 
     SwitchCmd     m_eSwitchCmd;        //启停命令
 
-    uint8_t       m_usFreqSet;         //频率设置
-    uint8_t       m_usFreq;            //频率反馈
+    uint16_t       m_usFreqSet;         //频率设置
+    uint16_t       m_usFreq;            //频率反馈
 
     bool          m_xRemote;           //远程/本地
     bool          m_xRunningFlag;      //运行标志

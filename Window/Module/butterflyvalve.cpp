@@ -54,7 +54,7 @@ void ButterflyValve::initLabel()
             m_Labels.append(pLabel);
         }
     }
-    m_Labels[0]->setText(tr("启停命令"), LABEL_FONT_SIZE);
+    m_Labels[0]->setText(tr("开关控制"), LABEL_FONT_SIZE);
     m_Labels[1]->setText(tr("远程/本地"), LABEL_FONT_SIZE);
     m_Labels[2]->setText(tr("开到位"), LABEL_FONT_SIZE);
     m_Labels[3]->setText(tr("关到位"), LABEL_FONT_SIZE);
@@ -110,8 +110,8 @@ void ButterflyValve::initButton()
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
     {
-        m = i / 1;
-        n = i % 1;
+        m = i / LABEL_COLUMNS;
+        n = i % LABEL_COLUMNS;
         m_Widgets[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + n * DATA_LABEL_INTERVAL_H,
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);

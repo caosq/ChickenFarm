@@ -20,7 +20,7 @@
 #define LABEL_COLUMNS  2
 #define LABEL_ROWS     2
 
-#define LABEL_SIZE       140, 25
+#define LABEL_SIZE       120, 25
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN     30
@@ -28,7 +28,7 @@
 #define LABEL_INTERVAL_H    260
 #define LABEL_INTERVAL_V    40
 
-#define DATA_LABEL_SIZE  110, 25
+#define DATA_LABEL_SIZE  100, 25
 
 #define DATA_LABEL_UP_MARGIN    30
 #define DATA_LABEL_LEFT_MARGIN  210
@@ -74,7 +74,7 @@ void ModularChiller::initLabel()
         }
     }
     m_Labels[0]->setText(tr("启停命令"), LABEL_FONT_SIZE);
-    m_Labels[1]->setText(tr("工作模式设定"), LABEL_FONT_SIZE);
+    m_Labels[1]->setText(tr("工作模式"), LABEL_FONT_SIZE);
     m_Labels[2]->setText(tr("平均回水温度"), LABEL_FONT_SIZE);
     m_Labels[3]->setText(tr("通讯故障"), LABEL_FONT_SIZE);
 
@@ -105,7 +105,6 @@ void ModularChiller::initButton()
     m_pRetWaterTempLabel = new DataLabel(ui->frame_2, DataLabel::Text);
     m_pRetWaterTempLabel->setAlignment(Qt::AlignLeft);
     m_pRetWaterTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
-    m_pRetWaterTempLabel->setBackGroundColor("#165588");
     m_pRetWaterTempLabel->setText("***尔尔", LABEL_FONT_SIZE);
     m_Widgets.append(m_pRetWaterTempLabel);
 
@@ -114,14 +113,13 @@ void ModularChiller::initButton()
     m_pCommErrLabel->setAlignment(Qt::AlignLeft);
     m_pCommErrLabel->setValueMap(0,tr("正常"));
     m_pCommErrLabel->setValueMap(1,tr("故障"));
-    m_pCommErrLabel->setBackGroundColor("#165588");
     m_pCommErrLabel->setText("#165588", LABEL_FONT_SIZE);
     m_Widgets.append(m_pCommErrLabel);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
     {
-        m = i / 2;
-        n = i % 2;
+        m = i / LABEL_COLUMNS;
+        n = i % LABEL_COLUMNS;
         m_Widgets[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + n * DATA_LABEL_INTERVAL_H,
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);

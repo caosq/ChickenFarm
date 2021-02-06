@@ -6,6 +6,8 @@
 #include "modularchillerpage.h"
 #include "bumppage.h"
 #include "axialfanpage.h"
+#include "valvepage.h"
+#include "sensorpage.h"
 
 namespace Ui {
 class SystemMonitor;
@@ -21,6 +23,8 @@ private:
     ModularChillerPage  *m_pModularChillerPage;
     BumpPage            *m_pBumpPage;
     AxialFanPage        *m_pAxialFanPage;
+    ValvePage           *m_pValvePage;
+    SensorPage          *m_pSensorPage;
 
 private:
     void initLabel();

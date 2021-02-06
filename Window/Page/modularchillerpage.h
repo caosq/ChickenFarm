@@ -45,6 +45,9 @@ public:
     explicit ModularChillerPage(QWidget *parent = nullptr);
     ~ModularChillerPage();
 
+private slots:
+    void on_pushButton_clicked();
+
 private:
     Ui::ModularChillerPage *ui;
 };

@@ -95,6 +95,7 @@ SOURCES += \
         Device/device.cpp \
         Window/Module/axialfan.cpp \
         Window/Module/butterflyvalve.cpp \
+        Window/Module/bypassvalve.cpp \
         Window/Module/chilledbump.cpp \
         Window/Module/co2sensor.cpp \
         Window/Module/modular.cpp \
@@ -156,6 +157,7 @@ SOURCES += \
         Widget/Time/timesetting.cpp \
         Main/main.cpp \
         Window/Form/mainform.cpp \
+        Window/Module/windowfan.cpp \
         Window/Page/axialfanpage.cpp \
         Window/Page/bumppage.cpp \
         Window/Page/modularairpage.cpp \
@@ -195,6 +197,7 @@ HEADERS += \
         Device/device.h \
         Window/Module/axialfan.h \
         Window/Module/butterflyvalve.h \
+    Window/Module/bypassvalve.h \
         Window/Module/chilledbump.h \
         Window/Module/co2sensor.h \
         Window/Module/modular.h \
@@ -255,6 +258,7 @@ HEADERS += \
     Widget/Time/analogclock.h \
     Widget/Time/m_calender.h \
     Widget/Time/timesetting.h \
+    Window/Module/windowfan.h \
     Window/Page/axialfanpage.h \
     Window/Page/bumppage.h \
     Window/Page/modularairpage.h \
@@ -265,6 +269,7 @@ HEADERS += \
 FORMS += \
         Window/Module/axialfan.ui \
         Window/Module/butterflyvalve.ui \
+        Window/Module/bypassvalve.ui \
         Window/Module/chilledbump.ui \
         Window/Module/co2sensor.ui \
         Window/Module/modular.ui \
@@ -276,6 +281,7 @@ FORMS += \
         Window/Form/curve.ui \
         Window/Form/systemmonitor.ui \
         Window/Form/mainform.ui \
+        Window/Module/windowfan.ui \
         Window/Page/axialfanpage.ui \
         Window/Page/bumppage.ui \
         Window/Page/modularairpage.ui \

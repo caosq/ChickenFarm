@@ -17,7 +17,7 @@ signals:
 
 public:
 
-     uint8_t       m_usDeviceIndex = 0;          //设备标号
+     uint16_t   m_usDeviceIndex = 0;          //设备标号
 
 };
 

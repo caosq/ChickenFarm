@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>641</width>
-    <height>581</height>
+    <width>630</width>
+    <height>549</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>-10</x>
-     <y>20</y>
-     <width>661</width>
-     <height>569</height>
+     <x>0</x>
+     <y>24</y>
+     <width>633</width>
+     <height>521</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -37,7 +37,7 @@
      <rect>
       <x>16</x>
       <y>16</y>
-      <width>625</width>
+      <width>593</width>
       <height>145</height>
      </rect>
     </property>
@@ -123,10 +123,10 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>280</x>
+     <x>272</x>
      <y>0</y>
-     <width>101</width>
-     <height>21</height>
+     <width>105</width>
+     <height>25</height>
     </rect>
    </property>
    <property name="palette">
@@ -166,8 +166,13 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
      </disabled>
     </palette>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>16</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">font: 63 oblique 16pt &quot;URW Gothic L&quot;;</string>
+    <string notr="true"/>
    </property>
    <property name="text">
     <string>xxx #机组</string>
