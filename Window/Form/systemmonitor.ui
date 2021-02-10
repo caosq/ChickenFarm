@@ -145,7 +145,7 @@
 border-image: url(:/UI/Frame/按键.png);</string>
    </property>
    <property name="text">
-    <string>组  空</string>
+    <string>机  组</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_3">
@@ -280,7 +280,7 @@ border-image: url(:/UI/Frame/按键.png);</string>
 border-image: url(:/UI/Frame/按键.png);</string>
    </property>
    <property name="text">
-    <string>组  空</string>
+    <string>冷冻水泵</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_6">
@@ -415,7 +415,7 @@ border-image: url(:/UI/Frame/按键.png);</string>
 border-image: url(:/UI/Frame/按键.png);</string>
    </property>
    <property name="text">
-    <string>组  空</string>
+    <string>传感器</string>
    </property>
   </widget>
   <widget class="QStackedWidget" name="systemStackedWidget">
@@ -563,7 +563,7 @@ border-image: url(:/UI/Frame/按键.png);</string>
 border-image: url(:/UI/Frame/按键.png);</string>
    </property>
    <property name="text">
-    <string>组  空</string>
+    <string>蝶  阀</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton">
@@ -698,7 +698,7 @@ border-image: url(:/UI/Frame/按键.png);</string>
 border-image: url(:/UI/Frame/按键.png);</string>
    </property>
    <property name="text">
-    <string>组  空</string>
+    <string>组合柜</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_4">
@@ -833,7 +833,7 @@ border-image: url(:/UI/Frame/按键.png);</string>
 border-image: url(:/UI/Frame/按键.png);</string>
    </property>
    <property name="text">
-    <string>组  空</string>
+    <string>畜牧风机</string>
    </property>
   </widget>
  </widget>

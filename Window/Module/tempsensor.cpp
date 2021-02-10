@@ -12,19 +12,26 @@
 #define LABEL_INTERVAL_H    300
 #define LABEL_INTERVAL_V    35
 
-#define DATA_LABEL_SIZE  90, 25
+#define DATA_LABEL_SIZE  100, 25
 
-#define DATA_LABEL_UP_MARGIN    25
-#define DATA_LABEL_LEFT_MARGIN  170
+#define DATA_LABEL_UP_MARGIN    15
+#define DATA_LABEL_LEFT_MARGIN  100
 #define DATA_LABEL_INTERVAL_H   220
 #define DATA_LABEL_INTERVAL_V   35
 
+uint8_t TempSensor::m_usSensorCount = 0;
 
 TempSensor::TempSensor(QWidget *parent) :
     Device(parent),
     ui(new Ui::TempSensor)
 {
     ui->setupUi(this);
+
+    TempSensor::m_usSensorCount++;
+    this->m_usDeviceIndex = TempSensor::m_usSensorCount;
+
+    initLabel();
+    initButton();
 }
 
 TempSensor::~TempSensor()
@@ -34,7 +41,7 @@ TempSensor::~TempSensor()
 
 void TempSensor::initLabel()
 {
-    ui->label->setText("CHW-ST "+ QString::number(this->m_usDeviceIndex));
+    ui->label->setText("CHW-ST-"+ QString::number(this->m_usDeviceIndex));
 }
 
 void TempSensor::initButton()
@@ -43,8 +50,7 @@ void TempSensor::initButton()
     m_pTempLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pTempLabel->setAlignment(Qt::AlignLeft);
     m_pTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
-    m_pTempLabel->setBackGroundColor("#165588");
-    m_pTempLabel->setText("***", LABEL_FONT_SIZE);
+    m_pTempLabel->setText("166.6 ℃", LABEL_FONT_SIZE);
     m_Widgets.append(m_pTempLabel);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)

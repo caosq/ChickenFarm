@@ -135,9 +135,9 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
       <colorrole role="WindowText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>239</red>
-         <green>41</green>
-         <blue>41</blue>
+         <red>252</red>
+         <green>175</green>
+         <blue>62</blue>
         </color>
        </brush>
       </colorrole>
@@ -146,9 +146,9 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
       <colorrole role="WindowText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>239</red>
-         <green>41</green>
-         <blue>41</blue>
+         <red>252</red>
+         <green>175</green>
+         <blue>62</blue>
         </color>
        </brush>
       </colorrole>

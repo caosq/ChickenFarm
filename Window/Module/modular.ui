@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>16</y>
+     <y>24</y>
      <width>281</width>
      <height>337</height>
     </rect>
@@ -36,7 +36,7 @@ border-image: url(:/UI/Widget/System_Chiller_3.png);}</string>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>104</x>
+     <x>120</x>
      <y>0</y>
      <width>57</width>
      <height>25</height>

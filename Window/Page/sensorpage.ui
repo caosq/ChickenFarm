@@ -16,7 +16,7 @@
   <widget class="QFrame" name="frame_1">
    <property name="geometry">
     <rect>
-     <x>24</x>
+     <x>10</x>
      <y>472</y>
      <width>489</width>
      <height>137</height>
@@ -47,9 +47,9 @@ border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
   <widget class="QFrame" name="frame_2">
    <property name="geometry">
     <rect>
-     <x>544</x>
+     <x>504</x>
      <y>48</y>
-     <width>361</width>
+     <width>401</width>
      <height>161</height>
     </rect>
    </property>
@@ -68,8 +68,8 @@ border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
      <rect>
       <x>8</x>
       <y>8</y>
-      <width>345</width>
-      <height>137</height>
+      <width>385</width>
+      <height>145</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_2"/>
@@ -78,9 +78,9 @@ border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
   <widget class="QFrame" name="frame_3">
    <property name="geometry">
     <rect>
-     <x>544</x>
+     <x>504</x>
      <y>272</y>
-     <width>361</width>
+     <width>401</width>
      <height>137</height>
     </rect>
    </property>
@@ -99,8 +99,8 @@ border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
      <rect>
       <x>8</x>
       <y>8</y>
-      <width>345</width>
-      <height>129</height>
+      <width>385</width>
+      <height>121</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_3"/>
@@ -109,9 +109,9 @@ border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
   <widget class="QFrame" name="frame_4">
    <property name="geometry">
     <rect>
-     <x>544</x>
+     <x>504</x>
      <y>472</y>
-     <width>361</width>
+     <width>401</width>
      <height>137</height>
     </rect>
    </property>
@@ -130,7 +130,7 @@ border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
      <rect>
       <x>8</x>
       <y>8</y>
-      <width>345</width>
+      <width>385</width>
       <height>121</height>
      </rect>
     </property>
@@ -140,9 +140,9 @@ border-image: url(:/UI/Widget/System_Sensor_4.png);}</string>
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>16</x>
+     <x>8</x>
      <y>40</y>
-     <width>505</width>
+     <width>497</width>
      <height>369</height>
     </rect>
    </property>
@@ -160,10 +160,10 @@ border-image: url(:/UI/Widget/System_Sensor_1.png);}
    <widget class="QWidget" name="gridLayoutWidget_4">
     <property name="geometry">
      <rect>
-      <x>8</x>
-      <y>8</y>
-      <width>489</width>
-      <height>353</height>
+      <x>16</x>
+      <y>16</y>
+      <width>473</width>
+      <height>345</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout"/>
@@ -172,7 +172,7 @@ border-image: url(:/UI/Widget/System_Sensor_1.png);}
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>32</x>
+     <x>16</x>
      <y>16</y>
      <width>169</width>
      <height>25</height>
@@ -312,9 +312,9 @@ background:transparent;</string>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>32</x>
+     <x>16</x>
      <y>440</y>
-     <width>153</width>
+     <width>169</width>
      <height>25</height>
     </rect>
    </property>
@@ -452,7 +452,7 @@ background:transparent;</string>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>544</x>
+     <x>504</x>
      <y>16</y>
      <width>153</width>
      <height>25</height>
@@ -592,7 +592,7 @@ background:transparent;</string>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>544</x>
+     <x>504</x>
      <y>240</y>
      <width>193</width>
      <height>25</height>
@@ -732,7 +732,7 @@ background:transparent;</string>
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>544</x>
+     <x>512</x>
      <y>440</y>
      <width>193</width>
      <height>25</height>

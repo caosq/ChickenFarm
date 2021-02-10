@@ -12,10 +12,10 @@
 #define LABEL_INTERVAL_H    300
 #define LABEL_INTERVAL_V    35
 
-#define DATA_LABEL_SIZE  90, 25
+#define DATA_LABEL_SIZE  100, 25
 
-#define DATA_LABEL_UP_MARGIN    25
-#define DATA_LABEL_LEFT_MARGIN  170
+#define DATA_LABEL_UP_MARGIN    15
+#define DATA_LABEL_LEFT_MARGIN  75
 #define DATA_LABEL_INTERVAL_H   220
 #define DATA_LABEL_INTERVAL_V   35
 
@@ -50,8 +50,7 @@ void CO2Sensor::initButton()
     m_pCO2Label = new DataLabel(ui->frame, DataLabel::Text);
     m_pCO2Label->setAlignment(Qt::AlignLeft);
     m_pCO2Label->setDataParameter("ppm", 1, Monitor::Uint16t);
-    m_pCO2Label->setBackGroundColor("#165588");
-    m_pCO2Label->setText("***", LABEL_FONT_SIZE);
+    m_pCO2Label->setText("20086 ppm", LABEL_FONT_SIZE);
     m_Widgets.append(m_pCO2Label);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)

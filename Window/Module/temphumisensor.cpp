@@ -14,8 +14,8 @@
 
 #define DATA_LABEL_SIZE  90, 25
 
-#define DATA_LABEL_UP_MARGIN    25
-#define DATA_LABEL_LEFT_MARGIN  100
+#define DATA_LABEL_UP_MARGIN    20
+#define DATA_LABEL_LEFT_MARGIN  80
 #define DATA_LABEL_INTERVAL_H   80
 #define DATA_LABEL_INTERVAL_V   35
 
@@ -26,7 +26,7 @@ TempHumiSensor::TempHumiSensor(const QString strSensorType, uint8_t ucIndex, QWi
     ui->setupUi(this);
 
     m_strSensorType = strSensorType;
-    this->m_usDeviceIndex = ucIndex;
+    this->m_usDeviceIndex = ucIndex+1;
 
     initLabel();
     initButton();
@@ -48,14 +48,14 @@ void TempHumiSensor::initButton()
     m_pTempLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pTempLabel->setAlignment(Qt::AlignLeft);
     m_pTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
-    m_pTempLabel->setText("***", LABEL_FONT_SIZE);
+    m_pTempLabel->setText("366.3 ℃", LABEL_FONT_SIZE);
     m_Widgets.append(m_pTempLabel);
 
     //湿度
     m_pHumiLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pHumiLabel->setAlignment(Qt::AlignLeft);
     m_pHumiLabel->setDataParameter("%", 1, Monitor::Uint16t);
-    m_pHumiLabel->setText("***", LABEL_FONT_SIZE);
+    m_pHumiLabel->setText("100.1%", LABEL_FONT_SIZE);
     m_Widgets.append(m_pHumiLabel);
 
 

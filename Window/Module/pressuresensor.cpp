@@ -14,17 +14,24 @@
 
 #define DATA_LABEL_SIZE  90, 25
 
-#define DATA_LABEL_UP_MARGIN    25
-#define DATA_LABEL_LEFT_MARGIN  170
+#define DATA_LABEL_UP_MARGIN    15
+#define DATA_LABEL_LEFT_MARGIN  100
 #define DATA_LABEL_INTERVAL_H   220
 #define DATA_LABEL_INTERVAL_V   35
 
+uint8_t PressureSensor::m_usSensorCount = 0;
 
 PressureSensor::PressureSensor(QWidget *parent) :
     Device(parent),
     ui(new Ui::PressureSensor)
 {
     ui->setupUi(this);
+
+    PressureSensor::m_usSensorCount++;
+    this->m_usDeviceIndex = PressureSensor::m_usSensorCount;
+
+    initLabel();
+    initButton();
 }
 
 PressureSensor::~PressureSensor()
@@ -34,7 +41,7 @@ PressureSensor::~PressureSensor()
 
 void PressureSensor::initLabel()
 {
-    ui->label->setText("CHW-SP "+ QString::number(this->m_usDeviceIndex));
+    ui->label->setText("CHW-SP-"+ QString::number(this->m_usDeviceIndex));
 }
 
 void PressureSensor::initButton()
@@ -43,8 +50,7 @@ void PressureSensor::initButton()
     m_pPressureLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pPressureLabel->setAlignment(Qt::AlignLeft);
     m_pPressureLabel->setDataParameter("kPa", 1, Monitor::Uint16t);
-    m_pPressureLabel->setBackGroundColor("#165588");
-    m_pPressureLabel->setText("***", LABEL_FONT_SIZE);
+    m_pPressureLabel->setText("1666 kPa", LABEL_FONT_SIZE);
     m_Widgets.append(m_pPressureLabel);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)

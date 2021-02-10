@@ -29,6 +29,7 @@ INCLUDEPATH += /usr/local/qwt/qwt-6.1.2-x64/include \
             Widget/Dialog \
             Widget/Message \
             Widget/Time \
+            Widget/Temp \
             Device \
             DataManage \
             Window/Module \
@@ -93,6 +94,8 @@ SOURCES += \
         DataManage/datasave.cpp \
         Device/controller.cpp \
         Device/device.cpp \
+        Widget/Temp/tempunit.cpp \
+        Window/Form/setting.cpp \
         Window/Module/axialfan.cpp \
         Window/Module/butterflyvalve.cpp \
         Window/Module/bypassvalve.cpp \
@@ -160,9 +163,12 @@ SOURCES += \
         Window/Module/windowfan.cpp \
         Window/Page/axialfanpage.cpp \
         Window/Page/bumppage.cpp \
+        Window/Page/manuparampage.cpp \
         Window/Page/modularairpage.cpp \
         Window/Page/modularchillerpage.cpp \
         Window/Page/sensorpage.cpp \
+        Window/Page/tempsetpage.cpp \
+        Window/Page/userparampage.cpp \
         Window/Page/valvepage.cpp
 
 HEADERS += \
@@ -195,6 +201,8 @@ HEADERS += \
         DataManage/datasave.h \
         Device/controller.h \
         Device/device.h \
+    Widget/Temp/tempunit.h \
+    Window/Form/setting.h \
         Window/Module/axialfan.h \
         Window/Module/butterflyvalve.h \
     Window/Module/bypassvalve.h \
@@ -261,12 +269,17 @@ HEADERS += \
     Window/Module/windowfan.h \
     Window/Page/axialfanpage.h \
     Window/Page/bumppage.h \
+    Window/Page/manuparampage.h \
     Window/Page/modularairpage.h \
     Window/Page/modularchillerpage.h \
     Window/Page/sensorpage.h \
+    Window/Page/tempsetpage.h \
+    Window/Page/userparampage.h \
     Window/Page/valvepage.h
 
 FORMS += \
+        Widget/Temp/tempunit.ui \
+        Window/Form/setting.ui \
         Window/Module/axialfan.ui \
         Window/Module/butterflyvalve.ui \
         Window/Module/bypassvalve.ui \
@@ -284,9 +297,12 @@ FORMS += \
         Window/Module/windowfan.ui \
         Window/Page/axialfanpage.ui \
         Window/Page/bumppage.ui \
+        Window/Page/manuparampage.ui \
         Window/Page/modularairpage.ui \
         Window/Page/modularchillerpage.ui \
         Window/Page/sensorpage.ui \
+        Window/Page/tempsetpage.ui \
+        Window/Page/userparampage.ui \
         Window/Page/valvepage.ui
 
 # Default rules for deployment.

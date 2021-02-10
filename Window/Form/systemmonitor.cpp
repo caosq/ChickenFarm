@@ -31,5 +31,35 @@ void SystemMonitor::initForm()
     ui->systemStackedWidget->insertWidget(4, m_pValvePage);
     ui->systemStackedWidget->insertWidget(5, m_pSensorPage);
 
+    ui->systemStackedWidget->setCurrentIndex(0);
+}
+
+void SystemMonitor::on_pushButton_clicked()
+{
+    ui->systemStackedWidget->setCurrentIndex(0);
+}
+
+void SystemMonitor::on_pushButton_2_clicked()
+{
+    ui->systemStackedWidget->setCurrentIndex(1);
+}
+
+void SystemMonitor::on_pushButton_3_clicked()
+{
+    ui->systemStackedWidget->setCurrentIndex(2);
+}
+
+void SystemMonitor::on_pushButton_4_clicked()
+{
+    ui->systemStackedWidget->setCurrentIndex(3);
+}
+
+void SystemMonitor::on_pushButton_5_clicked()
+{
+    ui->systemStackedWidget->setCurrentIndex(4);
+}
+
+void SystemMonitor::on_pushButton_6_clicked()
+{
     ui->systemStackedWidget->setCurrentIndex(5);
 }

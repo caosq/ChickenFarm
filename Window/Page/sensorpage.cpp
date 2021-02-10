@@ -23,7 +23,7 @@
 #define TEMP_HUMI_OUT_NUM   2
 
 #define TEMP_NUM            2
-#define CO2_NUM             2
+#define CO2_NUM             4
 #define PRESSURE_NUM        2
 
 
@@ -79,7 +79,7 @@ void SensorPage::initDevice()
         y = n % 2;
 
         pTemp = new TempSensor();
-        ui->gridLayout_3->addWidget(pTemp, x, y);
+        ui->gridLayout_4->addWidget(pTemp, x, y);
     }
     for(uint8_t n = 0, x = 0, y = 0; n < PRESSURE_NUM; n++)
     {
@@ -87,7 +87,7 @@ void SensorPage::initDevice()
         y = n % 2;
 
         pPressure = new PressureSensor();
-        ui->gridLayout_4->addWidget(pPressure, x, y);
+        ui->gridLayout_3->addWidget(pPressure, x, y);
     }
 }
 

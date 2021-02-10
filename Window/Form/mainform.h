@@ -4,7 +4,7 @@
 #include <QWidget>
 #include "systemmonitor.h"
 #include "curve.h"
-
+#include "setting.h"
 
 namespace Ui {
 class MainForm;
@@ -29,6 +29,8 @@ private:
 
     SystemMonitor  *m_pSystemMonitor;
     Curve          *m_pCurve;
+    Setting        *m_pSetting;
+
 };
 
 #endif // MAINFORM_H

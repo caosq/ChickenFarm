@@ -65,9 +65,12 @@ void MainForm::initButton()
 void MainForm::initForm()
 {
     m_pSystemMonitor = new SystemMonitor();
-    m_pCurve =         new Curve();
+    m_pCurve         = new Curve();
+    m_pSetting       = new Setting();
 
     ui->mainStackedWidget->insertWidget(0, m_pSystemMonitor);
     ui->mainStackedWidget->insertWidget(1, m_pCurve);
-    ui->mainStackedWidget->setCurrentWidget(m_pSystemMonitor);
+    ui->mainStackedWidget->insertWidget(2, m_pSetting);
+
+    ui->mainStackedWidget->setCurrentWidget(m_pSetting);
 }
