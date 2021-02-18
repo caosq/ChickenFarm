@@ -30,6 +30,7 @@ INCLUDEPATH += /usr/local/qwt/qwt-6.1.2-x64/include \
             Widget/Message \
             Widget/Time \
             Widget/Temp \
+            Widget/Event \
             Device \
             DataManage \
             Window/Module \
@@ -94,7 +95,11 @@ SOURCES += \
         DataManage/datasave.cpp \
         Device/controller.cpp \
         Device/device.cpp \
+        Widget/Event/usercurrentevent.cpp \
+        Widget/Event/userhistoryevent.cpp \
         Widget/Temp/tempunit.cpp \
+        Window/Form/event.cpp \
+        Window/Form/home.cpp \
         Window/Form/setting.cpp \
         Window/Module/axialfan.cpp \
         Window/Module/butterflyvalve.cpp \
@@ -201,7 +206,12 @@ HEADERS += \
         DataManage/datasave.h \
         Device/controller.h \
         Device/device.h \
+    Main/global.h \
+    Widget/Event/usercurrentevent.h \
+    Widget/Event/userhistoryevent.h \
     Widget/Temp/tempunit.h \
+    Window/Form/event.h \
+    Window/Form/home.h \
     Window/Form/setting.h \
         Window/Module/axialfan.h \
         Window/Module/butterflyvalve.h \
@@ -279,6 +289,8 @@ HEADERS += \
 
 FORMS += \
         Widget/Temp/tempunit.ui \
+        Window/Form/event.ui \
+        Window/Form/home.ui \
         Window/Form/setting.ui \
         Window/Module/axialfan.ui \
         Window/Module/butterflyvalve.ui \

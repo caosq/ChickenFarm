@@ -2,16 +2,16 @@
 #include "ui_curve.h"
 
 #define HY1 610
-#define HY2 670
-#define HY3 600
-#define HY4 630
+#define HY2 650
+#define HY3 670
+#define HY4 730
 
-#define VX1 50
+#define VX1 30
 #define VX2 150
-#define VX3 250
-#define VX4 750
+#define VX3 270
+#define VX4 630
 
-#define VX5 630
+#define VX5 700
 #define VX6 750
 
 #define SIZE 100,30
@@ -24,14 +24,14 @@ Curve::Curve(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    fGoTdata = 50;
+    fGoTdata = 500;
     fBackTdata = 100;
-    fGoPdata = 150;
-    fBackPdata = 200;
+    fGoPdata = 2000;
+    fBackPdata = 100000;
 
     initPolt();
-    initButton();
     initLabel();
+    initButton();
 }
 
 Curve::~Curve()
@@ -44,44 +44,29 @@ void Curve::initPolt()
     setCurrCurve();
     setHistoCurve();
 
-    ui->curveStackedWidget->insertWidget(0, curveTempWidget);
-    ui->curveStackedWidget->insertWidget(1, curveCO2Widget);//压力
-    ui->curveStackedWidget->insertWidget(2, curveAirWidget);//比率
-    ui->curveStackedWidget->insertWidget(3, curveTempWidgetH);//溫度历史
-    ui->curveStackedWidget->insertWidget(4, curveCO2WidgetH);//压力历史
-    ui->curveStackedWidget->insertWidget(5, curveAirWidgetH);//比率历史
-
+    ui->curveStackedWidget->insertWidget(0, curveTemp);
+    ui->curveStackedWidget->insertWidget(1, curveCO2);
+    ui->curveStackedWidget->insertWidget(2, curveAir);
+    ui->curveStackedWidget->insertWidget(3, curveTempH);
+    ui->curveStackedWidget->insertWidget(4, curveCO2H);
+    ui->curveStackedWidget->insertWidget(5, curveAirH);
 }
 
 //初始化按键显示，初始化窗口显示，初始化按键效果
 void Curve::initButton()
 {
-    historyBtt = new ubutton(this);
-    currentBtt = new ubutton(this);
-    TempBtt = new ubutton(this);
-    CO2Btt = new ubutton(this);
-    AirBtt = new ubutton(this);
-    nextBtt = new ubutton(this);
-    previousBtt = new ubutton(this);
+    pHistoryBtn = new ubutton(this);
+    pHistoryBtn->setText(tr("历史曲线"));
+    pHistoryBtn->setGeometry(VX6,HY3,SIZE);
 
+    pCurrentBtn = new ubutton(this);
+    pCurrentBtn->setText(tr("当前曲线"));
+    pCurrentBtn->setGeometry(VX4,HY3,SIZE);
 
+    connect(pHistoryBtn,SIGNAL(clicked()),this,SLOT(historyClick()));
+    connect(pCurrentBtn,SIGNAL(clicked()),this,SLOT(currentClick()));
 
-    historyBtt->setGeometry(VX4,HY2,SIZE);
-    currentBtt->setGeometry(VX4,HY2,SIZE);
-    TempBtt->setGeometry(VX1,HY2,SIZE);
-    CO2Btt->setGeometry(VX2,HY2,SIZE);
-    AirBtt->setGeometry(VX3,HY2,SIZE);
-    previousBtt->setGeometry(VX5,HY1,SIZE);
-    nextBtt->setGeometry(VX6,HY1,SIZE);
-
-
-    historyBtt->setText(tr("历史曲线"));
-    currentBtt->setText(tr("当前曲线"));
-    TempBtt->setText(tr("温度"));
-    CO2Btt->setText(tr("压力"));
-    AirBtt->setText(tr("能效比"));
-    previousBtt->setText(tr("上一天"));
-    nextBtt->setText(tr("下一天"));
+    on_tempButton_clicked();
 }
 
 void Curve::initLabel()
@@ -90,122 +75,237 @@ void Curve::initLabel()
     red_show->setIconStyle(gQwtLegendItem::drawIcon);
     red_show->setIconColor(Qt::red);
     red_show->setNoBackground(true);
-    red_show->setGeometry(25,HY3,22,22);
+    red_show->setGeometry(25,HY1,22,22);
 
     yellow_show= new gQwtLegendItem(this);
     yellow_show->setIconStyle(gQwtLegendItem::drawIcon);
     yellow_show->setIconColor(Qt::yellow);
     yellow_show->setNoBackground(true);
-    yellow_show->setGeometry(225,HY3,22,22);
+    yellow_show->setGeometry(175,HY1,22,22);
 
     gree_show= new gQwtLegendItem(this);
     gree_show->setIconStyle(gQwtLegendItem::drawIcon);
     gree_show->setIconColor(Qt::green);
     gree_show->setNoBackground(true);
-    gree_show->setGeometry(25,HY4,22,22);
+    gree_show->setGeometry(375,HY1,22,22);
 
     white_show= new gQwtLegendItem(this);
     white_show->setIconStyle(gQwtLegendItem::drawIcon);
     white_show->setIconColor(Qt::white);
     white_show->setNoBackground(true);
-    white_show->setGeometry(225,HY4,22,22);
-
-
+    white_show->setGeometry(575,HY1,22,22);
 
     _labelFirst = new TextLabel(this);
     _labelSecond = new TextLabel(this);
     _labelThird = new TextLabel(this);
     _labelFour = new TextLabel(this);
 
-
-    _labelFirst->setText(tr("冷冻总管供水温度"),10);
-    _labelSecond->setText(tr("冷冻总管回水温度"),12);
+    _labelFirst->setText(tr("室内温度"),12);
+    _labelSecond->setText(tr("室外温度"),12);
     _labelThird->setText(tr("冷冻总管供水温度"),12);
     _labelFour->setText(tr("冷冻总管回水温度"),15);
 
-
-    _labelFirst->setGeometry(50,HY3,LABELSIZE);
-    _labelSecond->setGeometry(250,HY3,LABELSIZE);
-    _labelThird->setGeometry(50,HY4,LABELSIZE);
-    _labelFour->setGeometry(250,HY4,LABELSIZE);
+    _labelFirst->setGeometry(50,HY1,LABELSIZE);
+    _labelSecond->setGeometry(200,HY1,LABELSIZE);
+    _labelThird->setGeometry(400,HY1,LABELSIZE);
+    _labelFour->setGeometry(600,HY1,LABELSIZE);
 
 }
 
 void Curve::setCurrCurve()
 {
     //温度曲线窗口
-    curveTempWidget = new qrealTimeCurve();
-    curveTempWidget->setYAxisScale(-200,1000,100);
-    curveTempWidget->setCurveAttribute(1,"℃");
-    curveTempWidget->enableTouchMark(true);
-
-    curveTempWidget->setCurve(0,&fGoTdata,"FreezeGoTemp",Qt::red);
-    curveTempWidget->setCurve(1,&fBackTdata,"FreezeBackTemp",Qt::yellow);
-    curveTempWidget->setCurve(2,&fGoPdata,"coolGoTemp",Qt::green);
-    curveTempWidget->setCurve(3,&fBackPdata,"coolBackTemp",Qt::white);
-
-
-    curveTempWidget->setSaveDirName("temperature");
-    curveTempWidget->setSamplingTime(10);
-    curveTempWidget->startSampling();
+    curveTemp = new qrealTimeCurve();
+    curveTemp->setYAxisScale(-200,500,50);
+    curveTemp->setCurveAttribute(1," ℃");
+    curveTemp->enableTouchMark(true);
+    curveTemp->setCurve(0,&fGoTdata,"FreezeGoTemp",Qt::red);
+    curveTemp->setCurve(1,&fBackTdata,"FreezeBackTemp",Qt::yellow);
+    curveTemp->setSaveDirName("Temp");
+    curveTemp->setSamplingTime(10);
+    curveTemp->startSampling();
 
     //CO2曲线窗口
-    curveCO2Widget = new qrealTimeCurve;
-    curveCO2Widget->setYAxisScale(0,32000,1000);
-    curveCO2Widget->setCurveAttribute(1,"kPa");
-    curveCO2Widget->enableTouchMark(true);
-
-    curveCO2Widget->setCurve(0,&fGoPdata,"FreezeGoPressure",Qt::red);
-
-    curveCO2Widget->setSaveDirName("Pressure");
-    curveCO2Widget->setSamplingTime(10);
-    curveCO2Widget->startSampling();
+    curveCO2 = new qrealTimeCurve;
+    curveCO2->setYAxisScale(0,5000,200);
+    curveCO2->setCurveAttribute(0," ppm");
+    curveCO2->enableTouchMark(true);
+    curveCO2->setCurve(0,&fGoPdata,"FreezeGoPressure",Qt::red);
+    curveCO2->setSaveDirName("CO2");
+    curveCO2->setSamplingTime(10);
+    curveCO2->startSampling();
 
     //新风量曲线窗口
-    curveAirWidget = new qrealTimeCurve;
-    curveAirWidget->setYAxisScale(0,32000,1000);
-    curveAirWidget->setCurveAttribute(1,"kPa");
-    curveAirWidget->enableTouchMark(true);
+    curveAir = new qrealTimeCurve;
+    curveAir->setYAxisScale(0,130000,10000);
+    curveAir->setCurveAttribute(0," m³/h");
+    curveAir->enableTouchMark(true);
 
-    curveAirWidget->setCurve(0,&fGoPdata,"FreezeGoPressure",Qt::red);
+    curveAir->setCurve(0,&fGoPdata,"FreezeGoPressure",Qt::red);
 
-    curveAirWidget->setSaveDirName("Pressure");
-    curveAirWidget->setSamplingTime(10);
-    curveAirWidget->startSampling();
+    curveAir->setSaveDirName("Air");
+    curveAir->setSamplingTime(10);
+    curveAir->startSampling();
 }
 
 void Curve::setHistoCurve()
 {
-    curveTempWidgetH = new qHistoryCurve(this);
-    curveTempWidgetH->setYAxisScale(-200,1000,100);
-    curveTempWidgetH->setCurveAttribute(1,"℃");
-    curveTempWidgetH->setSamplingTime(10);
-    curveTempWidgetH->setHistoryDir("temperature");
-    curveTempWidgetH->addCurve(0,Qt::red);
-    curveTempWidgetH->addCurve(1,Qt::yellow);
-    curveTempWidgetH->addCurve(2,Qt::green);
-    curveTempWidgetH->addCurve(3,Qt::white);
+    curveTempH = new qHistoryCurve(this);
+    curveTempH->setYAxisScale(-200,500,50);
+    curveTempH->setCurveAttribute(1," ℃");
+    curveTempH->setSamplingTime(10);
+    curveTempH->setHistoryDir("Temp");
+    curveTempH->addCurve(0,Qt::red);
+    curveTempH->addCurve(1,Qt::yellow);
 
-    curveCO2WidgetH = new qHistoryCurve(this);
-    curveCO2WidgetH->setYAxisScale(0,32000,1000);
-    curveCO2WidgetH->setCurveAttribute(1,"ppm");
-    curveCO2WidgetH->setSamplingTime(10);
-    curveCO2WidgetH->setHistoryDir("Pressure");
-    curveCO2WidgetH->addCurve(0,Qt::red);
-    curveCO2WidgetH->addCurve(1,Qt::yellow);
+    curveCO2H = new qHistoryCurve(this);
+    curveCO2H->setYAxisScale(0,5000,200);
+    curveCO2H->setCurveAttribute(0," ppm");
+    curveCO2H->setSamplingTime(10);
+    curveCO2H->setHistoryDir("CO2");
+    curveCO2H->addCurve(0,Qt::red);
 
-    curveAirWidgetH = new qHistoryCurve(this);
-    curveAirWidgetH->setYAxisScale(0,100,10);
-    curveAirWidgetH->setCurveAttribute(1,"");
-    curveAirWidgetH->setSamplingTime(10);
-    curveAirWidgetH->setHistoryDir("Ratio");
-    curveAirWidgetH->addCurve(0,Qt::red);
-    curveAirWidgetH->addCurve(1,Qt::yellow);
-    curveAirWidgetH->addCurve(3,Qt::green);
-    curveAirWidgetH->addCurve(4,Qt::white);
+
+    curveAirH = new qHistoryCurve(this);
+    curveAirH->setYAxisScale(0,130000,10000);
+    curveAirH->setCurveAttribute(0," m³/h");
+    curveAirH->setSamplingTime(10);
+    curveAirH->setHistoryDir("Air");
+    curveAirH->addCurve(0,Qt::red);
 }
 
 void Curve::timerEvent(QTimerEvent *)
 {
 
+}
+
+void Curve::historyClick()
+{
+    QPalette pe;
+    pe.setColor(QPalette::ButtonText,Qt::white);
+    pHistoryBtn->setPalette(pe);
+
+    pe.setColor(QPalette::ButtonText,Qt::gray);
+    pCurrentBtn->setPalette(pe);
+
+    ui->previousButton->show();
+    ui->nextButton->show();
+
+    if(m_usIndex == 0)
+    {
+        ui->curveStackedWidget->setCurrentWidget(curveTempH);
+    }
+    else if (m_usIndex == 1)
+    {
+        ui->curveStackedWidget->setCurrentWidget(curveCO2H);
+    }
+    else if (m_usIndex == 2)
+    {
+        ui->curveStackedWidget->setCurrentWidget(curveAirH);
+    }
+}
+
+void Curve::currentClick()
+{
+    QPalette pe;
+    pe.setColor(QPalette::ButtonText,Qt::white);
+    pCurrentBtn->setPalette(pe);
+
+    pe.setColor(QPalette::ButtonText,Qt::gray);
+    pHistoryBtn->setPalette(pe);
+
+    ui->previousButton->hide();
+    ui->nextButton->hide();
+
+    if(m_usIndex == 0)
+    {
+        ui->curveStackedWidget->setCurrentWidget(curveTemp);
+    }
+    else if (m_usIndex == 1)
+    {
+        ui->curveStackedWidget->setCurrentWidget(curveCO2);
+    }
+    else if (m_usIndex == 2)
+    {
+        ui->curveStackedWidget->setCurrentWidget(curveAir);
+    }
+}
+
+void Curve::on_tempButton_clicked()
+{
+    m_usIndex = 0;
+    currentClick();
+
+    QPalette pe;
+    pe.setColor(QPalette::ButtonText,Qt::white);
+    ui->tempButton->setPalette(pe);
+
+    pe.setColor(QPalette::ButtonText,Qt::gray);
+    ui->co2Button->setPalette(pe);
+    ui->airButton->setPalette(pe);
+
+    red_show->show();
+    yellow_show->show();
+    gree_show->hide();
+    white_show->hide();
+
+    _labelFirst->show();
+    _labelSecond->show();
+    _labelThird->hide();
+    _labelFour->hide();
+
+    _labelFirst->setText(tr("室内温度"),14);
+    _labelSecond->setText(tr("室外温度"),14);
+}
+
+void Curve::on_co2Button_clicked()
+{
+    m_usIndex = 1;
+    currentClick();
+
+    QPalette pe;
+    pe.setColor(QPalette::ButtonText,Qt::white);
+    ui->co2Button->setPalette(pe);
+
+    pe.setColor(QPalette::ButtonText,Qt::gray);
+    ui->airButton->setPalette(pe);
+    ui->tempButton->setPalette(pe);
+
+    red_show->show();
+    yellow_show->hide();
+    gree_show->hide();
+    white_show->hide();
+
+    _labelFirst->show();
+    _labelSecond->hide();
+    _labelThird->hide();
+    _labelFour->hide();
+
+    _labelFirst->setText(tr("CO2浓度"),14);
+}
+
+void Curve::on_airButton_clicked()
+{
+    m_usIndex = 2;
+    currentClick();
+
+    QPalette pe;
+    pe.setColor(QPalette::ButtonText,Qt::white);
+    ui->airButton->setPalette(pe);
+
+    pe.setColor(QPalette::ButtonText,Qt::gray);
+    ui->co2Button->setPalette(pe);
+    ui->tempButton->setPalette(pe);
+
+    red_show->show();
+    yellow_show->hide();
+    gree_show->hide();
+    white_show->hide();
+
+    _labelFirst->show();
+    _labelSecond->hide();
+    _labelThird->hide();
+    _labelFour->hide();
+
+    _labelFirst->setText(tr("新风量"),14);
 }

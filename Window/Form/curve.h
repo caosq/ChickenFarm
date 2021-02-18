@@ -15,21 +15,6 @@ class Curve : public QWidget
 {
     Q_OBJECT
 
-public:
-    explicit Curve(QWidget *parent = nullptr);
-
-    void initPolt();
-    void initButton();
-    void initLabel();
-
-    ~Curve();
-
-protected:
-    void timerEvent(QTimerEvent *e);
-private:
-    void setCurrCurve();
-    void setHistoCurve();
-
 private:
     Ui::Curve *ui;
 
@@ -46,25 +31,23 @@ private:
     double yEER;
     double totalEER;
 
+    uint8_t m_usIndex;
+
 private:
+    qrealTimeCurve *curveTemp;
+    qrealTimeCurve *curveCO2;
+    qrealTimeCurve *curveAir;
 
-    qrealTimeCurve *curveTempWidget;
-    qrealTimeCurve *curveCO2Widget;
-    qrealTimeCurve *curveAirWidget;
+    qHistoryCurve *curveTempH;
+    qHistoryCurve *curveCO2H;
+    qHistoryCurve *curveAirH;
 
-    qHistoryCurve *curveTempWidgetH;
-    qHistoryCurve *curveCO2WidgetH;
-    qHistoryCurve *curveAirWidgetH;
+    ubutton *pTempBtn;
+    ubutton *pCO2Btn;
+    ubutton *pAirBtn;
 
-    ubutton *TempBtt;
-    ubutton *CO2Btt;
-    ubutton *AirBtt;
-
-    ubutton *historyBtt;
-    ubutton *currentBtt;
-
-    ubutton *nextBtt;
-    ubutton *previousBtt;
+    ubutton *pHistoryBtn;
+    ubutton *pCurrentBtn;
 
     gQwtLegendItem *red_show;
     gQwtLegendItem *yellow_show;
@@ -77,7 +60,29 @@ private:
     TextLabel *_labelThird;
     TextLabel *_labelFour;
 
+private:
+    void initPolt();
+    void initButton();
+    void initLabel();
 
+public:
+    explicit Curve(QWidget *parent = nullptr);
+    ~Curve();
+
+protected:
+    void timerEvent(QTimerEvent *e);
+private:
+    void setCurrCurve();
+    void setHistoCurve();
+
+private slots:
+
+    void historyClick();
+    void currentClick();
+
+    void on_tempButton_clicked();
+    void on_co2Button_clicked();
+    void on_airButton_clicked();
 };
 
 #endif // CURVE_H

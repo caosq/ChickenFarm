@@ -121,5 +121,18 @@
         <file>UI/baseFile/zoomOn.png</file>
         <file>UI/Frame/TableBk.png</file>
         <file>UI/Widget/IsToday.png</file>
+        <file>UI/Device/close1.png</file>
+        <file>UI/Device/close2.png</file>
+        <file>UI/Device/closeBump1.png</file>
+        <file>UI/Device/closeChiller1.png</file>
+        <file>UI/Device/closeChiller2.png</file>
+        <file>UI/Device/closeChiller3.png</file>
+        <file>UI/Device/closeFan1.png</file>
+        <file>UI/Device/closeFan2.png</file>
+        <file>UI/Device/closeValve1.png</file>
+        <file>UI/Device/closeValve2.png</file>
+        <file>UI/Device/groupRun.png</file>
+        <file>UI/Device/groupRun2.png</file>
+        <file>UI/Frame/greenBtn.png</file>
     </qresource>
 </RCC>

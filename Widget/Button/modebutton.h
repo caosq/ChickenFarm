@@ -15,10 +15,10 @@ class privateMenu : public QMenu
     Q_OBJECT
 public:
     typedef struct{
-        QString _Background;
-        QString _Highlight;
-        QString _Text;
-        QString _HightlightText;
+        QColor _Background;
+        QColor _Highlight;
+        QColor _Text;
+        QColor _HightlightText;
     }menuStyle;
 
     friend class ModeButton;

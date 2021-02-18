@@ -1,4 +1,4 @@
-//#include <QFontMetrics>
+#include <QFontMetrics>
 #include "modebutton.h"
 
 #define SP_X 3
@@ -11,10 +11,10 @@
 
 privateMenu::menuStyle ModeButton::fatherStyle =
 {
-    M_BC,
-    M_HL,
-    M_TC,
-    M_HLTC
+    QColor(M_BC),
+    QColor(M_HL),
+    QColor(M_TC),
+    QColor(M_HLTC)
 };
 
 privateMenu::privateMenu(QWidget *parent) :
@@ -22,6 +22,9 @@ privateMenu::privateMenu(QWidget *parent) :
 {
     setContentsMargins(-15,0,0,0);
     setMaximumWidth(parent->width());
+    //setFixedWidth(parent->width());
+
+    //setAutoFillBackground(false);
 }
 
 void privateMenu::setItem(int id, QString text)
@@ -78,7 +81,6 @@ void privateMenu::setBackgroundColor(QColor color)
     palette.setBrush(QPalette::Normal,QPalette::Shadow,QBrush(color));
 
     setPalette(palette);
-
 }
 
 void privateMenu::setHighlightColor(QColor color)
@@ -86,7 +88,6 @@ void privateMenu::setHighlightColor(QColor color)
     QPalette palette = this->palette();
     palette.setBrush(QPalette::Normal,QPalette::Highlight,QBrush(color));
     setPalette(palette);
-
 }
 
 void privateMenu::setTextColor(QColor color)
@@ -104,12 +105,12 @@ void privateMenu::setHightlightTextColor(QColor color)
     setPalette(palette);
 }
 
-void privateMenu::setMenuStyleSheet()
+/*void privateMenu::setMenuStyleSheet()
 {
     QString strStyle = "background-color: " + m_styleSheet._Background;
 
     setStyleSheet(strStyle);
-}
+}*/
 
 
 void privateMenu::setCurrentItem(int id)
@@ -214,12 +215,12 @@ void ModeButton::paintEvent(QPaintEvent *e)
         if( this->isDown() )
         {
             painter.drawPixmap(1,1,this->width(),this->height(),*pixmap);
-            painter.drawText(_margin + 1,1,this->width()-_gap,this->height(),_alignmentFlag,getElidedText());
+            painter.drawText(_margin-5,1,this->width()-_gap,this->height(),_alignmentFlag,getElidedText());
         }
         else
         {
             painter.drawPixmap(0,0,this->width(),this->height(),*pixmap);
-            painter.drawText(_margin,0,this->width()-_gap,this->height(),_alignmentFlag,getElidedText());
+            painter.drawText(_margin-5,0,this->width()-_gap,this->height(),_alignmentFlag,getElidedText());
         }
     }
     else
@@ -234,7 +235,7 @@ void ModeButton::paintEvent(QPaintEvent *e)
         {
             painter.setPen(this->palette().color(QPalette::Active,QPalette::ButtonText));
         }
-        painter.drawText(_margin,0,this->width(),this->height(),_alignmentFlag,getElidedText());
+        painter.drawText(_margin-5,0,this->width(),this->height(),_alignmentFlag,getElidedText());
     }
 
     if( !defValState && enableValMarker )
@@ -251,8 +252,10 @@ void ModeButton::initMenu()
 {
     _menu = new privateMenu(this);
     _menu->setFont(fatherFont);
-    _menu->setColorStyle(fatherStyle);
+   // _menu->setColorStyle(fatherStyle);
+    _menu->setFixedWidth(this->width());
 
+    _menu->setBackgroundColor(Qt::white);
     setMenu(_menu);
 }
 

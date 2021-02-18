@@ -3,7 +3,7 @@
 #include "eventdatabase.h"
 //#include "msgControl/msgmanage.h"
 
-historyEventTable::historyEventTable(int column, QString saveDir, QWidget *parent):
+HistoryEventTable::HistoryEventTable(int column, QString saveDir, QWidget *parent):
     EventTable(column,parent)
 {
    setItemExpandShow(column,true);
@@ -19,7 +19,7 @@ historyEventTable::historyEventTable(int column, QString saveDir, QWidget *paren
     setReadDir(userDir);
 }
 
-void historyEventTable::nextDay()
+void HistoryEventTable::nextDay()
 {
     if( fileNum >= historyList.size() - 1 )
     {
@@ -34,7 +34,7 @@ void historyEventTable::nextDay()
     verticalScrollBar()->setValue(verticalScrollBar()->minimum());
 }
 
-void historyEventTable::prevDay()
+void HistoryEventTable::prevDay()
 {
     if( fileNum <= 0 )
     {
@@ -49,7 +49,7 @@ void historyEventTable::prevDay()
     verticalScrollBar()->setValue(verticalScrollBar()->minimum());
 }
 
-void historyEventTable::flushShow()
+void HistoryEventTable::flushShow()
 {
     if( !checkFileList() )
         return;
@@ -63,7 +63,7 @@ void historyEventTable::flushShow()
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
 
-void historyEventTable::setReadDir(QString str)
+void HistoryEventTable::setReadDir(QString str)
 {
     if(!str.isEmpty() && !str.endsWith("/"))
         str.append("/");
@@ -73,7 +73,7 @@ void historyEventTable::setReadDir(QString str)
     checkDir(userDir);
 }
 
-bool historyEventTable::checkDir(QString name)
+bool HistoryEventTable::checkDir(QString name)
 {
     name.prepend(rootDir);
     QDir dir(name);
@@ -86,7 +86,7 @@ bool historyEventTable::checkDir(QString name)
 }
 
 
-bool historyEventTable::checkFileList()
+bool HistoryEventTable::checkFileList()
 {
     checkDir(userDir);
 
@@ -107,7 +107,7 @@ bool historyEventTable::checkFileList()
     }
 }
 
-bool historyEventTable::prepareFile()
+bool HistoryEventTable::prepareFile()
 {
     bool ret = false;
 
@@ -137,7 +137,7 @@ bool historyEventTable::prepareFile()
     return ret;
 }
 
-bool historyEventTable::readFile()
+bool HistoryEventTable::readFile()
 {
     bool ret = false;
     ret = prepareFile();
@@ -172,7 +172,7 @@ bool historyEventTable::readFile()
 }
 
 
-void historyEventTable::showEvent(QShowEvent *e)
+void HistoryEventTable::showEvent(QShowEvent *e)
 {
     EventTable::showEvent(e);
     flushShow();

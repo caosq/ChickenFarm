@@ -16,7 +16,7 @@
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>168</x>
+     <x>20</x>
      <y>640</y>
      <width>105</width>
      <height>41</height>
@@ -37,9 +37,9 @@
       <colorrole role="ButtonText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>255</blue>
+         <red>186</red>
+         <green>189</green>
+         <blue>182</blue>
         </color>
        </brush>
       </colorrole>
@@ -75,9 +75,9 @@
       <colorrole role="ButtonText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>255</blue>
+         <red>186</red>
+         <green>189</green>
+         <blue>182</blue>
         </color>
        </brush>
       </colorrole>
@@ -140,9 +140,13 @@
      </disabled>
     </palette>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>16</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">font: 16pt &quot;Ubuntu&quot;;
-border-image: url(:/UI/Frame/按键.png);</string>
+    <string notr="true">border-image: url(:/UI/Frame/按键.png);</string>
    </property>
    <property name="text">
     <string>机  组</string>
@@ -286,7 +290,7 @@ border-image: url(:/UI/Frame/按键.png);</string>
   <widget class="QPushButton" name="pushButton_6">
    <property name="geometry">
     <rect>
-     <x>776</x>
+     <x>770</x>
      <y>640</y>
      <width>105</width>
      <height>41</height>
@@ -434,7 +438,7 @@ border-image: url(:/UI/Frame/按键.png);</string>
   <widget class="QPushButton" name="pushButton_5">
    <property name="geometry">
     <rect>
-     <x>632</x>
+     <x>620</x>
      <y>640</y>
      <width>105</width>
      <height>41</height>
@@ -569,8 +573,8 @@ border-image: url(:/UI/Frame/按键.png);</string>
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>24</x>
-     <y>642</y>
+     <x>170</x>
+     <y>640</y>
      <width>105</width>
      <height>41</height>
     </rect>

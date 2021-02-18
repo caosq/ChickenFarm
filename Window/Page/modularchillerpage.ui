@@ -13,14 +13,20 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">border-style:none;</string>
+  </property>
   <widget class="QStackedWidget" name="modularChillerStackedWidget">
    <property name="geometry">
     <rect>
-     <x>272</x>
-     <y>24</y>
-     <width>617</width>
+     <x>296</x>
+     <y>20</y>
+     <width>611</width>
      <height>545</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
    </property>
   </widget>
   <widget class="QFrame" name="frame_1">
@@ -28,7 +34,7 @@
     <rect>
      <x>16</x>
      <y>392</y>
-     <width>249</width>
+     <width>281</width>
      <height>161</height>
     </rect>
    </property>
@@ -182,26 +188,6 @@ background:transparent;</string>
      <string>机组总能耗</string>
     </property>
    </widget>
-  </widget>
-  <widget class="QFrame" name="frame">
-   <property name="geometry">
-    <rect>
-     <x>16</x>
-     <y>88</y>
-     <width>249</width>
-     <height>273</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">#frame{
-border-image: url(:/UI/Widget/System_Chiller_1.png);}</string>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
   </widget>
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
@@ -427,8 +413,8 @@ background:transparent;</string>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>24</x>
-     <y>64</y>
+     <x>30</x>
+     <y>50</y>
      <width>153</width>
      <height>25</height>
     </rect>
@@ -562,6 +548,27 @@ background:transparent;</string>
    </property>
    <property name="text">
     <string>机组集中控制</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>80</y>
+     <width>281</width>
+     <height>291</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame{
+background:transparent;
+border-image: url(:/UI/Widget/System_Air_2.png);}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
    </property>
   </widget>
  </widget>

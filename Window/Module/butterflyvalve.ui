@@ -24,6 +24,7 @@
    </property>
    <property name="styleSheet">
     <string notr="true">#frame{
+background:transparent;
 border-image: url(:/UI/Widget/System_Bump_3.png);}</string>
    </property>
    <property name="frameShape">

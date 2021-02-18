@@ -7,12 +7,12 @@
 #include <QTextStream>
 #include "eventtable.h"
 
-class historyEventTable : public EventTable
+class HistoryEventTable : public EventTable
 {
     Q_OBJECT
 public:
     //历史事件记录类
-    explicit historyEventTable(int column = 0,QString saveDir = "",QWidget *parent = nullptr);
+    explicit HistoryEventTable(int column = 0,QString saveDir = "",QWidget *parent = nullptr);
     
     //设置状态1显示的颜色
     void setStateOnColor(QColor color){onColor = color;}

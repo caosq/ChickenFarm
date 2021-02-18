@@ -27,6 +27,7 @@
    </property>
    <property name="styleSheet">
     <string notr="true">#frame{
+background:transparent;
 border-image: url(:/UI/Widget/System_Sensor_5.png);}</string>
    </property>
    <property name="frameShape">

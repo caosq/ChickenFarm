@@ -19,6 +19,8 @@ class SystemMonitor : public QWidget
 
 
 private:
+    QVector<QWidget*>   m_Widgets;
+
     ModularAirPage      *m_pModularAirPage;
     ModularChillerPage  *m_pModularChillerPage;
     BumpPage            *m_pBumpPage;

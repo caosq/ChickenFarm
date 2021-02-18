@@ -7,11 +7,11 @@
 #define LABEL_COLUMNS_2  1
 #define LABEL_ROWS_2     2
 
-#define LABEL_SIZE       110, 26
+#define LABEL_SIZE       120, 26
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN_1     30
-#define LABEL_LEFT_MARGIN_1   30
+#define LABEL_LEFT_MARGIN_1   40
 #define LABEL_INTERVAL_H_1    300
 #define LABEL_INTERVAL_V_1    40
 
@@ -20,7 +20,7 @@
 #define LABEL_INTERVAL_H_2    300
 #define LABEL_INTERVAL_V_2    40
 
-#define DATA_LABEL_SIZE  80, 26
+#define DATA_LABEL_SIZE  110, 28
 
 #define DATA_LABEL_UP_MARGIN_1    30
 #define DATA_LABEL_LEFT_MARGIN_1  140
@@ -28,7 +28,7 @@
 #define DATA_LABEL_INTERVAL_V_1   40
 
 #define DATA_LABEL_UP_MARGIN_2    60
-#define DATA_LABEL_LEFT_MARGIN_2  170
+#define DATA_LABEL_LEFT_MARGIN_2  140
 #define DATA_LABEL_INTERVAL_H_2   300
 #define DATA_LABEL_INTERVAL_V_2   40
 
@@ -79,11 +79,9 @@ void ModularChillerPage::initLabel()
     }
     m_Labels_1[0]->setText(tr("启停命令"), LABEL_FONT_SIZE);
     m_Labels_1[1]->setText(tr("工作模式"), LABEL_FONT_SIZE);
-    m_Labels_1[2]->setText(tr("运行状态"), LABEL_FONT_SIZE);
-    m_Labels_1[3]->setText(tr("运行模式"), LABEL_FONT_SIZE);
-    m_Labels_1[4]->setText(tr("控制模式"), LABEL_FONT_SIZE);
-
-   // ui->label->setText(QString::number(this->m_usDeviceIndex) + "# 组合柜");
+   // m_Labels_1[2]->setText(tr("目标温度"), LABEL_FONT_SIZE);
+   // m_Labels_1[3]->setText(tr("目标湿度"), LABEL_FONT_SIZE);
+   // m_Labels_1[4]->setText(tr("目标CO2"), LABEL_FONT_SIZE);
 
     for(uint8_t n = 0; n < LABEL_ROWS_2; n++)
     {
@@ -98,8 +96,6 @@ void ModularChillerPage::initLabel()
     }
     m_Labels_2[0]->setText(tr("耗电功率"), LABEL_FONT_SIZE);
     m_Labels_2[1]->setText(tr("累计耗电量"), LABEL_FONT_SIZE);
-
-    // ui->label->setText(QString::number(this->m_usDeviceIndex) + "# 组合柜");
 }
 
 void ModularChillerPage::initButton()
@@ -113,12 +109,27 @@ void ModularChillerPage::initButton()
 
     //机组运行工作模式设定
     m_pRunningModeCmdBtn = new ModeButton(ui->frame);
-    m_pRunningModeCmdBtn->setItem(0,tr("供冷 "));
-    m_pRunningModeCmdBtn->setItem(1,tr("通风"));
-    m_pRunningModeCmdBtn->setItem(2,tr("供热"));
-    m_pRunningModeCmdBtn->setItem(3,tr("负压通风"));
+    m_pRunningModeCmdBtn->setItem(0,tr("制冷"));
+    m_pRunningModeCmdBtn->setItem(1,tr("制热"));
+    m_pRunningModeCmdBtn->setItem(2,tr("手动化霜"));
     m_pRunningModeCmdBtn->setDefaultValue(0);
     m_Widgets_1.append(m_pRunningModeCmdBtn);
+
+/*    //目标温度设定
+    m_pTempSetBtn = new AnalogValButton(ui->frame);
+    m_pTempSetBtn->setDataParameter("℃", 1, 500, 0, 0, Monitor::Uint16t);
+    m_Widgets_1.append(m_pTempSetBtn);
+
+    //目标湿度设定
+    m_pHumiSetBtn = new AnalogValButton(ui->frame);
+    m_pHumiSetBtn->setDataParameter("%", 1, 0, 0, 0, Monitor::Uint16t);
+    m_Widgets_1.append(m_pHumiSetBtn);
+
+    //目标CO2设定
+    m_pCO2SetBtn = new AnalogValButton(ui->frame);
+    m_pCO2SetBtn->setDataParameter("ppm", 0, 0, 0, 0, Monitor::Uint16t);
+    m_Widgets_1.append(m_pCO2SetBtn);
+*/
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets_1.count(); i++)
     {

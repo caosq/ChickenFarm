@@ -34,8 +34,9 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">#frame
-{border-image: url(:/UI/Widget/System_Bump_1.png);}</string>
+    <string notr="true">#frame{
+background:transparent;
+border-image: url(:/UI/Widget/System_Bump_1.png);}</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::StyledPanel</enum>

@@ -96,10 +96,11 @@ void Modular::initButton()
     //机组状态
     m_pModularStateLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pModularStateLabel->setAlignment(Qt::AlignLeft);
-    m_pModularStateLabel->setValueMap(0,tr("已关闭"));
-    m_pModularStateLabel->setValueMap(1,tr("开机中"));
-    m_pModularStateLabel->setValueMap(0,tr("关机中"));
-    m_pModularStateLabel->setValueMap(1,tr("运行中"));
+    m_pModularStateLabel->setValueMap(0,tr("关机"));
+    m_pModularStateLabel->setValueMap(1,tr("制冷"));
+    m_pModularStateLabel->setValueMap(2,tr("制热"));
+    m_pModularStateLabel->setValueMap(3,tr("化霜"));
+    m_pModularStateLabel->setValueMap(4,tr("防冻"));
     m_pModularStateLabel->setText("#165588", LABEL_FONT_SIZE);
     m_Widgets.append(m_pModularStateLabel);
 

@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">border-style:none;</string>
+  </property>
   <widget class="QFrame" name="frame_1">
    <property name="geometry">
     <rect>
@@ -184,7 +187,8 @@ background:transparent;</string>
    </property>
    <property name="styleSheet">
     <string notr="true">#frame{
-border-image: url(:/UI/Widget/System_Air_2.png);}</string>
+border-image: url(:/UI/Widget/System_Air_2.png);
+background:transparent;}</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::StyledPanel</enum>
@@ -201,6 +205,9 @@ border-image: url(:/UI/Widget/System_Air_2.png);}</string>
      <width>593</width>
      <height>545</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton">

@@ -32,6 +32,11 @@ private:
     StateButton   *m_pSwitchCmdBtn;         //启停命令
     ModeButton    *m_pRunningModeCmdBtn;    //机组运行工作模式设定
 
+    AnalogValButton  *m_pTempSetBtn;     //目标温度设定
+    AnalogValButton  *m_pHumiSetBtn;     //目标湿度设定
+    AnalogValButton  *m_pCO2SetBtn;      //目标CO2设定
+
+
     DataLabel      *m_pPowerLabel;           //实时功率
     DataLabel      *m_pTotalEnergyLabel;     //累计耗电量
 

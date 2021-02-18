@@ -28,10 +28,10 @@
 #define LABEL_INTERVAL_H    260
 #define LABEL_INTERVAL_V    40
 
-#define DATA_LABEL_SIZE  100, 25
+#define DATA_LABEL_SIZE  100, 28
 
 #define DATA_LABEL_UP_MARGIN    30
-#define DATA_LABEL_LEFT_MARGIN  210
+#define DATA_LABEL_LEFT_MARGIN  180
 #define DATA_LABEL_INTERVAL_H   260
 #define DATA_LABEL_INTERVAL_V   40
 
@@ -62,9 +62,9 @@ void ModularChiller::initLabel()
 {
     TextLabel *pLabel = nullptr;
 
-    for(uint8_t n = 0; n < LABEL_ROWS; n++)
+    for(uint8_t m = 0; m < LABEL_COLUMNS; m++)
     {
-        for(uint8_t m = 0; m < LABEL_COLUMNS; m++)
+        for(uint8_t n = 0; n < LABEL_ROWS; n++)
         {
             pLabel = new TextLabel(ui->frame_2);
             pLabel->setGeometry( LABEL_LEFT_MARGIN + m * LABEL_INTERVAL_H,
@@ -75,7 +75,7 @@ void ModularChiller::initLabel()
     }
     m_Labels[0]->setText(tr("启停命令"), LABEL_FONT_SIZE);
     m_Labels[1]->setText(tr("工作模式"), LABEL_FONT_SIZE);
-    m_Labels[2]->setText(tr("平均回水温度"), LABEL_FONT_SIZE);
+    m_Labels[2]->setText(tr("回水温度"), LABEL_FONT_SIZE);
     m_Labels[3]->setText(tr("通讯故障"), LABEL_FONT_SIZE);
 
     ui->label->setText(QString::number(this->m_usDeviceIndex) + "# 机组");
@@ -93,11 +93,9 @@ void ModularChiller::initButton()
 
     //机组运行工作模式设定
     m_pRunningModeCmdBtn = new ModeButton(ui->frame_2);
-    m_pRunningModeCmdBtn->setItem(0,tr("无  "));
-    m_pRunningModeCmdBtn->setItem(1,tr("类型一"));
-    m_pRunningModeCmdBtn->setItem(2,tr("类型二"));
-    m_pRunningModeCmdBtn->setItem(3,tr("类型三"));
-    m_pRunningModeCmdBtn->setItem(4,tr("类型四"));
+    m_pRunningModeCmdBtn->setItem(0,tr("制冷"));
+    m_pRunningModeCmdBtn->setItem(1,tr("制热"));
+    m_pRunningModeCmdBtn->setItem(2,tr("手动化霜"));
     m_pRunningModeCmdBtn->setDefaultValue(0);
     m_Widgets.append(m_pRunningModeCmdBtn);
 
@@ -118,10 +116,10 @@ void ModularChiller::initButton()
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
     {
-        m = i / LABEL_COLUMNS;
-        n = i % LABEL_COLUMNS;
-        m_Widgets[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + n * DATA_LABEL_INTERVAL_H,
-                                  DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
+        m = i / LABEL_ROWS;
+        n = i % LABEL_ROWS;
+        m_Widgets[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + m * DATA_LABEL_INTERVAL_H,
+                                  DATA_LABEL_UP_MARGIN + n * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
 }

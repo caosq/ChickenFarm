@@ -22,9 +22,13 @@ StateButton::StateButton(QWidget *parent) :
     m_DefaultState = State0;
     m_CurrentState = State0;
 
-    StateStyle strTextuct0 = {pixmap0, "", QColor(activeColor_COLOR), QColor(INactiveColor_COLOR), 0};
+//    StateStyle strTextuct0 = {pixmap0, "", QColor(activeColor_COLOR), QColor(INactiveColor_COLOR), 0};
 
-    StateStyle strTextuct1 = {pixmap1, "", QColor(activeColor_COLOR), QColor(INactiveColor_COLOR), 1};
+//    StateStyle strTextuct1 = {pixmap1, "", QColor(activeColor_COLOR), QColor(INactiveColor_COLOR), 1};
+
+    StateStyle strTextuct0 = {pixmap0, "", Qt::white, QColor(INactiveColor_COLOR), 0};
+
+    StateStyle strTextuct1 = {pixmap1, "", Qt::green, QColor(INactiveColor_COLOR), 1};
 
     m_StateStyleVector.resize(0);
     m_StateStyleVector.append(strTextuct0);
@@ -233,7 +237,7 @@ void StateButton::paintEvent(QPaintEvent *e)
                 }
                 painter.drawText(1,1,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State0].strText);
                 painter.setPen(m_StateStyleVector[State1].inactiveColor);
-                painter.drawText((this->width() / 2) + 1,1,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State1].strText);
+                painter.drawText(this->width() / 2,1,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State1].strText);
             }
             else
             {
@@ -248,7 +252,7 @@ void StateButton::paintEvent(QPaintEvent *e)
                 {
                     painter.setPen(m_StateStyleVector[State1].inactiveColor);
                 }
-                painter.drawText((this->width() / 2) + 1,1,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State1].strText);
+                painter.drawText(this->width() / 2,1,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State1].strText);
             }
         }
         else
