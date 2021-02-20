@@ -4,7 +4,7 @@
 #define LABEL_COLUMNS  1
 #define LABEL_ROWS     1
 
-#define LABEL_SIZE       140, 25
+#define LABEL_SIZE       140, 28
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN     25
@@ -47,10 +47,10 @@ void PressureSensor::initLabel()
 void PressureSensor::initButton()
 {
     //温度
-    m_pPressureLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pPressureLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pPressureLabel->setAlignment(Qt::AlignLeft);
-    m_pPressureLabel->setDataParameter("kPa", 1, Monitor::Uint16t);
-    m_pPressureLabel->setText("1666 kPa", LABEL_FONT_SIZE);
+    m_pPressureLabel->setDataParameter("kPa", 0, Monitor::Uint16t);
+    m_pPressureLabel->setMonitorData(&m_usPressure, Monitor::Uint16t);
     m_Widgets.append(m_pPressureLabel);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
@@ -61,4 +61,5 @@ void PressureSensor::initButton()
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
+    ui->frame_2->hide();
 }

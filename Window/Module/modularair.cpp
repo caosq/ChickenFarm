@@ -5,7 +5,7 @@
 #define LABEL_COLUMNS  2
 #define LABEL_ROWS     14
 
-#define LABEL_SIZE       140, 25
+#define LABEL_SIZE       140, 30
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN     30
@@ -13,9 +13,9 @@
 #define LABEL_INTERVAL_H    300
 #define LABEL_INTERVAL_V    35
 
-#define DATA_LABEL_SIZE  110, 28
+#define DATA_LABEL_SIZE  120, 30
 
-#define DATA_LABEL_UP_MARGIN    30
+#define DATA_LABEL_UP_MARGIN    32
 #define DATA_LABEL_LEFT_MARGIN  170
 #define DATA_LABEL_INTERVAL_H   320
 #define DATA_LABEL_INTERVAL_V   35
@@ -63,7 +63,7 @@ void ModularAir::initLabel()
     m_Labels[4]->setText(tr("目标CO2"), LABEL_FONT_SIZE);
     m_Labels[5]->setText(tr("运行状态"), LABEL_FONT_SIZE);
     m_Labels[6]->setText(tr("运行模式"), LABEL_FONT_SIZE);
-    m_Labels[7]->setText(tr("远程/本地"), LABEL_FONT_SIZE);
+    m_Labels[7]->setText(tr("本地/远程"), LABEL_FONT_SIZE);
     m_Labels[8]->setText(tr("排风阀开度"), LABEL_FONT_SIZE);
     m_Labels[9]->setText(tr("回风阀开度"), LABEL_FONT_SIZE);
 
@@ -96,6 +96,7 @@ void ModularAir::initButton()
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
+    m_pSwitchCmdBtn->setMonitorData(&m_eSwitchCmd, Monitor::Uint16t);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //机组运行工作模式设定
@@ -105,21 +106,25 @@ void ModularAir::initButton()
     m_pRunningModeCmdBtn->setItem(2,tr("供热"));
     m_pRunningModeCmdBtn->setItem(3,tr("负压通风"));
     m_pRunningModeCmdBtn->setDefaultValue(0);
+    m_pRunningModeCmdBtn->setMonitorData(&m_eRunningModeCmd, Monitor::Uint16t);
     m_Widgets.append(m_pRunningModeCmdBtn);
 
     //目标温度设定
     m_pTempSetBtn = new AnalogValButton(ui->frame);
-    m_pTempSetBtn->setDataParameter("℃", 1, 500, 0, 0, Monitor::Uint16t);
+    m_pTempSetBtn->setDataParameter("℃", 1, 240, 350, 160, Monitor::Uint16t);
+    m_pTempSetBtn->setMonitorData(&m_usTempSet, Monitor::Uint16t);
     m_Widgets.append(m_pTempSetBtn);
 
     //目标湿度设定
     m_pHumiSetBtn = new AnalogValButton(ui->frame);
-    m_pHumiSetBtn->setDataParameter("%", 1, 0, 0, 0, Monitor::Uint16t);
+    m_pHumiSetBtn->setDataParameter("%", 1, 60, 100, 0, Monitor::Uint16t);
+    m_pHumiSetBtn->setMonitorData(&m_usHumiSet, Monitor::Uint16t);
     m_Widgets.append(m_pHumiSetBtn);
 
     //目标CO2设定
     m_pCO2SetBtn = new AnalogValButton(ui->frame);
-    m_pCO2SetBtn->setDataParameter("ppm", 0, 0, 0, 0, Monitor::Uint16t);
+    m_pCO2SetBtn->setDataParameter("ppm", 0, 2000, 3000, 1000, Monitor::Uint16t);
+    m_pCO2SetBtn->setMonitorData(&m_usCO2Set, Monitor::Uint16t);
     m_Widgets.append(m_pCO2SetBtn);
 
     //机组状态
@@ -129,8 +134,7 @@ void ModularAir::initButton()
     m_pModularStateLabel->setValueMap(1,tr("开机中"));
     m_pModularStateLabel->setValueMap(2,tr("关机中"));
     m_pModularStateLabel->setValueMap(3,tr("运行中"));
-    m_pModularStateLabel->setBackGroundColor("#165588");
-    m_pModularStateLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pModularStateLabel->setMonitorData(&m_eModularState, Monitor::Uint16t);
     m_Widgets.append(m_pModularStateLabel);
 
     //机组运行模式
@@ -140,8 +144,7 @@ void ModularAir::initButton()
     m_pRunningModeLabel->setValueMap(1,tr("通风"));
     m_pRunningModeLabel->setValueMap(2,tr("供热"));
     m_pRunningModeLabel->setValueMap(3,tr("负压通风"));
-    m_pRunningModeLabel->setBackGroundColor("#165588");
-    m_pRunningModeLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pRunningModeLabel->setMonitorData(&m_eRunningMode, Monitor::Uint16t);
     m_Widgets.append(m_pRunningModeLabel);
 
     //机组控制模式
@@ -149,96 +152,84 @@ void ModularAir::initButton()
     m_pControlModeLabel->setAlignment(Qt::AlignLeft);
     m_pControlModeLabel->setValueMap(0,tr("本地"));
     m_pControlModeLabel->setValueMap(1,tr("远程"));
-    m_pControlModeLabel->setBackGroundColor("#165588");
-    m_pControlModeLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pControlModeLabel->setMonitorData(&m_eControlMode, Monitor::Uint16t);
     m_Widgets.append(m_pControlModeLabel);
 
     //排风阀当前开度
-    m_pExitAirDamperAngLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pExitAirDamperAngLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pExitAirDamperAngLabel->setAlignment(Qt::AlignLeft);
     m_pExitAirDamperAngLabel->setDataParameter("%", 1, Monitor::Uint16t);
-    m_pExitAirDamperAngLabel->setBackGroundColor("#165588");
-    m_pExitAirDamperAngLabel->setText("***", LABEL_FONT_SIZE);
+    m_pExitAirDamperAngLabel->setMonitorData(&m_usExitAirDamperAng, Monitor::Uint16t);
     m_Widgets.append(m_pExitAirDamperAngLabel);
 
     //回风阀当前开度
-    m_pRetAirDamperAngLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pRetAirDamperAngLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pRetAirDamperAngLabel->setAlignment(Qt::AlignLeft);
     m_pRetAirDamperAngLabel->setDataParameter("%", 1, Monitor::Uint16t);
-    m_pRetAirDamperAngLabel->setBackGroundColor("#165588");
-    m_pRetAirDamperAngLabel->setText("***", LABEL_FONT_SIZE);
+    m_pRetAirDamperAngLabel->setMonitorData(&m_usRetAirDamperAng, Monitor::Uint16t);
     m_Widgets.append(m_pRetAirDamperAngLabel);
 
     //新风阀当前开度
-    m_pFreAirDamperAngLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pFreAirDamperAngLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pFreAirDamperAngLabel->setAlignment(Qt::AlignLeft);
     m_pFreAirDamperAngLabel->setDataParameter("%", 1, Monitor::Uint16t);
-    m_pFreAirDamperAngLabel->setBackGroundColor("#165588");
-    m_pFreAirDamperAngLabel->setText("***", LABEL_FONT_SIZE);
+    m_pFreAirDamperAngLabel->setMonitorData(&m_usFreAirDamperAng, Monitor::Uint16t);
     m_Widgets.append(m_pFreAirDamperAngLabel);
 
     //分流阀反馈开度
-    m_pDivideDamperAngLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pDivideDamperAngLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pDivideDamperAngLabel->setAlignment(Qt::AlignLeft);
     m_pDivideDamperAngLabel->setDataParameter("%", 1, Monitor::Uint16t);
-    m_pDivideDamperAngLabel->setBackGroundColor("#165588");
-    m_pDivideDamperAngLabel->setText("***", LABEL_FONT_SIZE);
+    m_pDivideDamperAngLabel->setMonitorData(&m_usDivideDamperAng, Monitor::Uint16t);
     m_Widgets.append(m_pDivideDamperAngLabel);
 
     //盘管水阀反馈开度
-    m_pCoilerDamperAngLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pCoilerDamperAngLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pCoilerDamperAngLabel->setAlignment(Qt::AlignLeft);
     m_pCoilerDamperAngLabel->setDataParameter("%", 1, Monitor::Uint16t);
-    m_pCoilerDamperAngLabel->setBackGroundColor("#165588");
-    m_pCoilerDamperAngLabel->setText("***", LABEL_FONT_SIZE);
+    m_pCoilerDamperAngLabel->setMonitorData(&m_usCoilerDamperAng, Monitor::Uint16t);
     m_Widgets.append(m_pCoilerDamperAngLabel);
 
     //送风风机频率
-    m_pSupAirFanFregLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pSupAirFanFregLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pSupAirFanFregLabel->setAlignment(Qt::AlignLeft);
     m_pSupAirFanFregLabel->setDataParameter("Hz", 1, Monitor::Uint16t);
-    m_pSupAirFanFregLabel->setBackGroundColor("#165588");
-    m_pSupAirFanFregLabel->setText("***", LABEL_FONT_SIZE);
+    m_pSupAirFanFregLabel->setMonitorData(&m_usSupAirFanFreg, Monitor::Uint16t);
     m_Widgets.append(m_pSupAirFanFregLabel);
 
     //排风风机频率
-    m_pExitAirFanFregLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pExitAirFanFregLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pExitAirFanFregLabel->setAlignment(Qt::AlignLeft);
     m_pExitAirFanFregLabel->setDataParameter("Hz", 1, Monitor::Uint16t);
-    m_pExitAirFanFregLabel->setBackGroundColor("#165588");
-    m_pExitAirFanFregLabel->setText("***", LABEL_FONT_SIZE);
+    m_pExitAirFanFregLabel->setMonitorData(&m_usExitAirFanFreg, Monitor::Uint16t);
     m_Widgets.append(m_pExitAirFanFregLabel);
 
     //送风温度
-    m_pSupAirTempLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pSupAirTempLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pSupAirTempLabel->setAlignment(Qt::AlignLeft);
-    m_pSupAirTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
-    m_pSupAirTempLabel->setBackGroundColor("#165588");
-    m_pSupAirTempLabel->setText("***", LABEL_FONT_SIZE);
+    m_pSupAirTempLabel->setDataParameter("℃", 1, Monitor::Int16t);
+    m_pSupAirTempLabel->setMonitorData(&m_sSupAirTemp, Monitor::Int16t);
     m_Widgets.append(m_pSupAirTempLabel);
 
     //送风湿度
-    m_pSupAirHumiLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pSupAirHumiLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pSupAirHumiLabel->setAlignment(Qt::AlignLeft);
     m_pSupAirHumiLabel->setDataParameter("%", 1, Monitor::Uint16t);
-    m_pSupAirHumiLabel->setBackGroundColor("#165588");
-    m_pSupAirHumiLabel->setText("***", LABEL_FONT_SIZE);
+    m_pSupAirHumiLabel->setMonitorData(&m_usSupAirHumi, Monitor::Uint16t);
     m_Widgets.append(m_pSupAirHumiLabel);
 
     //排风量
-    m_pExitAirVolumeLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pExitAirVolumeLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pExitAirVolumeLabel->setAlignment(Qt::AlignLeft);
-    m_pExitAirVolumeLabel->setDataParameter("m³/h", 1, Monitor::Uint16t);
-    m_pExitAirVolumeLabel->setBackGroundColor("#165588");
-    m_pExitAirVolumeLabel->setText("***", LABEL_FONT_SIZE);
+    m_pExitAirVolumeLabel->setDataParameter("m³/h", 0, Monitor::Uint16t);
+    m_pExitAirVolumeLabel->setMonitorData(&m_usExitAirVolume, Monitor::Uint16t);
     m_Widgets.append(m_pExitAirVolumeLabel);
 
     //新风量
-    m_pFreAirVolumeLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pFreAirVolumeLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pFreAirVolumeLabel->setAlignment(Qt::AlignLeft);
-    m_pFreAirVolumeLabel->setDataParameter("m³/h", 1, Monitor::Uint16t);
-    m_pFreAirVolumeLabel->setBackGroundColor("#165588");
-    m_pFreAirVolumeLabel->setText("***", LABEL_FONT_SIZE);
+    m_pFreAirVolumeLabel->setDataParameter("m³/h", 0, Monitor::Uint16t);
+    m_pFreAirVolumeLabel->setMonitorData(&m_usFreAirVolume, Monitor::Uint16t);
     m_Widgets.append(m_pFreAirVolumeLabel);
 
     //转轮回收
@@ -246,8 +237,7 @@ void ModularAir::initButton()
     m_pRecycleModeLabel->setAlignment(Qt::AlignLeft);
     m_pRecycleModeLabel->setValueMap(0,tr("关闭"));
     m_pRecycleModeLabel->setValueMap(1,tr("开启"));
-    m_pRecycleModeLabel->setBackGroundColor("#165588");
-    m_pRecycleModeLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pRecycleModeLabel->setMonitorData(&m_xRecycleMode, Monitor::Boolean);
     m_Widgets.append(m_pRecycleModeLabel);
 
     //湿膜加湿
@@ -255,8 +245,7 @@ void ModularAir::initButton()
     m_pWetModeLabel->setAlignment(Qt::AlignLeft);
     m_pWetModeLabel->setValueMap(0,tr("关闭"));
     m_pWetModeLabel->setValueMap(1,tr("开启"));
-    m_pWetModeLabel->setBackGroundColor("#165588");
-    m_pWetModeLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pWetModeLabel->setMonitorData(&m_xWetMode, Monitor::Boolean);
     m_Widgets.append(m_pWetModeLabel);
 
     //送风风机
@@ -264,8 +253,7 @@ void ModularAir::initButton()
     m_pSupAirFanLabel->setAlignment(Qt::AlignLeft);
     m_pSupAirFanLabel->setValueMap(0,tr("关闭"));
     m_pSupAirFanLabel->setValueMap(1,tr("开启"));
-    m_pSupAirFanLabel->setBackGroundColor("#165588");
-    m_pSupAirFanLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pSupAirFanLabel->setMonitorData(&m_xSupAirFan, Monitor::Boolean);
     m_Widgets.append(m_pSupAirFanLabel);
 
     //排风风机
@@ -273,8 +261,7 @@ void ModularAir::initButton()
     m_pExitAirFanLabel->setAlignment(Qt::AlignLeft);
     m_pExitAirFanLabel->setValueMap(0,tr("关闭"));
     m_pExitAirFanLabel->setValueMap(1,tr("开启"));
-    m_pExitAirFanLabel->setBackGroundColor("#165588");
-    m_pExitAirFanLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pExitAirFanLabel->setMonitorData(&m_xExitAirFan, Monitor::Boolean);
     m_Widgets.append(m_pExitAirFanLabel);
 
     //通讯故障
@@ -282,8 +269,7 @@ void ModularAir::initButton()
     m_pCommErrLabel->setAlignment(Qt::AlignLeft);
     m_pCommErrLabel->setValueMap(0,tr("正常"));
     m_pCommErrLabel->setValueMap(1,tr("故障"));
-    m_pCommErrLabel->setBackGroundColor("#165588");
-    m_pCommErrLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pCommErrLabel->setMonitorData(&m_xCommErr, Monitor::Boolean);
     m_Widgets.append(m_pCommErrLabel);
 
     //综合故障标志
@@ -291,8 +277,7 @@ void ModularAir::initButton()
     m_pAlarmFlagLabel->setAlignment(Qt::AlignLeft);
     m_pAlarmFlagLabel->setValueMap(0,tr("正常"));
     m_pAlarmFlagLabel->setValueMap(1,tr("故障"));
-    m_pAlarmFlagLabel->setBackGroundColor("#165588");
-    m_pAlarmFlagLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pAlarmFlagLabel->setMonitorData(&m_xAlarmFlag, Monitor::Boolean);
     m_Widgets.append(m_pAlarmFlagLabel);
 
     //排风风速传感器故障
@@ -300,8 +285,7 @@ void ModularAir::initButton()
     m_pExitAirSenErrLabel->setAlignment(Qt::AlignLeft);
     m_pExitAirSenErrLabel->setValueMap(0,tr("正常"));
     m_pExitAirSenErrLabel->setValueMap(1,tr("故障"));
-    m_pExitAirSenErrLabel->setBackGroundColor("#165588");
-    m_pExitAirSenErrLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pExitAirSenErrLabel->setMonitorData(&m_xExitAirSenErr, Monitor::Boolean);
     m_Widgets.append(m_pExitAirSenErrLabel);
 
     //新风风速传感器故障
@@ -309,7 +293,7 @@ void ModularAir::initButton()
     m_pFreAirSenErrLabel->setAlignment(Qt::AlignLeft);
     m_pFreAirSenErrLabel->setValueMap(0,tr("正常"));
     m_pFreAirSenErrLabel->setValueMap(1,tr("故障"));
-    m_pFreAirSenErrLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pFreAirSenErrLabel->setMonitorData(&m_xFreAirSenErr, Monitor::Boolean);
     m_Widgets.append(m_pFreAirSenErrLabel);
 
 

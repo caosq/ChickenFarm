@@ -9,7 +9,7 @@
 
 #define AB_PRESS_PIX ":UI/baseFile/abPress.png"
 //#define AB_RELEASE_PIX ":UI/baseFile/abRelease.png"
-#define AB_RELEASE_PIX ":UI/userFile/button100_35.png"
+#define AB_RELEASE_PIX ":UI/Frame/mode.png"
 
 
 #define SBUTTON_STATE0 ":UI/baseFile/sbLeft.png"
@@ -21,7 +21,9 @@
 #define UB_PRESS_PIX ":UI/baseFile/ubPress.png"
 #define UB_RELEASE_PIX ":UI/baseFile/ubRelease.png"
 
-#define MB_PIX2 ":UI/baseFile/mbPix2.png"
+//#define MB_PIX2 ":UI/baseFile/mbPix2.png"
+#define MB_PIX2 ":UI/Frame/combobox.png"
+
 
 MainForm::MainForm(QWidget *parent) :
     QWidget(parent),
@@ -96,14 +98,11 @@ void MainForm::initForm()
     m_pSetting       = new Setting();
     m_pEvent         = new Event();
 
-
     ui->mainStackedWidget->insertWidget(0, m_pHome);
     ui->mainStackedWidget->insertWidget(1, m_pSystemMonitor);
     ui->mainStackedWidget->insertWidget(2, m_pCurve);
     ui->mainStackedWidget->insertWidget(3, m_pSetting);
     ui->mainStackedWidget->insertWidget(4, m_pEvent);
-
-
     ui->mainStackedWidget->setCurrentWidget(m_pHome);
 }
 

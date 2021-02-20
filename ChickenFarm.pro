@@ -12,6 +12,7 @@ TARGET = ChickenFarm
 TEMPLATE = app
 
 INCLUDEPATH += /usr/local/qwt/qwt-6.1.2-x64/include \
+            Comm \
             Comm/FreeModbus/config \
             Comm/FreeModbus/driver \
             Comm/FreeModbus/utils \
@@ -95,6 +96,7 @@ SOURCES += \
         DataManage/datasave.cpp \
         Device/controller.cpp \
         Device/device.cpp \
+        Device/meter.cpp \
         Widget/Event/usercurrentevent.cpp \
         Widget/Event/userhistoryevent.cpp \
         Widget/Temp/tempunit.cpp \
@@ -206,6 +208,7 @@ HEADERS += \
         DataManage/datasave.h \
         Device/controller.h \
         Device/device.h \
+    Device/meter.h \
     Main/global.h \
     Widget/Event/usercurrentevent.h \
     Widget/Event/userhistoryevent.h \

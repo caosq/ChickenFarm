@@ -134,5 +134,9 @@
         <file>UI/Device/groupRun.png</file>
         <file>UI/Device/groupRun2.png</file>
         <file>UI/Frame/greenBtn.png</file>
+        <file>UI/Frame/modeSet.png</file>
+        <file>UI/Frame/mode.png</file>
+        <file>UI/Frame/alarm.png</file>
+        <file>UI/Frame/combobox.png</file>
     </qresource>
 </RCC>

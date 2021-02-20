@@ -4,7 +4,7 @@
 #define LABEL_COLUMNS  1
 #define LABEL_ROWS     1
 
-#define LABEL_SIZE       140, 25
+#define LABEL_SIZE       140, 28
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN     25
@@ -47,10 +47,10 @@ void TempSensor::initLabel()
 void TempSensor::initButton()
 {
     //温度
-    m_pTempLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pTempLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pTempLabel->setAlignment(Qt::AlignLeft);
     m_pTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
-    m_pTempLabel->setText("166.6 ℃", LABEL_FONT_SIZE);
+    m_pTempLabel->setMonitorData(&m_sTemp, Monitor::Int16t);
     m_Widgets.append(m_pTempLabel);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
@@ -61,4 +61,5 @@ void TempSensor::initButton()
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
+    ui->frame_2->hide();
 }

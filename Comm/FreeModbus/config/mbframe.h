@@ -74,7 +74,7 @@ extern "C" {
 #define MB_PDU_DATA_OFF          1   /*!< Offset of response data in PDU. */
 #define MB_PDU_VALUE_OFF         2   /*!< Offset of data value in PDU. */
 
-#define single          0x00
+//#define single          0x00
 #define boolean         0x01
 #define int8            0x02
 #define int16           0x03
@@ -160,10 +160,10 @@ typedef enum
 
 typedef enum                      /* Modbus数杮类型 */
 {
-  RegHoldData = 0,
-  RegInputData ,
-  CoilData ,
-  DiscInData ,
+    RegHoldData = 0,
+    RegInputData ,
+    CoilData ,
+    DiscInData ,
 }eDataType ;  
 
 #ifdef __cplusplus

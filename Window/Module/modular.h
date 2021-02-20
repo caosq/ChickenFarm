@@ -42,18 +42,18 @@ public:
         STATE_ANTI_FREEZE   = 4,      //冬天防冻
     }ModularState;
 
-    ModularState   m_eModularState;     //模块状态
+    ModularState   m_eModularState = STATE_ANTI_FREEZE;   //模块状态
 
     uint8_t  m_usCompNum;
-    uint8_t  m_RunnningCompCount = 0;   //运行压缩机数量
+    uint8_t  m_RunnningCompCount = 0;  //运行压缩机数量
 
-    int16_t  m_sInputWaterTemp;         //进水温度
-    int16_t  m_sOutputWaterTemp;        //出水温度
+    int16_t  m_sInputWaterTemp = 0;     //进水温度
+    int16_t  m_sOutputWaterTemp = 0;    //出水温度
 
-    bool          m_xRunningFlag;      //运行标志
-    bool          m_xErrorFlag;        //总故障标志
-    bool          m_xAlarmFlag;        //总报警标志
-    bool          m_xWaterValve;       //水流开关
+    bool     m_xRunningFlag = 0;        //运行标志
+    bool     m_xErrorFlag = 0;          //总故障标志
+    bool     m_xAlarmFlag = 0;          //总报警标志
+    bool     m_xWaterValve = 0;         //水流开关
 
     static uint8_t  m_usModularCount;  //模块数量
 
@@ -61,14 +61,14 @@ private:
     QVector<TextLabel*> m_Labels;
     QVector<QWidget*>   m_Widgets;
 
-    DataLabel   *m_pModularStateLabel;     //模块状态
-    DataLabel   *m_pRunnningCompCountLabel; //运行压缩机数量
-    DataLabel   *m_pInputWaterTempLabel;   //进水温度
-    DataLabel   *m_pOutputWaterTempLabel;  //出水温度
-    DataLabel   *m_pRunningFlagLabel;      //运行标志
-    DataLabel   *m_pErrorFlagLabel;        //总故障标志
-    DataLabel   *m_pAlarmFlagLabel;        //总报警标志
-    DataLabel   *m_pWaterValveLabel;       //水流开关
+    DataLabel *m_pModularStateLabel;     //模块状态
+    DataLabel *m_pRunnningCompCountLabel; //运行压缩机数量
+    DataLabel *m_pInputWaterTempLabel;   //进水温度
+    DataLabel *m_pOutputWaterTempLabel;  //出水温度
+    DataLabel *m_pRunningFlagLabel;      //运行标志
+    DataLabel *m_pErrorFlagLabel;        //总故障标志
+    DataLabel *m_pAlarmFlagLabel;        //总报警标志
+    DataLabel *m_pWaterValveLabel;       //水流开关
 
 private:
     void initLabel();

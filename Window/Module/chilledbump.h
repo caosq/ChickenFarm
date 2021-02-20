@@ -25,16 +25,16 @@ public:
         CMD_OPEN  = 1,
     }SwitchCmd;
 
-    SwitchCmd     m_eSwitchCmd;        //启停命令
+    SwitchCmd     m_eSwitchCmd = CMD_CLOSE;        //启停命令
 
-    uint16_t       m_usFreqSet;         //频率设置
-    uint16_t       m_usFreq;            //频率反馈
+    uint16_t       m_usFreqSet = 350;         //频率设置
+    uint16_t       m_usFreq = 0;            //频率反馈
 
-    bool          m_xRemote;           //远程/本地
-    bool          m_xRunningFlag;      //运行标志
-    bool          m_xErrorFlag;        //设备故障
-    bool          m_xControlFlag;      //控制故障
-    bool          m_xErrClean;         //故障清除
+    bool          m_xRemote = 0;           //远程/本地
+    bool          m_xRunningFlag = 0;      //运行标志
+    bool          m_xErrorFlag = 0;        //设备故障
+    bool          m_xControlFlag = 0;      //控制故障
+    bool          m_xErrClean = 0;         //故障清除
 
     static uint8_t  m_usChilledBumpCount;   //水泵数量
 

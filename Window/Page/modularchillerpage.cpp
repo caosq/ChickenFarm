@@ -1,13 +1,14 @@
 #include "modularchillerpage.h"
 #include "ui_modularchillerpage.h"
+#include "system.h"
 
 #define LABEL_COLUMNS_1  1
 #define LABEL_ROWS_1     6
 
 #define LABEL_COLUMNS_2  1
-#define LABEL_ROWS_2     2
+#define LABEL_ROWS_2     3
 
-#define LABEL_SIZE       120, 26
+#define LABEL_SIZE       120, 28
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN_1     30
@@ -27,8 +28,8 @@
 #define DATA_LABEL_INTERVAL_H_1   300
 #define DATA_LABEL_INTERVAL_V_1   40
 
-#define DATA_LABEL_UP_MARGIN_2    60
-#define DATA_LABEL_LEFT_MARGIN_2  140
+#define DATA_LABEL_UP_MARGIN_2    65
+#define DATA_LABEL_LEFT_MARGIN_2  150
 #define DATA_LABEL_INTERVAL_H_2   300
 #define DATA_LABEL_INTERVAL_V_2   40
 
@@ -54,12 +55,22 @@ ModularChillerPage::~ModularChillerPage()
 void ModularChillerPage::initDevice()
 {
     ModularChiller* pModularChiller = nullptr;
+    System   *pSystem = System::getInstance();
+
+    if(pSystem == nullptr)
+    {
+        return;
+    }
     for(uint8_t n = 0; n < MODULAR_CHILLER_NUM; n++)
     {
-        pModularChiller = new ModularChiller();
+        pModularChiller = new ModularChiller(this);
+        pSystem->m_pModularChillers[n] = pModularChiller;
+
         m_ModularChillers.append(pModularChiller);
+        //pModularChiller->setGeometry(296, 20, 611, 545);
         ui->modularChillerStackedWidget->insertWidget(n, pModularChiller);
     }
+    m_ModularChillers[1]->hide();
 }
 
 void ModularChillerPage::initLabel()
@@ -96,6 +107,7 @@ void ModularChillerPage::initLabel()
     }
     m_Labels_2[0]->setText(tr("耗电功率"), LABEL_FONT_SIZE);
     m_Labels_2[1]->setText(tr("累计耗电量"), LABEL_FONT_SIZE);
+    m_Labels_2[2]->setText(tr("通讯故障"), LABEL_FONT_SIZE);
 }
 
 void ModularChillerPage::initButton()
@@ -140,20 +152,25 @@ void ModularChillerPage::initButton()
                                   DATA_LABEL_SIZE);
     }
     //实时功率
-    m_pPowerLabel = new DataLabel(ui->frame_1, DataLabel::Text);
+    m_pPowerLabel = new DataLabel(ui->frame_1, DataLabel::Data);
     m_pPowerLabel->setAlignment(Qt::AlignLeft);
     m_pPowerLabel->setDataParameter("kW", 1, Monitor::Uint16t);
-    m_pPowerLabel->setBackGroundColor("#165588");
-    m_pPowerLabel->setText("***", LABEL_FONT_SIZE);
+    m_pPowerLabel->setMonitorData(&m_sMeter.m_usPower, Monitor::Uint16t);
     m_Widgets_2.append(m_pPowerLabel);
 
     //累计耗电量
-    m_pTotalEnergyLabel = new DataLabel(ui->frame_1, DataLabel::Text);
+    m_pTotalEnergyLabel = new DataLabel(ui->frame_1, DataLabel::Data);
     m_pTotalEnergyLabel->setAlignment(Qt::AlignLeft);
-    m_pTotalEnergyLabel->setDataParameter("kWh", 1, Monitor::Uint16t);
-    m_pTotalEnergyLabel->setBackGroundColor("#165588");
-    m_pTotalEnergyLabel->setText("***", LABEL_FONT_SIZE);
+    m_pTotalEnergyLabel->setDataParameter("kWh", 0, Monitor::Uint32t);
+    m_pTotalEnergyLabel->setMonitorData(&m_sMeter.m_ulTotalEnergy, Monitor::Uint32t);
     m_Widgets_2.append(m_pTotalEnergyLabel);
+
+    m_pCommErrLabel = new DataLabel(ui->frame_1, DataLabel::Text);
+    m_pCommErrLabel->setAlignment(Qt::AlignLeft);
+    m_pCommErrLabel->setValueMap(0,tr("正常"));
+    m_pCommErrLabel->setValueMap(1,tr("故障"));
+    m_pCommErrLabel->setMonitorData(&m_sMeter.m_xCommErr, Monitor::Boolean);
+    m_Widgets_2.append(m_pCommErrLabel);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets_2.count(); i++)
     {
@@ -177,4 +194,25 @@ void ModularChillerPage::on_pushButton_clicked()
         ui->modularChillerStackedWidget->setCurrentIndex(0);
         ui->pushButton->setText("下一页");
     }
+
+/*    if(m_usCurrentIndex == 0)
+    {
+        m_usCurrentIndex = 1;
+        m_ModularChillers[0]->hide();
+        m_ModularChillers[1]->show();
+        ui->pushButton->setText("上一页");
+
+        ui->modularChillerStackedWidget->setCurrentIndex(1);
+    }
+    else if(m_usCurrentIndex == 1)
+    {
+        m_usCurrentIndex = 0;
+        m_ModularChillers[0]->show();
+        m_ModularChillers[1]->hide();
+        ui->pushButton->setText("下一页");
+
+        ui->modularChillerStackedWidget->setCurrentIndex(0);
+    }
+*/
+
 }

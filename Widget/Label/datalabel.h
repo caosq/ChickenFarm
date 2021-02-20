@@ -104,13 +104,14 @@ public:
 protected:
     void paintEvent(QPaintEvent *e);
 private:
-    void showData(unsigned int val);
-    void showText(unsigned int val);
-    void showColor(unsigned int val);
-    void showImage(unsigned int val);
+    void showData(int32_t val);
+    void showText(int32_t val);
+    void showColor(int32_t val);
+    void showImage(int32_t val);
 
 public slots:
-    void setValue(unsigned int val);
+    void setValue(int32_t val);
+    void setValue(Monitor* pMonitor);
 
 private slots:
     void fontSlot();
@@ -118,7 +119,6 @@ private slots:
 
 signals:
     void fontChange();
-
 
 private:
     typedef struct
@@ -140,7 +140,7 @@ private:
 
     bool        m_xTextColorLock;
 
-    QMap<int, sTextMap> m_TextMap;
+    QMap<int32_t, sTextMap> m_TextMap;
 
     static DataLabel   *father;
     static QFont    *fatherFont;

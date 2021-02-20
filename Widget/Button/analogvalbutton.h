@@ -62,7 +62,7 @@ public:
     //void setText(const QString text);
 
     //设置字符串显示，同时设置字号大小
-    void setText(const QString text, int size = 12);
+    void setText(const QString text, int size = 14);
 
     //设置文字大小
     void setTextSize(int size);
@@ -100,18 +100,20 @@ protected:
     void paintEvent(QPaintEvent *e);
 
 private:
-    void showData(unsigned int val);
-    void showText(unsigned int val);
-    void showColor(unsigned int val);
-    void showImage(unsigned int val);
+    void showData(uint32_t val);
+    void showText(uint32_t val);
+    void showColor(uint32_t val);
+    void showImage(uint32_t val);
 
 signals:
     void fontChange();
 
 public slots:
-    void setValue(uint32_t val);
-    void setMaxValue(uint32_t val);
-    void setMinValue(uint32_t val);
+    void setValue(int32_t val);
+    void setValue(Monitor* pMonitor);
+    void setMaxValue(Monitor* pMonitor);
+    void setMinValue(Monitor* pMonitor);
+
     void clickedSlot();
 
 private slots:

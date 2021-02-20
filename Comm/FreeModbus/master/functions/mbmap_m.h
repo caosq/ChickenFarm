@@ -20,26 +20,30 @@ extern "C" {
 #define MASTER_BEGIN_DATA_BUF(BUF, TABLE) \
         usIndex = 0; \
         pvDataBuf   = BUF; \
-        psDataTable = TABLE;
-  
+        psDataTable = &TABLE;
+
+#if MB_UCOSIII_ENABLED
 //保持寄存器数据申请  
 #define MASTER_REG_HOLD_DATA(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-        vMBMasterDevRegHoldDataInit((sMasterRegHoldData*)pvDataBuf + usIndex, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); \
+        vMBMasterDevRegHoldDataInit((sMasterRegHoldData*)pvDataBuf + usIndex, \
+        arg1, arg2, arg3, arg4, arg5, arg6, arg7, (void*)&arg8); \
         usIndex++;
         
 //输入寄存器数据申请  
-#define MASTER_REG_IN_DATA(arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-        vMBMasterDevRegInDataInit((sMasterRegInData*)pvDataBuf + usIndex, arg1, arg2, arg3, arg4, arg5, arg6, arg7); \
+#define MASTER_REG_IN_DATA(arg1, arg2, arg3, arg4, arg5, arg6, (void*)&arg7) \
+        vMBMasterDevRegInDataInit((sMasterRegInData*)pvDataBuf + usIndex, \
+        arg1, arg2, arg3, arg4, arg5, arg6, arg7); \
         usIndex++;
         
 //线圈数据申请  
 #define MASTER_COIL_BIT_DATA(arg1, arg2, arg3, arg4) \
-        vMBMasterDevCoilDataInit((sMasterBitCoilData*)pvDataBuf + usIndex, arg1, arg2, arg3, arg4); \
+        vMBMasterDevCoilDataInit((sMasterBitCoilData*)pvDataBuf + usIndex, \
+        arg1, arg2, arg3, (void*)&arg4); \
         usIndex++;
         
 //离散量数据申请  
 #define MASTER_DISC_BIT_DATA(arg1, arg2, arg3) \
-        vMBMasterDevDiscDataInit((sMasterBitCoilData*)pvDataBuf + usIndex, arg1, arg2, arg3); \
+        vMBMasterDevDiscDataInit((sMasterBitDiscData*)pvDataBuf + usIndex, arg1, arg2, (void*)&arg3); \
         usIndex++;
         
 //结束数据表申请  
@@ -48,18 +52,67 @@ extern "C" {
         usIndex = 0; 
  
 //测试命令初始化申请  
-#define MASTER_TEST_CMD_INIT(pCmd, arg1, arg2, arg3, arg4) \
+#define MASTER_TEST_CMD_INIT(&pCmd, arg1, arg2, arg3, arg4) \
         vMBMasterDevTestCmdInit(pCmd, arg1, arg2, arg3, arg4);
 
 #if MB_MASTER_HEART_BEAT_ENABLED > 0
+
 //心跳帧初始化申请  
 #define MASTER_HEART_BEAT_INIT(psDevHeartBeat, arg1, arg2, arg3, arg4, arg5) \
-        vMBMasterDevHeartBeatInit((sMBDevHeartBeat*)psDevHeartBeat, arg1, arg2, arg3, arg4, arg5);         
-#endif  
+        vMBMasterDevHeartBeatInit((sMBDevHeartBeat*)psDevHeartBeat, \
+        arg1, arg2, arg3, arg4, arg5);
+#endif
+
+#elif MB_LINUX_ENABLED
+
+//保持寄存器数据申请
+#define MASTER_REG_HOLD_DATA(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
+        vMBMasterDevRegHoldDataInit(static_cast<sMasterRegHoldData*>(pvDataBuf) + usIndex, \
+        arg1, arg2, arg3, arg4, arg5, arg6, arg7, static_cast<void*>(&arg8)); \
+        usIndex++;
+
+//输入寄存器数据申请
+#define MASTER_REG_IN_DATA(arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
+        vMBMasterDevRegInDataInit(static_cast<sMasterRegInData*>(pvDataBuf) + usIndex, \
+        arg1, arg2, arg3, arg4, arg5, arg6, static_cast<void*>(&arg7)); \
+        usIndex++;
+
+//线圈数据申请
+#define MASTER_COIL_BIT_DATA(arg1, arg2, arg3, arg4) \
+        vMBMasterDevCoilDataInit(static_cast<sMasterBitCoilData*>(pvDataBuf) + usIndex, \
+        arg1, arg2, arg3, static_cast<void*>(&arg4)); \
+        usIndex++;
+
+//离散量数据申请
+#define MASTER_DISC_BIT_DATA(arg1, arg2, arg3) \
+        vMBMasterDevDiscDataInit(static_cast<sMasterBitDiscData*>(pvDataBuf) + usIndex, \
+        arg1, arg2, static_cast<void*>(&arg3)); \
+        usIndex++;
+
+//结束数据表申请
+#define MASTER_END_DATA_BUF(usStartAddr, usEndAddr)\
+        vMBMasterDevDataTableInit(psDataTable, pvDataBuf, usStartAddr, usEndAddr, usIndex);  \
+        usIndex = 0;
+
+//测试命令初始化申请
+#define MASTER_TEST_CMD_INIT(pCmd, arg1, arg2, arg3, arg4) \
+        vMBMasterDevTestCmdInit(&pCmd, arg1, arg2, arg3, arg4);
+
+#if MB_MASTER_HEART_BEAT_ENABLED > 0
+
+//心跳帧初始化申请
+#define MASTER_HEART_BEAT_INIT(psDevHeartBeat, arg1, arg2, arg3, arg4, arg5) \
+        vMBMasterDevHeartBeatInit(static_cast<sMBDevHeartBeat*>(psDevHeartBeat), arg1, arg2, arg3, arg4, arg5);
+#endif
+
+
 
 #endif
 
-typedef eMBMasterReqErrCode (*psMBDevDataMapIndex)(eDataType eDataType, UCHAR ucProtocolID, USHORT usAddr, USHORT* psIndex); //字典映射函数
+#endif
+
+typedef eMBMasterReqErrCode (*psMBDevDataMapIndex)(eDataType eDataType, UCHAR ucProtocolID,
+                                                   USHORT usAddr, USHORT* psIndex); //字典映射函数
 
 
 eMBMasterReqErrCode eMBMasterRegInMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, 

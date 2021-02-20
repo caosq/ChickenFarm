@@ -684,7 +684,7 @@ BOOL xMBMasterRegistDev(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBNewDev)
     {
         psMBDevsInfo->psMBSlaveDevsList = psMBNewDev;
     }
-    else //有节结点
+    else //有节点
     {
         psMBDev = psMBDevsInfo->psMBSlaveDevsList->pLast;   //尾节点
         psMBDev->pNext = psMBNewDev;

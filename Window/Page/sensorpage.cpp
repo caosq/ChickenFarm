@@ -1,10 +1,11 @@
 #include "sensorpage.h"
 #include "ui_sensorpage.h"
+#include "system.h"
 
 #define LABEL_COLUMNS  1
 #define LABEL_ROWS     2
 
-#define LABEL_SIZE       110, 25
+#define LABEL_SIZE       110, 28
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN     30
@@ -48,13 +49,19 @@ void SensorPage::initDevice()
     TempSensor     *pTemp     = nullptr;
     PressureSensor *pPressure = nullptr;
 
+    System   *pSystem = System::getInstance();
 
+    if(pSystem == nullptr)
+    {
+        return;
+    }
     for(uint8_t n = 0, x = 0, y = 0; n < TEMP_HUMI_IN_NUM; n++)
     {
         x = n / 2;
         y = n % 2;
 
         pTempHumi = new TempHumiSensor("ITH", n);
+        pSystem->m_pModularAirs[x]->m_pTempHumiInSensors[y] = pTempHumi;
         ui->gridLayout->addWidget(pTempHumi, x, y);
     }
     for(uint8_t n = 0, x = 0, y = 0; n < TEMP_HUMI_OUT_NUM; n++)
@@ -63,6 +70,7 @@ void SensorPage::initDevice()
         y = n % 2;
 
         pTempHumi = new TempHumiSensor("OTH", n);
+        pSystem->m_pModularAirs[y]->m_pTempHumiOutSensor = pTempHumi;
         ui->gridLayout_1->addWidget(pTempHumi, x, y);
     }
     for(uint8_t n = 0, x = 0, y = 0; n < CO2_NUM; n++)
@@ -71,6 +79,7 @@ void SensorPage::initDevice()
         y = n % 2;
 
         pCO2 = new CO2Sensor();
+        pSystem->m_pModularAirs[x]->m_pCO2Sensors[y] = pCO2;
         ui->gridLayout_2->addWidget(pCO2, x, y);
     }
     for(uint8_t n = 0, x = 0, y = 0; n < TEMP_NUM; n++)
@@ -79,6 +88,7 @@ void SensorPage::initDevice()
         y = n % 2;
 
         pTemp = new TempSensor();
+        pSystem->m_pCHWTempSensors[n] = pTemp;
         ui->gridLayout_4->addWidget(pTemp, x, y);
     }
     for(uint8_t n = 0, x = 0, y = 0; n < PRESSURE_NUM; n++)
@@ -87,6 +97,7 @@ void SensorPage::initDevice()
         y = n % 2;
 
         pPressure = new PressureSensor();
+        pSystem->m_pCHWPressureSensors[n] = pPressure;
         ui->gridLayout_3->addWidget(pPressure, x, y);
     }
 }

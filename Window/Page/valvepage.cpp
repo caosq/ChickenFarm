@@ -1,11 +1,12 @@
 #include "valvepage.h"
 #include "butterflyvalve.h"
 #include "ui_valvepage.h"
+#include "system.h"
 
 #define LABEL_COLUMNS  1
 #define LABEL_ROWS     2
 
-#define LABEL_SIZE       110, 25
+#define LABEL_SIZE       110, 28
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN     30
@@ -16,9 +17,9 @@
 #define DATA_LABEL_SIZE  90, 28
 
 #define DATA_LABEL_UP_MARGIN    30
-#define DATA_LABEL_LEFT_MARGIN  150
+#define DATA_LABEL_LEFT_MARGIN  135
 #define DATA_LABEL_INTERVAL_H   300
-#define DATA_LABEL_INTERVAL_V   35
+#define DATA_LABEL_INTERVAL_V   40
 
 #define AXIAL_FAN_NUM  4
 
@@ -40,16 +41,24 @@ ValvePage::~ValvePage()
 void ValvePage::initDevice()
 {
     ButterflyValve* pButterflyValve = nullptr;
+    System   *pSystem = System::getInstance();
+
+    if(pSystem == nullptr)
+    {
+        return;
+    }
     for(uint8_t n = 0, x = 0, y = 0; n < AXIAL_FAN_NUM; n++)
     {
         x = n / 2;
         y = n % 2;
 
         pButterflyValve = new ButterflyValve();
+        pSystem->m_pButterflyValves[n] = pButterflyValve;
         m_ButterflyValves.append(pButterflyValve);
         ui->gridLayout->addWidget(pButterflyValve, x, y);
     }
     m_BypassValve = new BypassValve(ui->frame_1);
+    pSystem->m_pBypassValve = m_BypassValve;
 }
 
 void ValvePage::initLabel()

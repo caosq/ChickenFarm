@@ -773,6 +773,10 @@ void* vMBMasterScanSlaveDevTask(void *p_arg)
     {
 //        myprintf("****************************************************************************\n");
         (void)vMBTimeDly(0, msReadInterval);
+        if(psMBDevsInfo == NULL || psMBDevsInfo->psMBSlaveDevsList == NULL)
+        {
+            continue;
+        }
 
 #if MB_MASTER_DTU_ENABLED > 0    //GPRS模块功能支持，特殊处理
         if( (psMBMasterInfo->bDTUEnable == TRUE) && (psMBMasterInfo->pvDTUScanDevCallBack != NULL))

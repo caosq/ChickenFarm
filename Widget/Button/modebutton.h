@@ -103,8 +103,6 @@ public:
 
     void setButtumGap(int gap);
 
-    void setValue(unsigned int val);
-
     //设置默认值
     void setDefaultValue(int defValue);
 
@@ -135,6 +133,10 @@ private:
     void initMenu();
     QString getElidedText();
     //virtual bool canPress();
+
+public slots:
+    void setValue(int32_t val);
+    void setValue(Monitor* pMonitor);
 
 private slots:
     void fontSlot();

@@ -20,7 +20,7 @@
 #define LABEL_COLUMNS  2
 #define LABEL_ROWS     2
 
-#define LABEL_SIZE       120, 25
+#define LABEL_SIZE       120, 28
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN     30
@@ -89,6 +89,7 @@ void ModularChiller::initButton()
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
+    m_pSwitchCmdBtn->setMonitorData(&m_eSwitchCmd, Monitor::Uint16t);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //机组运行工作模式设定
@@ -97,13 +98,14 @@ void ModularChiller::initButton()
     m_pRunningModeCmdBtn->setItem(1,tr("制热"));
     m_pRunningModeCmdBtn->setItem(2,tr("手动化霜"));
     m_pRunningModeCmdBtn->setDefaultValue(0);
+    m_pRunningModeCmdBtn->setMonitorData(&m_eRunningModeCmd, Monitor::Uint16t);
     m_Widgets.append(m_pRunningModeCmdBtn);
 
     //平均回水温度
-    m_pRetWaterTempLabel = new DataLabel(ui->frame_2, DataLabel::Text);
+    m_pRetWaterTempLabel = new DataLabel(ui->frame_2, DataLabel::Data);
     m_pRetWaterTempLabel->setAlignment(Qt::AlignLeft);
     m_pRetWaterTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
-    m_pRetWaterTempLabel->setText("***尔尔", LABEL_FONT_SIZE);
+    m_pRetWaterTempLabel->setMonitorData(&m_sRetWaterTemp, Monitor::Int16t);
     m_Widgets.append(m_pRetWaterTempLabel);
 
     //通讯故障
@@ -111,7 +113,7 @@ void ModularChiller::initButton()
     m_pCommErrLabel->setAlignment(Qt::AlignLeft);
     m_pCommErrLabel->setValueMap(0,tr("正常"));
     m_pCommErrLabel->setValueMap(1,tr("故障"));
-    m_pCommErrLabel->setText("#165588", LABEL_FONT_SIZE);
+    m_pCommErrLabel->setMonitorData(&m_xCommErr, Monitor::Boolean);
     m_Widgets.append(m_pCommErrLabel);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)

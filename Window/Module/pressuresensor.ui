@@ -37,7 +37,7 @@ border-image: url(:/UI/Widget/System_Sensor_5.png);}</string>
     <property name="geometry">
      <rect>
       <x>8</x>
-      <y>16</y>
+      <y>13</y>
       <width>97</width>
       <height>17</height>
      </rect>
@@ -86,6 +86,25 @@ border-image: url(:/UI/Widget/System_Sensor_5.png);}</string>
     </property>
     <property name="text">
      <string>CHW-SP</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_2">
+    <property name="geometry">
+     <rect>
+      <x>128</x>
+      <y>11</y>
+      <width>30</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-image: url(:/UI/Frame/alarm.png);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
     </property>
    </widget>
   </widget>

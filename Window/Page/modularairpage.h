@@ -40,7 +40,9 @@ private:
 
     DataLabel      *m_pPowerLabel;         //实时功率
     DataLabel      *m_pTotalEnergyLabel;   //累计耗电量
+    DataLabel      *m_pCommErrLabel;       //通讯故障
 
+    ModularAir     *m_pCurModularAir;      //组空
 
 private:
     void initDevice();

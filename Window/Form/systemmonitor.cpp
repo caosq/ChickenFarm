@@ -24,8 +24,8 @@ void SystemMonitor::initForm()
     m_pValvePage          = new ValvePage();
     m_pSensorPage         = new SensorPage();
 
-    ui->systemStackedWidget->insertWidget(1, m_pModularAirPage);
-    ui->systemStackedWidget->insertWidget(0, m_pModularChillerPage);
+    ui->systemStackedWidget->insertWidget(1, m_pModularChillerPage);
+    ui->systemStackedWidget->insertWidget(0, m_pModularAirPage);
     ui->systemStackedWidget->insertWidget(2, m_pBumpPage);
     ui->systemStackedWidget->insertWidget(3, m_pAxialFanPage);
     ui->systemStackedWidget->insertWidget(4, m_pValvePage);

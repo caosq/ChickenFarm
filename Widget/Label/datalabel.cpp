@@ -50,7 +50,7 @@ bool DataLabel::setMonitorData(void* pvVal, Monitor::DataType emDataType)
 
     if(m_pMonitor != nullptr)
     {
-        connect(m_pMonitor,SIGNAL(valChange(uint)),this,SLOT(setValue(uint)));
+        connect(m_pMonitor,SIGNAL(valChanged(Monitor*)),this,SLOT(setValue(Monitor*)));
         setValue(m_pMonitor->getCurVal());
         return true;
     }
@@ -67,13 +67,15 @@ void DataLabel::setDataParameter(QString unit, uint8_t dot, Monitor::DataType em
 void DataLabel::setDataType(Monitor::DataType emDataType)
 {
     m_eDataType = emDataType;
+    uint8_t i = 0;
+
     if(m_pMonitor)
     {
         m_pMonitor->setValType(emDataType);
     }
     else
     {
-         setValue(0);
+         setValue(i);
     }
 }
 
@@ -202,7 +204,7 @@ void DataLabel::unlockTextColor()
     }
 }
 
-void DataLabel::showData(unsigned int val)
+void DataLabel::showData(int32_t val)
 {
     switch(m_eDataType)
     {
@@ -210,32 +212,32 @@ void DataLabel::showData(unsigned int val)
     case Monitor::Uint16t:
     case Monitor::Uint32t:
     {
-        setText(QString::number( val/uint32_t(qPow(10, m_ucDecPoint)), '.', m_ucDecPoint).append(m_strUnit) );
+        setText(QString::number( val/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit) );
     }
         break;
     case Monitor::Int8t:
     {
-        int8_t tempval = val;
-        setText(QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(m_strUnit) );
+        int8_t tempval = int8_t(val);
+        setText(QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit) );
     }
         break;
     case Monitor::Int16t:
     {
-        int16_t tempval = val;
-        setText(QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(m_strUnit) );
+        int16_t tempval = int16_t(val);
+        setText(QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit) );
     }
         break;
     case Monitor::Int32t:
     {
-        int32_t tempval = val;
-        setText(QString::number( tempval/uint32_t(qPow(10, m_ucDecPoint)), '.', m_ucDecPoint).append(m_strUnit) );
+        int32_t tempval = int32_t(val);;
+        setText(QString::number( tempval/(qPow(10, m_ucDecPoint)), '.', m_ucDecPoint).append("  ").append(m_strUnit) );
     }
         break;
     default: break;
     }
 }
 
-void DataLabel::showText(unsigned int val)
+void DataLabel::showText(int32_t val)
 {
     sTextMap temp;
     temp.textStr = "";
@@ -255,8 +257,8 @@ void DataLabel::showText(unsigned int val)
         break;
     case Monitor::Int8t:
     {
-        int8_t tempval = val;
-        if( m_TextMap.contains(tempval) )
+//        int8_t tempval = val;
+        if( m_TextMap.contains(val) )
         {
             temp = m_TextMap.value(val);
         }
@@ -264,8 +266,8 @@ void DataLabel::showText(unsigned int val)
         break;
     case Monitor::Int16t:
     {
-        int16_t tempval = val;
-        if( m_TextMap.contains(tempval) )
+//        int16_t tempval = val;
+        if( m_TextMap.contains(val) )
         {
             temp = m_TextMap.value(val);
         }
@@ -273,8 +275,8 @@ void DataLabel::showText(unsigned int val)
         break;
     case Monitor::Int32t:
     {
-        int32_t tempval = val;
-        if( m_TextMap.contains(tempval) )
+//        int32_t tempval = val;
+        if( m_TextMap.contains(val) )
         {
             temp = m_TextMap.value(val);
         }
@@ -288,7 +290,7 @@ void DataLabel::showText(unsigned int val)
     setText(temp.textStr);
 }
 
-void DataLabel::showColor(unsigned int val)
+void DataLabel::showColor(int32_t val)
 {
     sTextMap temp;
     temp.backgroundColor = QColor(Qt::black);
@@ -306,8 +308,8 @@ void DataLabel::showColor(unsigned int val)
         break;
     case Monitor::Int8t:
     {
-        int8_t tempval = val;
-        if( m_TextMap.contains(tempval) )
+//        int8_t tempval = val;
+        if( m_TextMap.contains(val) )
         {
             temp = m_TextMap.value(val);
         }
@@ -315,8 +317,8 @@ void DataLabel::showColor(unsigned int val)
         break;
     case Monitor::Int16t:
     {
-        int16_t tempval = val;
-        if( m_TextMap.contains(tempval) )
+//        int16_t tempval = val;
+        if( m_TextMap.contains(val) )
         {
             temp = m_TextMap.value(val);
         }
@@ -324,8 +326,8 @@ void DataLabel::showColor(unsigned int val)
         break;
     case Monitor::Int32t:
     {
-        int32_t tempval = val;
-        if( m_TextMap.contains(tempval) )
+//        int32_t tempval = val;
+        if( m_TextMap.contains(val) )
         {
             temp = m_TextMap.value(val);
         }
@@ -337,37 +339,44 @@ void DataLabel::showColor(unsigned int val)
     setBackGroundColor(temp.backgroundColor);
 }
 
-void DataLabel::showImage(unsigned int val)
+void DataLabel::showImage(int val)
 {
     sTextMap temp;
-    temp.pixmap = 0;
+    temp.pixmap = nullptr;
 
-    switch(m_eDataType){
+    switch(m_eDataType)
+    {
     case Monitor::Uint8t:
     case Monitor::Uint16t:
-    case Monitor::Uint32t:{
-        if( m_TextMap.contains(val) ){
+    case Monitor::Uint32t:
+    {
+        if( m_TextMap.contains(val) )
+        {
             temp = m_TextMap.value(val);
         }
     }
         break;
     case Monitor::Int8t:{
-        int8_t tempval = val;
-        if( m_TextMap.contains(tempval) ){
+//        int8_t tempval = val;
+        if( m_TextMap.contains(val) ){
             temp = m_TextMap.value(val);
         }
     }
         break;
-    case Monitor::Int16t:{
-        int16_t tempval = val;
-        if( m_TextMap.contains(tempval) ){
+    case Monitor::Int16t:
+    {
+//        int16_t tempval = val;
+        if( m_TextMap.contains(val) )
+        {
             temp = m_TextMap.value(val);
         }
     }
         break;
-    case Monitor::Int32t:{
-        int32_t tempval = val;
-        if( m_TextMap.contains(tempval) ){
+    case Monitor::Int32t:
+    {
+//        int32_t tempval = val;
+        if( m_TextMap.contains(val) )
+        {
             temp = m_TextMap.value(val);
         }
     }
@@ -449,7 +458,13 @@ void DataLabel::setBackGroundColorStyle(eLabelStyle style)
     m_eLabelStyle = style;
 }
 
-void DataLabel::setValue(unsigned int val)
+void DataLabel::setValue(Monitor* pMonitor)
+{
+    int32_t val = pMonitor->getCurVal();
+    setValue(val);
+}
+
+void DataLabel::setValue(int32_t val)
 {
     switch(m_eLabelType)
     {

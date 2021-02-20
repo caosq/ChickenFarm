@@ -14,8 +14,8 @@ class CO2Sensor : public Device
 {
     Q_OBJECT
 public:
-    uint16_t      m_usCO2ppm;      //CO2浓度
-    bool          m_xError;        //故障
+    uint16_t m_usCO2ppm = 0;      //CO2浓度
+    bool     m_xError = 0;        //故障
 
     static uint8_t  m_usSensorCount;   //数量
 

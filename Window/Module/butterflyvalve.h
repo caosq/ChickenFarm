@@ -25,14 +25,14 @@ public:
         CMD_OPEN  = 1,
     }SwitchCmd;
 
-    SwitchCmd     m_eSwitchCmd;        //启停命令
-    bool          m_xRemote;           //远程/本地
-    bool          m_xOpened;           //开到位
-    bool          m_xClosed;           //关到位
-    bool          m_xErrorFlag;        //设备故障
-    bool          m_xErrClean;         //故障清除
+    SwitchCmd     m_eSwitchCmd = CMD_CLOSE;   //启停命令
+    bool          m_xRemote = 0;              //远程/本地
+    bool          m_xOpened = 0;              //开到位
+    bool          m_xClosed = 0;              //关到位
+    bool          m_xErrorFlag = 0;           //设备故障
+    bool          m_xErrClean = 0;            //故障清除
 
-    static uint8_t  m_usButterflyValveCount;   //水泵数量
+    static uint8_t  m_usButterflyValveCount;   //蝶阀数量
 
 private:
     QVector<TextLabel*> m_Labels;

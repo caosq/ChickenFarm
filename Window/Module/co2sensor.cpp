@@ -47,10 +47,10 @@ void CO2Sensor::initLabel()
 void CO2Sensor::initButton()
 {
     //温度
-    m_pCO2Label = new DataLabel(ui->frame, DataLabel::Text);
+    m_pCO2Label = new DataLabel(ui->frame, DataLabel::Data);
     m_pCO2Label->setAlignment(Qt::AlignLeft);
-    m_pCO2Label->setDataParameter("ppm", 1, Monitor::Uint16t);
-    m_pCO2Label->setText("20086 ppm", LABEL_FONT_SIZE);
+    m_pCO2Label->setDataParameter("ppm", 0, Monitor::Uint16t);
+    m_pCO2Label->setMonitorData(&m_usCO2ppm, Monitor::Uint16t);
     m_Widgets.append(m_pCO2Label);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
@@ -61,4 +61,5 @@ void CO2Sensor::initButton()
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
+    ui->frame_2->hide();
 }

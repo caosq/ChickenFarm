@@ -1,11 +1,11 @@
 #include "axialfanpage.h"
 #include "ui_axialfanpage.h"
-
+#include "system.h"
 
 #define LABEL_COLUMNS  1
 #define LABEL_ROWS     6
 
-#define LABEL_SIZE       110, 25
+#define LABEL_SIZE       110, 28
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN     30
@@ -13,12 +13,12 @@
 #define LABEL_INTERVAL_H    150
 #define LABEL_INTERVAL_V    35
 
-#define DATA_LABEL_SIZE  90, 28
+#define DATA_LABEL_SIZE  110, 28
 
 #define DATA_LABEL_UP_MARGIN    30
-#define DATA_LABEL_LEFT_MARGIN  150
+#define DATA_LABEL_LEFT_MARGIN  135
 #define DATA_LABEL_INTERVAL_H   300
-#define DATA_LABEL_INTERVAL_V   35
+#define DATA_LABEL_INTERVAL_V   38
 
 #define AXIAL_FAN_NUM  4
 #define WINDOW_FAN_NUM  2
@@ -41,14 +41,21 @@ AxialFanPage::~AxialFanPage()
 
 void AxialFanPage::initDevice()
 {
-    AxialFan* pAxialFan = nullptr;
+    AxialFan *pAxialFan = nullptr;
+    System   *pSystem = System::getInstance();
+
+    if(pSystem == nullptr)
+    {
+        return;
+    }
     for(uint8_t n = 0, x = 0, y = 0; n < AXIAL_FAN_NUM; n++)
     {
         x = n / 2;
         y = n % 2;
 
-        pAxialFan = new AxialFan();
+        pAxialFan = new AxialFan(); 
         m_AxialFans.append(pAxialFan);
+        pSystem->m_pAxialFans[n] = pAxialFan;
         ui->gridLayout->addWidget(pAxialFan, x, y);
     }
 
@@ -57,6 +64,7 @@ void AxialFanPage::initDevice()
     {
         m_psWindowFan = new WindowFan();
         m_WindowFans.append(m_psWindowFan);
+        pSystem->m_pWindowFans[n] = m_psWindowFan;
         ui->verticalLayout->insertWidget(n, m_psWindowFan);
     }
 }
@@ -94,7 +102,7 @@ void AxialFanPage::initButton()
 
     //频率设置
     m_pFreqSetBtn = new AnalogValButton(ui->frame);
-    m_pFreqSetBtn->setDataParameter("Hz", 1, 500, 0, 0, Monitor::Uint16t);
+    m_pFreqSetBtn->setDataParameter("Hz", 1, 350, 500, 350, Monitor::Uint16t);
     m_Widgets.append(m_pFreqSetBtn);
 
     //故障清除

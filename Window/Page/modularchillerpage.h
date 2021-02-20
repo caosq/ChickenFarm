@@ -2,7 +2,6 @@
 #define MODULARCHILLERPAGE_H
 
 #include <QWidget>
-#include <QWidget>
 #include "textlabel.h"
 #include "device.h"
 #include "statebutton.h"
@@ -19,7 +18,10 @@ class ModularChillerPage : public QWidget
 {
     Q_OBJECT
 
-public:    QVector<ModularChiller*> m_ModularChillers;
+public:
+    QVector<ModularChiller*> m_ModularChillers;
+
+    Meter         m_sMeter;   //电表
 
 private:
 
@@ -37,8 +39,11 @@ private:
     AnalogValButton  *m_pCO2SetBtn;      //目标CO2设定
 
 
-    DataLabel      *m_pPowerLabel;           //实时功率
-    DataLabel      *m_pTotalEnergyLabel;     //累计耗电量
+    DataLabel  *m_pPowerLabel;           //实时功率
+    DataLabel  *m_pTotalEnergyLabel;     //累计耗电量
+    DataLabel  *m_pCommErrLabel;         //通讯故障
+
+    uint8_t    m_usCurrentIndex = 0;
 
 private:
     void initDevice();

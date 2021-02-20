@@ -44,7 +44,7 @@ border-image: url(:/UI/Widget/System_Bump_1.png);}
      <x>10</x>
      <y>400</y>
      <width>273</width>
-     <height>161</height>
+     <height>193</height>
     </rect>
    </property>
    <property name="styleSheet">

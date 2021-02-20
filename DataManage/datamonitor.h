@@ -7,8 +7,6 @@
 #include <QObject>
 #include <QMap>
 
-#define MONITOR_DATA_MAX_NUM        200     //最大可监控点位数，根据实际情况调整
-
 #define MONITOR(val, ucDataType) \
        (DataMonitor::getInstance())->monitorRegist(static_cast<void*>(&this->val), ucDataType, static_cast<Device*>(this));
 
@@ -37,19 +35,20 @@ public:
 
     void setValRange(int32_t iMaxVal, int32_t iMinVal);
     void setValType(DataType emDataType);
-    void setValue(uint32_t uiVal);
+    void setValue(int32_t iVal);
 
     uint8_t  getValType();
-    uint32_t getCurVal();
+    int32_t getCurVal();
     void* getCurValAddr();
 
 private:
-    void*      m_pvVal;
-    uint32_t   m_uiDataVal;   //数据值
-    int32_t    m_iMaxVal;
-    int32_t    m_iMinVal;
-    uint16_t   m_usDataId;    //全局标示
-    DataType  m_DataType;  //数据类型
+
+    int32_t    m_iMaxVal = 0;
+    int32_t    m_iMinVal = 0;
+    int32_t    m_iDataVal = 0;   //数据值
+    uint16_t   m_usDataId = 0;    //全局标示
+    void*      m_pvVal = nullptr;
+    DataType   m_DataType = Uint16t;  //数据类型
 
 signals:
     void valChanged(Monitor*);
@@ -89,7 +88,7 @@ public:
 private:
     explicit DataMonitor();
 
-    static DataMonitor*       g_pDataMonitor;
+    static DataMonitor*  g_pDataMonitor;
 
 };
 

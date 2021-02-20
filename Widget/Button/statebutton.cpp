@@ -62,7 +62,7 @@ bool StateButton::setMonitorData(void* pvVal, Monitor::DataType emDataType)
 
     if(m_pMonitor != nullptr)
     {
-        connect(m_pMonitor, SIGNAL(valChange(uint)), this, SLOT(setValue(uint)));
+        connect(m_pMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(setValue(Monitor*)));
         setValue(m_pMonitor->getCurVal());
         return true;
     }
@@ -154,7 +154,13 @@ void StateButton::setFatherPixmap(ButtonState state, QString filePath)
     }
 }
 
-void StateButton::setValue(unsigned int val)
+void StateButton::setValue(Monitor* pMonitor)
+{
+    int32_t val = pMonitor->getCurVal();
+    setValue(val);
+}
+
+void StateButton::setValue(int32_t val)
 {
     ButtonState state =  m_StateValMap.key(val);
     if(Error != state)

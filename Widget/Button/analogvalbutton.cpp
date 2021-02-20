@@ -59,11 +59,11 @@ AnalogValButton *AnalogValButton::forefather()
 
 bool AnalogValButton::setMonitorData(void* pvVal, Monitor::DataType emDataType)
 {
-    m_pMonitor = DataMonitor::monitorRegist(pvVal, emDataType);
+    m_pMonitor = DataMonitor::monitorRegist(pvVal, emDataType, m_iMaxVal, m_iMinVal);
 
     if(m_pMonitor != nullptr)
     {
-        connect(m_pMonitor, SIGNAL(valChanged(uint)), this, SLOT(setValue(uint)));
+        connect(m_pMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(setValue(Monitor*)));
         setValue(m_pMonitor->getCurVal());
         return true;
     }
@@ -116,9 +116,8 @@ bool AnalogValButton::setMaxValMonitor(void* pvVal, Monitor::DataType emDataType
     if(m_pMaxMonitor == nullptr)
     {
         m_pMaxMonitor = DataMonitor::monitorRegist(pvVal, emDataType);
-        connect(m_pMaxMonitor, SIGNAL(valChange(uint)),this,SLOT(setMaxValue(uint)));
+        connect(m_pMaxMonitor, SIGNAL(valChanged(Monitor*)),this,SLOT(setMaxValue(Monitor*)));
 
-        setMaxValue(m_pMaxMonitor->getCurVal());
         return true;
     }
     else
@@ -132,9 +131,8 @@ bool AnalogValButton::setMinValMonitor(void* pvVal, Monitor::DataType emDataType
     if(m_pMinMonitor == nullptr)
     {
         m_pMinMonitor = DataMonitor::monitorRegist(pvVal, emDataType);
-        connect(m_pMinMonitor, SIGNAL(valChange(uint)),this,SLOT(setMinValue(uint)));
+        connect(m_pMinMonitor, SIGNAL(valChanged(Monitor*)),this,SLOT(setMinValue(Monitor*)));
 
-        setMinValue(m_pMinMonitor->getCurVal());
         return true;
     }
     else
@@ -184,7 +182,6 @@ void AnalogValButton::setFatherPixmap(STATE state, QString filePath)
     }
 }
 
-
 /*void AnalogValButton::setUnit(QString strUnit)
 {
     QString str = text();
@@ -198,44 +195,52 @@ void AnalogValButton::setFatherPixmap(STATE state, QString filePath)
     }
     m_strUnit = strUnit;
 }*/
-
-void AnalogValButton::setValue(uint32_t val)
+void AnalogValButton::setValue(Monitor* pMonitor)
 {
+    int32_t val = pMonitor->getCurVal();
+    setValue(val);
+}
 
+void AnalogValButton::setValue(int32_t val)
+{
     switch(m_eDataType)
     {
     case Monitor::Uint8t:
     case Monitor::Uint16t:
     case Monitor::Uint32t:
     {
-        uint32_t tempval = uint32_t(defVal);
-        m_iCurrentVal = val;
+        int32_t tempval = static_cast<int32_t>(defVal);
+        m_iCurrentVal = static_cast<int32_t>(val);
+
         defValState = (tempval == val) ? true:false;
-        m_strCurrentText = QString::number( val/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(" ").append(m_strUnit );
+        m_strCurrentText = QString::number( val/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
         break;
     case Monitor::Int8t:
     {
-        int8_t tempval = val;
-        m_iCurrentVal = tempval;
+        int8_t tempval = static_cast<int8_t>(val);
+        m_iCurrentVal = static_cast<int32_t>(val);
+
         defValState = (defVal == tempval) ? true:false;
-        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(" ").append(m_strUnit );
+        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
         break;
     case Monitor::Int16t:
     {
-        int16_t tempval = val;
-        m_iCurrentVal = tempval;
+        int16_t tempval = static_cast<int16_t>(val);
+        m_iCurrentVal = static_cast<int32_t>(val);
         defValState = (defVal == tempval) ? true:false;
-        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(" ").append(m_strUnit );
+
+        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
         break;
     case Monitor::Int32t:
     {
-        int32_t tempval = val;
-        m_iCurrentVal = tempval;
+        int32_t tempval = static_cast<int32_t>(val);
+        m_iCurrentVal = static_cast<int32_t>(val);
+
         defValState = (defVal == tempval) ? true:false;
-        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append(" ").append(m_strUnit );
+        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
         break;
     default:
@@ -249,33 +254,33 @@ void AnalogValButton::setValue(uint32_t val)
     update();
 }
 
-void AnalogValButton::setMaxValue(uint32_t val)
+void AnalogValButton::setMaxValue(Monitor* pMonitor)
 {
-
+    int32_t val = pMonitor->getCurVal();
     switch(m_eDataType)
     {
     case Monitor::Uint8t:
     case Monitor::Uint16t:
     case Monitor::Uint32t:
     {
-        m_iMaxVal = val;
+        m_iMaxVal = int32_t(val);
     }
         break;
     case Monitor::Int8t:
     {
-        int8_t tempval = val;
+        int8_t tempval = int8_t(val);
         m_iMaxVal = tempval;
     }
         break;
     case Monitor::Int16t:
     {
-        int16_t tempval = val;
+        int16_t tempval = int16_t(val);
         m_iMaxVal = tempval;
     }
         break;
     case Monitor::Int32t:
     {
-        int32_t tempval = val;
+        int32_t tempval = int32_t(val);
         m_iMaxVal = tempval;
     }
         break;
@@ -288,34 +293,34 @@ void AnalogValButton::setMaxValue(uint32_t val)
     }
 }
 
-void AnalogValButton::setMinValue(uint32_t val)
+void AnalogValButton::setMinValue(Monitor* pMonitor)
 {
-
+    int32_t val = pMonitor->getCurVal();
     switch(m_eDataType)
     {
     case Monitor::Uint8t:
     case Monitor::Uint16t:
     case Monitor::Uint32t:
     {
-        m_iMinVal = val;
+        m_iMaxVal = int32_t(val);
     }
         break;
     case Monitor::Int8t:
     {
-        int8_t tempval = val;
-        m_iMinVal = tempval;
+        int8_t tempval = int8_t(val);
+        m_iMaxVal = tempval;
     }
         break;
     case Monitor::Int16t:
     {
-        int16_t tempval = val;
-        m_iMinVal = tempval;
+        int16_t tempval = int16_t(val);
+        m_iMaxVal = tempval;
     }
         break;
     case Monitor::Int32t:
     {
-        int32_t tempval = val;
-        m_iMinVal = tempval;
+        int32_t tempval = int32_t(val);
+        m_iMaxVal = tempval;
     }
         break;
     default:
@@ -400,16 +405,22 @@ void AnalogValButton::paintEvent(QPaintEvent *e)
         if( !isEnabled() )
         {
             painter.setPen(this->palette().color(QPalette::Inactive,QPalette::ButtonText));
-        }else{
+        }
+        else
+        {
             painter.setPen(this->palette().color(QPalette::Active,QPalette::ButtonText));
         }
         if( this->isDown() )
         {
             painter.drawPixmap(1, 1, this->width(), this->height(), *m_pPressImg);
-            painter.drawText(m_iMargin + 1, 1, this->width(),this->height(), m_alignment, m_strCurrentText);
-        }else{
+            painter.drawText(m_iMargin + 1, 1, this->width(),this->height(),
+                             m_alignment, m_strCurrentText);
+        }
+        else
+        {
             painter.drawPixmap(0, 0, this->width(), this->height(), *m_pRelaseImg);
-            painter.drawText(m_iMargin, 0, this->width(),this->height(), m_alignment, m_strCurrentText);
+            painter.drawText(m_iMargin, 0, this->width(),this->height(),
+                             m_alignment, m_strCurrentText);
         }
     }
     else if(_pix0 && _pix1)
@@ -426,12 +437,14 @@ void AnalogValButton::paintEvent(QPaintEvent *e)
         if( this->isDown() )
         {
             painter.drawPixmap(1, 1, this->width(), this->height(), *_pix0);
-            painter.drawText(m_iMargin + 1, 1, this->width(),this->height(), m_alignment, m_strCurrentText);
+            painter.drawText(m_iMargin + 1, 1, this->width(),this->height(),
+                             m_alignment, m_strCurrentText);
         }
         else
         {
             painter.drawPixmap(0, 0, this->width(), this->height(), *_pix1);
-            painter.drawText(m_iMargin,0,this->width(), this->height(), m_alignment, m_strCurrentText);
+            painter.drawText(m_iMargin,0,this->width(), this->height(),
+                             m_alignment, m_strCurrentText);
         }
     }
     else

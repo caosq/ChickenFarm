@@ -3,6 +3,8 @@
 #include "stddef.h"
 #include <unistd.h>
 
+#define MONITOR_DATA_MAX_NUM        200     //最大可监控点位数，根据实际情况调整
+
 sMonitorMapList* DataMonitor::g_psMonitorMapList = nullptr;
 DataMonitor*     DataMonitor::g_pDataMonitor = nullptr;
 uint16_t         DataMonitor::g_usMonitorID = 0;
@@ -27,39 +29,53 @@ void Monitor::setValType(DataType emDataType)
     this->m_DataType = emDataType;
 }
 
-void Monitor::setValue(uint32_t uiVal)
+void Monitor::setValue(int32_t iVal)
 {
     uint8_t  ucValue = 0;
     uint16_t usValue = 0;
+    uint32_t uiValue  = 0;
 
     int8_t   cValue  = 0;
     int16_t  sValue  = 0;
+    int32_t  iValue  = 0;
 
-    if(m_pvVal != nullptr && uiVal <= uint32_t(m_iMaxVal) && uiVal >= uint32_t(m_iMinVal))
+    if(m_pvVal != nullptr && iVal <= m_iMaxVal && iVal >= m_iMinVal)
     {
         if(m_DataType == Uint8t)
         {
-            ucValue = uiVal;
-            m_uiDataVal = uint32_t(ucValue);
+            ucValue = uint8_t(iVal);
+            m_iDataVal = int32_t(ucValue);
             *static_cast<uint8_t*>(m_pvVal) = ucValue;
         }
         else if(m_DataType == Uint16t)
         {
-            usValue = uiVal;
-            m_uiDataVal = uint32_t(usValue);
+            usValue = uint16_t(iVal);
+            m_iDataVal = int32_t(usValue);
             *static_cast<uint16_t*>(m_pvVal) = usValue;
         }
         else if(m_DataType == Int8t)
         {
-            cValue = uiVal;
-            m_uiDataVal = uint32_t(cValue);
+            cValue = int8_t(iVal);
+            m_iDataVal = int32_t(cValue);
             *static_cast<int8_t*>(m_pvVal) = cValue;
         }
         else if(m_DataType == Int16t)
         {
-            sValue = uiVal;
-            m_uiDataVal = uint32_t(sValue);
+            sValue = int16_t(iVal);
+            m_iDataVal = int32_t(sValue);
             *static_cast<int16_t*>(m_pvVal) = sValue;
+        }
+        else if(m_DataType == Int32t)
+        {
+            iValue = int32_t(iVal);
+            m_iDataVal = int32_t(iValue);
+            *static_cast<int32_t*>(m_pvVal) = iValue;
+        }
+        else if(m_DataType == Uint32t)
+        {
+            uiValue = uint32_t(iVal);
+            m_iDataVal = int32_t(uiValue);
+            *static_cast<uint32_t*>(m_pvVal) = uiValue;
         }
     }
 }
@@ -70,9 +86,9 @@ uint8_t Monitor::getValType()
 }
 
 
-uint32_t Monitor::getCurVal()
+int32_t Monitor::getCurVal()
 {
-    return m_uiDataVal;
+    return m_iDataVal;
 }
 
 void* Monitor::getCurValAddr()
@@ -101,7 +117,11 @@ void* DataMonitor::monitorPollTask(void *pvArg)
 
     int8_t   cValue  = 0;
     int16_t  sValue  = 0;
-    uint32_t uiDataVal = 0;
+    uint32_t uiValue = 0;
+    int32_t  iValue = 0;
+
+    int32_t iDataVal = 0;
+
 
     QMap<uint16_t, Monitor*>::iterator it;
     QMap<uint16_t, Monitor*>* pMonitorMap = static_cast< QMap<uint16_t, Monitor*> *>(pvArg);
@@ -116,29 +136,41 @@ void* DataMonitor::monitorPollTask(void *pvArg)
             if(pMonitor->m_DataType == Monitor::Uint8t)
             {
                 ucValue = *static_cast<uint8_t*>(pMonitor->m_pvVal);
-                uiDataVal = uint32_t(ucValue);
+                iDataVal = int32_t(ucValue);
             }
             else if(pMonitor->m_DataType == Monitor::Uint16t)
             {
                 usValue = *static_cast<uint16_t*>(pMonitor->m_pvVal);
-                uiDataVal = uint32_t(usValue);
+                iDataVal = int32_t(usValue);
+            }
+            else if(pMonitor->m_DataType == Monitor::Uint32t)
+            {
+                uiValue = *static_cast<uint32_t*>(pMonitor->m_pvVal);
+                iDataVal = int32_t(uiValue);
             }
             else if(pMonitor->m_DataType == Monitor::Int8t)
             {
                 cValue = *static_cast<int8_t*>(pMonitor->m_pvVal);
-                uiDataVal = uint32_t(cValue);
+                iDataVal = int32_t(cValue);
             }
             else if(pMonitor->m_DataType == Monitor::Int16t)
             {
                 sValue = *static_cast<int16_t*>(pMonitor->m_pvVal);
-                uiDataVal = uint32_t(sValue);
+                iDataVal = int32_t(sValue);
             }
-            if(pMonitor->m_uiDataVal != uiDataVal)
+            else if(pMonitor->m_DataType == Monitor::Int32t)
             {
-                pMonitor->m_uiDataVal = uiDataVal;
+                iValue = *static_cast<int32_t*>(pMonitor->m_pvVal);
+                iDataVal = int32_t(iValue);
+            }
+
+            if(pMonitor->m_iDataVal != iDataVal)
+            {
+                pMonitor->m_iDataVal = iDataVal;
                 emit pMonitor->valChanged(pMonitor);
             }
         }
+        usleep(800);
     }
 }
 
@@ -149,6 +181,10 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
 
     int8_t   cValue;
     int16_t  sValue;
+
+    int32_t  iValue;
+    uint32_t uiValue;
+    uint32_t uiVal;
 
     Monitor*         pMonitor = nullptr;
     sMonitorMapList* pmMonitorMapList = nullptr;
@@ -191,6 +227,7 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
         pMonitor = new Monitor(pvVal, eDataType, g_usMonitorID, iMaxVal, iMinVal);
         pmMonitorMapList->m_MonitorMap.insert(pvVal,pMonitor);
     }
+
     if(pMonitor == nullptr)
     {
         return nullptr;
@@ -198,22 +235,34 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
     if(eDataType == Monitor::Uint8t)
     {
         ucValue = *static_cast<uint8_t*>(pvVal);
-        pMonitor->m_uiDataVal = uint32_t(ucValue);
+        pMonitor->m_iDataVal = int32_t(ucValue);
     }
     else if(eDataType == Monitor::Uint16t)
     {
         usValue = *static_cast<uint16_t*>(pvVal);
-        pMonitor->m_uiDataVal = uint32_t(usValue);
+        pMonitor->m_iDataVal = int32_t(usValue);
     }
     else if(eDataType == Monitor::Int8t)
     {
         cValue = *static_cast<int8_t*>(pvVal);
-        pMonitor->m_uiDataVal = uint32_t(cValue);
+        pMonitor->m_iDataVal = int32_t(cValue);
     }
     else if(eDataType == Monitor::Int16t)
     {
         sValue = *static_cast<int16_t*>(pvVal);
-        pMonitor->m_uiDataVal = uint32_t(sValue);
+        pMonitor->m_iDataVal = int32_t(sValue);
+    }
+    else if(eDataType == Monitor::Uint32t)
+    {
+        uiValue = *static_cast<uint32_t*>(pvVal);
+        uiVal = uiValue;
+
+        pMonitor->m_iDataVal = int32_t(uiValue);
+    }
+    else if(eDataType == Monitor::Int32t)
+    {
+        iValue = *static_cast<int32_t*>(pvVal);
+        pMonitor->m_iDataVal = iValue;
     }
     g_usMonitorID++;
     return pMonitor;

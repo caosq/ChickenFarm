@@ -82,7 +82,8 @@ private slots:
 
 
 public slots:
-    void setValue(unsigned int val);
+    void setValue(int32_t val);
+    void setValue(Monitor* pMonitor);
     void clickedSlot();
 signals:
     void fontChange();

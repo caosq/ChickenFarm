@@ -10,6 +10,7 @@
 #include "modebutton.h"
 #include "analogvalbutton.h"
 #include "chilledbump.h"
+#include "meter.h"
 
 namespace Ui {
 class BumpPage;
@@ -20,6 +21,8 @@ class BumpPage : public QWidget
     Q_OBJECT
 public:
     QVector<ChilledBump*> m_ChilledBumps;
+
+    Meter         m_sMeter;   //电表
 
 private:
     QVector<TextLabel*> m_Labels_1;
@@ -35,6 +38,7 @@ private:
 
     DataLabel      *m_pPowerLabel;         //实时功率
     DataLabel      *m_pTotalEnergyLabel;   //累计耗电量
+    DataLabel      *m_pCommErrLabel;       //通讯故障
 
 private:
     void initDevice();

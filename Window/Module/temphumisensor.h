@@ -18,11 +18,11 @@ class TempHumiSensor : public Device
 public:
 
     QString       m_strSensorType; //传感器类型
-    int16_t       m_sTemp;         //温度
-    uint16_t      m_usHumi;        //湿度
+    int16_t       m_sTemp = 0;         //温度
+    uint16_t      m_usHumi = 0;        //湿度
 
-    bool          m_xTempErr;   //温度故障
-    bool          m_xHumiErr;   //湿度故障
+    bool          m_xTempErr = 0;   //温度故障
+    bool          m_xHumiErr = 0;   //湿度故障
 
 private:
     QVector<QWidget*>   m_Widgets;

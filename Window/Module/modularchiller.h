@@ -7,6 +7,7 @@
 #include "datalabel.h"
 #include "statebutton.h"
 #include "modebutton.h"
+#include "meter.h"
 
 namespace Ui {
 class ModularChiller;
@@ -30,16 +31,17 @@ public:
         RUN_MODE_DEFROST  = 3,      //化霜
     }RunningMode;
 
+    uint16_t      m_usUnitID = 0x2017;    //机型ID
+    uint16_t      m_usProtocolVer = 10;   //协议版本
 
-    uint16_t      m_usUnitID;          //机型ID
-    uint16_t      m_usProtocolVer;     //协议版本
+    SwitchCmd     m_eSwitchCmd = CMD_CLOSE;           //启停命令
+    RunningMode   m_eRunningModeCmd = RUN_MODE_COOL;  //机组运行工作模式设定
 
-    SwitchCmd     m_eSwitchCmd;        //启停命令
-    RunningMode   m_eRunningModeCmd;   //机组运行工作模式设定
+    int16_t       m_sRetWaterTemp = 0;     //平均回水温度
+    bool          m_xCommErr = 0;          //通讯故障
+    bool          m_xErrClean = 0;         //故障清除
 
-    int16_t       m_sRetWaterTemp;     //平均回水温度
-    bool          m_xCommErr;          //通讯故障
-    bool          m_xErrClean;         //故障清除
+    QVector<Modular*>  m_Modulars;
 
     static uint8_t  m_usModularChillerCount;  //机组数量
 
@@ -68,7 +70,7 @@ public:
 private:
     Ui::ModularChiller *ui;
 
-    QVector<Modular*>  m_Modulars;
+
 
 };
 

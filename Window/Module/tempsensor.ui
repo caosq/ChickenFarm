@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>223</width>
-    <height>45</height>
+    <height>48</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>0</x>
      <y>0</y>
      <width>225</width>
-     <height>45</height>
+     <height>48</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -86,6 +86,25 @@ border-image: url(:/UI/Widget/System_Sensor_5.png);}</string>
     </property>
     <property name="text">
      <string>CHW-ST</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_2">
+    <property name="geometry">
+     <rect>
+      <x>128</x>
+      <y>15</y>
+      <width>30</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-image: url(:/UI/Frame/alarm.png);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
     </property>
    </widget>
   </widget>

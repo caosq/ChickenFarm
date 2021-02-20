@@ -193,7 +193,9 @@ bool ModeButton::setMonitorData(void* pvVal, Monitor::DataType emDataType)
 
     if(m_pMonitor != nullptr)
     {
-        connect(m_pMonitor, SIGNAL(valChange(uint)), this, SLOT(setValue(uint)));
+        connect(m_pMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(setValue(Monitor*)));
+        setValue(m_pMonitor->getCurVal());
+
         return true;
     }
     return false;
@@ -289,10 +291,14 @@ void ModeButton::hideMenu()
     _menu->hide();
 }
 
-
-void ModeButton::setValue(unsigned int val)
+void ModeButton::setValue(Monitor* pMonitor)
 {
+    int32_t val = pMonitor->getCurVal();
+    setValue(val);
+}
 
+void ModeButton::setValue(int32_t val)
+{
     int intval = int32_t(val);
     currentValue = intval;
     currentText = _menu->currentText(intval);
@@ -384,7 +390,6 @@ void ModeButton::setFatherItemStyle(privateMenu::menuStyle style)
         fatherStyle = style;
     }
 }
-
 
 void ModeButton::setClicked()
 {
