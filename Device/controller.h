@@ -3,11 +3,14 @@
 
 #include "modbus.h"
 
+#define REG_HOLD_BUF_NUM  10
+#define BIT_COIL_BUF_NUM  10
+
 class Controller
 {
 public:
     explicit Controller();
-    bool initComm(sMBMasterInfo* psMBMasterInfo, uint16_t usRegHoldBufNum, uint16_t usRegInBufNum, uint16_t usBitCoilBufNum, uint16_t usBitDiscBufNum);
+    void initComm(sMBMasterInfo* psMBMasterInfo);
 
 private:
 
@@ -15,8 +18,8 @@ private:
     sMBSlaveDevCommData  m_sDevCommData;     //本设备通讯数据表
     sMBSlaveDev          m_sMBSlaveDev;      //本通讯设备
 
-    sMasterRegHoldData*  m_psRegHoldBuf;     //保持寄存器数据域
-    sMasterBitCoilData*  m_psBitCoilBuf;     //线圈数据域
+    sMasterRegHoldData  m_psRegHoldBuf[REG_HOLD_BUF_NUM];     //保持寄存器数据域
+    sMasterBitCoilData  m_psBitCoilBuf[BIT_COIL_BUF_NUM];     //线圈数据域
 
     void registDevCommData();
     static uint8_t devDataMapIndex(eDataType eDataType, uint8_t ucProtocolID, uint16_t usAddr, uint16_t* psIndex);

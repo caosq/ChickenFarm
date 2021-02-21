@@ -25,14 +25,15 @@ typedef struct
 typedef struct
 {
     int fd;
+    /* Parity: "even", "odd", "none" */
+    uint8_t parity;
 
     uint32_t baud;
     /* Data bit */
     uint8_t data_bit;
     /* Stop bit */
     uint8_t stop_bit;
-    /* Parity: "even", "odd", "none" */
-    char* parity;
+
 }sUART_Def;
 
 #endif

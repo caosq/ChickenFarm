@@ -90,13 +90,17 @@ uint8_t xMB_UartInit(const sUART_Def *Uart)
 
 	/* PARENB       Enable parity bit
 	   PARODD       Use odd parity instead of even */
-	if (strncmp(Uart->parity, "none", 4) == 0) {
+    if(Uart->parity == 0)   //None
+    {
 		tios.c_cflag &=~ PARENB;
-	} else if (strncmp(Uart->parity, "even", 4) == 0) {
+    }
+    else if (Uart->parity == 2)  //Even
+    {
 		tios.c_cflag |= PARENB;
 		tios.c_cflag &=~ PARODD;
-	} else {
-		/* odd */
+    }
+    else  /* odd */
+    {
 		tios.c_cflag |= PARENB;
 		tios.c_cflag |= PARODD;
 	}
@@ -158,9 +162,12 @@ uint8_t xMB_UartInit(const sUART_Def *Uart)
 	   IUCLC        Map uppercase to lowercase
 	   IMAXBEL      Echo BEL on input line too long
 	*/
-	if (strncmp(Uart->parity, "none", 4) == 0) {
+    if(Uart->parity == 0) //none
+    {
 		tios.c_iflag &= ~INPCK;
-	} else {
+    }
+    else
+    {
 		tios.c_iflag |= INPCK;
 	}
 
@@ -220,7 +227,10 @@ uint8_t xMB_UartInit(const sUART_Def *Uart)
 	tios.c_cc[VMIN] = 0;
 	tios.c_cc[VTIME] = 0;
 
-    if (tcsetattr(Uart->fd, TCSANOW, &tios) < 0) {return 0;}
+    if (tcsetattr(Uart->fd, TCSANOW, &tios) < 0)
+    {
+        return 0;
+    }
     return 1;
 }
 

@@ -38,6 +38,8 @@
 #include "mbdict_m.h"
 #include "mbutils.h"
 #include "mbconfig.h"
+#include "mbconfig.h"
+#include "mbdebug.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,46 +160,44 @@ typedef struct                 /* master poll task information */
 typedef  void (*pvDTUScanDev)(void* p_arg);   
 #endif 
 
+
 typedef struct sMBMasterInfo  /* master information */
 {
-    sMBMasterPort        sMBPort;                   //主栈硬件接口信息
-	sMBMasterDevsInfo    sMBDevsInfo;               //主栈从设备信息
-    sMBMasterTask        sMBTask;                   //主栈状态机任务信息
-
-    USHORT  RegHoldValList[MB_PDU_SIZE_MAX];
-    UCHAR   BitCoilByteValList[MB_PDU_SIZE_MAX];
- 
 #if MB_MASTER_DTU_ENABLED > 0     //GPRS模块功能支持
     BOOL                bDTUEnable;    
     pvDTUScanDev        pvDTUScanDevCallBack; ;        //DTU模块轮询回调
 #endif    
-    
-	eMBMode             eMode;                         //MODBUS模式:    RTU模式   ASCII模式   TCP模式 
-	eMBState            eMBState;                      //主栈状态
+
+    eMBMode             eMode;                         //MODBUS模式:    RTU模式   ASCII模式   TCP模式
+    eMBState            eMBState;                      //主栈状态
     eMBMasterSndState   eSndState;                     //发送状态
     eMBMasterRcvState   eRcvState;                     //接收状态
 	                                                         
-	eMBMasterErrorEventType eCurErrorType;             //当前错误类型
+    eMBMasterErrorEventType eCurErrorType;             //当前错误类型
     eMasterRunMode      eMBRunMode;                    //主栈模式
     
-	USHORT              usSndPDULength;                //PDU数据域长度
+    USHORT              usSndPDULength;                //PDU数据域长度
     USHORT              usSndBufferCount;              //发送缓冲区数据量
     USHORT              usRcvBufferPos;                //接收缓冲区数据位置
 	                                                         
-	UCHAR*              pucSndBufferCur;               //当前发送数据缓冲区指针
+    UCHAR*              pucSndBufferCur;               //当前发送数据缓冲区指针
     UCHAR*              pucMasterPDUCur;               //当前发送帧PDU数据域指针
     UCHAR               ucMBDestAddr;                  //当前从设备地址
    
-	BOOL                xFrameIsBroadcast;             //是否为广播帧
+    BOOL                xFrameIsBroadcast;             //是否为广播帧
     
 #if MB_MASTER_RTU_ENABLED > 0         //RTU mode information
-	UCHAR               ucRTUSndBuf[MB_PDU_SIZE_MAX];         //发送缓冲区
+    UCHAR               ucRTUSndBuf[MB_PDU_SIZE_MAX];         //发送缓冲区
     UCHAR               ucRTURcvBuf[MB_SER_PDU_SIZE_MAX];     //接收缓冲区
 #endif
 
-#if MB_MASTER_ASCII_ENABLED > 0 
-#endif
-	
+    USHORT  RegHoldValList[MB_PDU_SIZE_MAX];
+    UCHAR   BitCoilByteValList[MB_PDU_SIZE_MAX];
+
+    sMBMasterPort        sMBPort;                   //主栈硬件接口信息
+    sMBMasterDevsInfo    sMBDevsInfo;               //主栈从设备信息
+    sMBMasterTask        sMBTask;                   //主栈状态机任务信息
+
     struct sMBMasterInfo* pNext;                              //下一主栈节点
     struct sMBMasterInfo* pLast;                              //末尾主栈节点
 }sMBMasterInfo;
@@ -207,10 +207,13 @@ typedef struct                 /* 主栈节点配置信息 */
     eMBMode     eMode;
                 
     sUART_Def*  psMasterUart;
-    CHAR*       pcMBPortName; 
+    const CHAR* pcMBPortName;
     
-    UCHAR       ucMinAddr;    
+    UCHAR       ucMinAddr;
     UCHAR       ucMaxAddr;
+
+    BOOL        bDTUEnable;
+
 #if MB_UCOSIII_ENABLED
 
 #if MB_MASTER_HEART_BEAT_ENABLED > 0
@@ -219,7 +222,7 @@ typedef struct                 /* 主栈节点配置信息 */
     OS_PRIO     ucMasterPollPrio;
     OS_PRIO     ucMasterScanPrio;
 #endif
-    BOOL        bDTUEnable;
+
 }sMBMasterNodeInfo;
 
 

@@ -3,7 +3,7 @@
 #include "stddef.h"
 #include <unistd.h>
 
-#define MONITOR_DATA_MAX_NUM        200     //最大可监控点位数，根据实际情况调整
+#define MONITOR_DATA_MAX_NUM   100     //最大可监控点位数，根据实际情况调整
 
 sMonitorMapList* DataMonitor::g_psMonitorMapList = nullptr;
 DataMonitor*     DataMonitor::g_pDataMonitor = nullptr;
@@ -96,7 +96,8 @@ void* Monitor::getCurValAddr()
     return m_pvVal;
 }
 
-DataMonitor::DataMonitor()
+DataMonitor::DataMonitor(QObject *parent) :
+     QObject(parent)
 {
 
 }
@@ -193,9 +194,8 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
     {
         return nullptr;
     }
-    if(g_usMonitorID/MONITOR_DATA_MAX_NUM == 0)
+    if(g_usMonitorID % MONITOR_DATA_MAX_NUM == 0)
     {
-        g_usMonitorID = 0;
         pmMonitorMapList = new sMonitorMapList;
 
         if(g_psMonitorMapList == nullptr)
@@ -208,10 +208,13 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
         }
         g_psMonitorMapList->pLast = pmMonitorMapList;
 
-        if( pthread_create(&pmMonitorMapList->sMonitorThread, nullptr, DataMonitor::monitorPollTask, static_cast<void*>(&pmMonitorMapList->m_MonitorMap)) < 0 )
+        if( pthread_create(&pmMonitorMapList->sMonitorThread, nullptr, DataMonitor::monitorPollTask,
+                           static_cast<void*>(&pmMonitorMapList->m_MonitorMap)) < 0 )
         {
             return nullptr;
         }
+
+        qDebug("pthread_create monitorRegist %d", g_usMonitorID);
     }
     else
     {
@@ -226,6 +229,10 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
     {
         pMonitor = new Monitor(pvVal, eDataType, g_usMonitorID, iMaxVal, iMinVal);
         pmMonitorMapList->m_MonitorMap.insert(pvVal,pMonitor);
+
+        g_usMonitorID++;
+
+        //qDebug("g_usMonitorID %d", g_usMonitorID);
     }
 
     if(pMonitor == nullptr)
@@ -264,6 +271,5 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
         iValue = *static_cast<int32_t*>(pvVal);
         pMonitor->m_iDataVal = iValue;
     }
-    g_usMonitorID++;
     return pMonitor;
 }

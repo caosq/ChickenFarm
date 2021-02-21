@@ -105,7 +105,7 @@ eMBErrorCode eMBSlaveUtilSetBits(sMBSlaveInfo* psMBSlaveInfo, UCHAR* ucByteBuf,
                 ucBit = (UCHAR)( ((*ucByteBuf) & (1<<i)) >> i );   //取对应位的值
                 *(UCHAR*)(pucBitData->pvValue) = (UCHAR)ucBit;			
 
-                //myprintf("eMBSlaveUtilSetBits usCoilAddr %d  usMBBitData %d\n", usAddress, *(UCHAR*)(pucBitData->pvValue));
+                //debug("eMBSlaveUtilSetBits usCoilAddr %d  usMBBitData %d\n", usAddress, *(UCHAR*)(pucBitData->pvValue));
             }
             usAddress++;
 		}

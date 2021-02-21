@@ -349,19 +349,19 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(sMBMasterPort* psMBPort)
         	break;
         case EV_MASTER_ERROR_RESPOND_TIMEOUT:
         {
-//            myprintf(" EV_MASTER_ERROR_RESPOND_TIMEOUT \n"); 
+//            debug(" EV_MASTER_ERROR_RESPOND_TIMEOUT \n");
         	eErrStatus = MB_MRE_TIMEDOUT;
         	break;
         }
         case EV_MASTER_ERROR_RECEIVE_DATA:
         {
-//            myprintf(" EV_MASTER_ERROR_RECEIVE_DATA \n");
+//            debug(" EV_MASTER_ERROR_RECEIVE_DATA \n");
         	eErrStatus = MB_MRE_REV_DATA;
         	break;
         }
         case EV_MASTER_ERROR_EXECUTE_FUNCTION:
         {
-//            myprintf(" EV_MASTER_ERROR_EXECUTE_FUNCTION \n");
+//            debug(" EV_MASTER_ERROR_EXECUTE_FUNCTION \n");
         	eErrStatus = MB_MRE_EXE_FUN;
         	break;
         }	

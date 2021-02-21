@@ -221,7 +221,7 @@ eMBMasterReqErrCode eMBMasterReqWriteMultipleHoldingRegister(sMBMasterInfo* psMB
 		vMBMasterSetPDUSndLength(psMBMasterInfo, MB_PDU_SIZE_MIN + MB_PDU_REQ_WRITE_MUL_SIZE_MIN + 2*usNRegs);
 		vMBMasterGetPDUSndBuf(psMBMasterInfo, &pucMBFrame);
         
-//	    myprintf("ucSlaveAddr %d  eMBMasterReqWriteMultipleHoldingRegister    \n",ucSndAddr);
+//	    debug("ucSlaveAddr %d  eMBMasterReqWriteMultipleHoldingRegister    \n",ucSndAddr);
             
 		(void) xMBMasterPortEventPost(psMBPort, EV_MASTER_FRAME_SENT);
 		return eMBMasterWaitRequestFinish(psMBPort);
@@ -321,7 +321,7 @@ eMBMasterReqErrCode eMBMasterReqReadHoldingRegister(sMBMasterInfo* psMBMasterInf
 		vMBMasterSetPDUSndLength(psMBMasterInfo, MB_PDU_SIZE_MIN + MB_PDU_REQ_READ_SIZE);
 		(void)xMBMasterPortEventPost(psMBPort, EV_MASTER_FRAME_SENT);
         
-//        myprintf("eMBMasterReqWriteMultipleHoldingRegister  ucSlaveAddr %d usRegAddr %d usNRegs %d\n",ucSndAddr, usRegAddr, usNRegs);
+//        debug("eMBMasterReqWriteMultipleHoldingRegister  ucSlaveAddr %d usRegAddr %d usNRegs %d\n",ucSndAddr, usRegAddr, usNRegs);
 		return eMBMasterWaitRequestFinish(psMBPort);
     }
 }

@@ -29,14 +29,14 @@ void vMBMasterDevOfflineTimeout(void * p_tmr, void * p_arg)
 {
     sMBSlaveDev* psMBSlaveDev = (sMBSlaveDev*)p_arg;
     psMBSlaveDev->xDevOnTimeout = FALSE; 
-//    myprintf("vMBMasterDevOfflineTimeout  ucDevAddr %d \n", psMBSlaveDev->ucDevAddr);
+//    debug("vMBMasterDevOfflineTimeout  ucDevAddr %d \n", psMBSlaveDev->ucDevAddr);
 }
 #elif MB_LINUX_ENABLED
 void vMBMasterDevOfflineTimeout(union sigval v)
 {
     sMBSlaveDev* psMBSlaveDev = (sMBSlaveDev*)v.sival_ptr;
     psMBSlaveDev->xDevOnTimeout = FALSE; 
-//    myprintf("vMBMasterDevOfflineTimeout  ucDevAddr %d \n", psMBSlaveDev->ucDevAddr);
+//    debug("vMBMasterDevOfflineTimeout  ucDevAddr %d \n", psMBSlaveDev->ucDevAddr);
 }
 #endif
 /**********************************************************************
@@ -128,7 +128,7 @@ eMBDevCmdTest(sMBMasterInfo* psMBMasterInfo, const sMBSlaveDev* psMBSlaveDev, co
     }
     psMBMasterInfo->eMBRunMode = STATE_SCAN_DEV;  //退出测试从设备状态
 
-//    myprintf("eMBDevCmdTest ucDevAddr %d errorCode %d\n", ucSlaveAddr, errorCode);    
+//    debug("eMBDevCmdTest ucDevAddr %d errorCode %d\n", ucSlaveAddr, errorCode);
     return errorCode;
 }
 
@@ -208,7 +208,7 @@ void vMBDevTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev)
             break; 				
         } 
     }
-//    myprintf("vMBDevTest  ucDevAddr %d errorCode %d\n", psMBSlaveDev->ucDevAddr, errorCode);
+//    debug("vMBDevTest  ucDevAddr %d errorCode %d\n", psMBSlaveDev->ucDevAddr, errorCode);
     if(errorCode != MB_MRE_NO_ERR) //证明从设备无反应
     {
         (void)xMBMasterDevOfflineTmrEnable(psMBSlaveDev);  
@@ -282,7 +282,7 @@ void vMBDevCurStateTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev
             psMBSlaveDev->xDataReady     = TRUE;
             psMBSlaveDev->ucOfflineTimes = 0;     //测试次数清零
         }
-//        myprintf("vMBDevCurStateTest  ucDevAddr %d  xOnLine %d xDataReady %d xSynchronized %d xStateTestRequest %d \n", 
+//        debug("vMBDevCurStateTest  ucDevAddr %d  xOnLine %d xDataReady %d xSynchronized %d xStateTestRequest %d \n",
 //        psMBSlaveDev->ucDevAddr,  psMBSlaveDev->xOnLine,  psMBSlaveDev->xDataReady, psMBSlaveDev->xSynchronized, psMBSlaveDev->xStateTestRequest);
     }
     else  //多次测试仍返回错误
@@ -294,7 +294,7 @@ void vMBDevCurStateTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev
             psMBSlaveDev->xDataReady     = FALSE;    //从设备准备置位
             psMBSlaveDev->xSynchronized  = FALSE;    //从设备同步置位
             psMBSlaveDev->ucOfflineTimes = 0;        //测试次数清零
-           // myprintf("vMBDevCurStateTest  ucDevAddr %d errorCode %d\n", psMBSlaveDev->ucDevAddr, errorCode);
+           // debug("vMBDevCurStateTest  ucDevAddr %d errorCode %d\n", psMBSlaveDev->ucDevAddr, errorCode);
         }
         else
         {

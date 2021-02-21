@@ -71,7 +71,7 @@ eMBErrorCode eMBMasterRTUInit(sMBMasterInfo* psMBMasterInfo)
     Baud_rate = psMBPort->psMBMasterUart->baud;
 #endif
 
-    if( xMBMasterPortSerialInit(psMBPort) != TRUE )      //串口初始化
+    if(xMBMasterPortSerialInit(psMBPort) != TRUE)      //串口初始化
     {
         return MB_EPORTERR;
     }
@@ -395,7 +395,7 @@ BOOL xMBMasterRTUTransmitFSM(sMBMasterInfo* psMBMasterInfo)
             else
             {
             	vMBsMasterPortTmrsRespondTimeoutEnable(psMBPort);
-//                myprintf("vMBsMasterPortTmrsRespondTimeoutEnable\n");
+//                debug("vMBsMasterPortTmrsRespondTimeoutEnable\n");
             }
         }
         break;
@@ -429,7 +429,7 @@ BOOL xMBMasterRTUTimerExpired(sMBMasterInfo* psMBMasterInfo)
 	    if( psMBMasterInfo->usRcvBufferPos >= 5)   //防止错误数据而导致激发接收事件,该芯片存在bug，发送完数据后会自动接收上次发送的数据
 		{
 			xNeedPoll = xMBMasterPortEventPost(psMBPort, EV_MASTER_FRAME_RECEIVED);   //一帧数据接收完成，上报协议栈事件,接收到一帧完整的数据
-//			myprintf("EV_MASTER_FRAME_RECEIVED******************\n");
+//			debug("EV_MASTER_FRAME_RECEIVED******************\n");
 		}
 		else
 		{
@@ -437,7 +437,7 @@ BOOL xMBMasterRTUTimerExpired(sMBMasterInfo* psMBMasterInfo)
 			vMBsMasterPortTmrsRespondTimeoutEnable(psMBPort);      //接收数据不完整，重启定时器
 
 			xSndStateNeedChange = FALSE;
-//			myprintf("EV_MASTER_FRAME_RECEIVED_ERROR******************\n");
+//			debug("EV_MASTER_FRAME_RECEIVED_ERROR******************\n");
 		}
 		break;
 		/* An error occured while receiving the frame. */

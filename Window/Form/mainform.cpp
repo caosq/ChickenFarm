@@ -35,6 +35,7 @@ MainForm::MainForm(QWidget *parent) :
     setWindowFlags(Qt::FramelessWindowHint);
     resize(maximumSize());
 
+
     initLabel();
     initButton();
     initForm();
@@ -69,7 +70,11 @@ void MainForm::initLabel()
     m_pTitleLabel->setPalette(pe);
     m_pTitleLabel->setFont(font);
 
-
+    ui->backButton->setEnabled(false);
+    ui->paraButton->setEnabled(false);
+    ui->curveButton->setEnabled(false);
+    ui->eventButton->setEnabled(false);
+    ui->systemButton->setEnabled(false);
 }
 
 void MainForm::initButton()
@@ -87,46 +92,56 @@ void MainForm::initButton()
     //设置通用按键图标
     ubutton::forefather()->setFatherPixmap(ubutton::press,UB_PRESS_PIX);
     ubutton::forefather()->setFatherPixmap(ubutton::release,UB_RELEASE_PIX);
+
+
+
 }
 
 
 void MainForm::initForm()
 {
-    m_pSystemMonitor = new SystemMonitor();
+/*    m_pSystemMonitor = new SystemMonitor();
     m_pHome          = new Home();
     m_pCurve         = new Curve();
     m_pSetting       = new Setting();
     m_pEvent         = new Event();
+*/
+    ui->mainStackedWidget->addWidget(&m_pSystemMonitor);
+    ui->mainStackedWidget->addWidget(&m_pHome);
 
-    ui->mainStackedWidget->insertWidget(0, m_pHome);
-    ui->mainStackedWidget->insertWidget(1, m_pSystemMonitor);
-    ui->mainStackedWidget->insertWidget(2, m_pCurve);
-    ui->mainStackedWidget->insertWidget(3, m_pSetting);
-    ui->mainStackedWidget->insertWidget(4, m_pEvent);
-    ui->mainStackedWidget->setCurrentWidget(m_pHome);
+    ui->mainStackedWidget->addWidget(&m_pCurve);
+    ui->mainStackedWidget->addWidget(&m_pSetting);
+    ui->mainStackedWidget->addWidget(&m_pEvent);
+    ui->mainStackedWidget->setCurrentWidget(&m_pHome);
+
+    ui->backButton->setEnabled(true);
+    ui->paraButton->setEnabled(true);
+    ui->curveButton->setEnabled(true);
+    ui->eventButton->setEnabled(true);
+    ui->systemButton->setEnabled(true);
 }
 
 void MainForm::on_systemButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(m_pSystemMonitor);
+    ui->mainStackedWidget->setCurrentWidget(&m_pSystemMonitor);
 }
 
 void MainForm::on_curveButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(m_pCurve);
+    ui->mainStackedWidget->setCurrentWidget(&m_pCurve);
 }
 
 void MainForm::on_paraButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(m_pSetting);
+    ui->mainStackedWidget->setCurrentWidget(&m_pSetting);
 }
 
 void MainForm::on_backButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(m_pHome);
+    ui->mainStackedWidget->setCurrentWidget(&m_pHome);
 }
 
 void MainForm::on_eventButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(m_pEvent);
+    ui->mainStackedWidget->setCurrentWidget(&m_pEvent);
 }

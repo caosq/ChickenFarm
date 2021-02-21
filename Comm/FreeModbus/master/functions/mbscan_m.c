@@ -147,7 +147,7 @@ eMBMasterReqErrCode eMBMasterScanHoldingRegister(sMBMasterInfo* psMBMasterInfo, 
 	iRegs = 0;
 	bStarted = FALSE;
 	
-//    myprintf("ucSlaveAddr %d  eMBMasterScanWriteHoldingRegister\n", ucSndAddr);
+//    debug("ucSlaveAddr %d  eMBMasterScanWriteHoldingRegister\n", ucSndAddr);
  
     if(psMBSlaveDevCur->ucDevAddr != ucSndAddr) //如果当前从设备地址与要轮询从设备地址不一致，则更新从设备
     {
@@ -333,7 +333,7 @@ eMBMasterReqErrCode eMBMasterWriteCoil(sMBMasterInfo* psMBMasterInfo, UCHAR ucSn
     {
         usMBBitData = (*(UCHAR*)pucDataBuffer >0) ? 0xFF00 : 0x0000;
         
-//      myprintf("eMBMasterWriteCoil ucSndAddr  %d usCoilAddr %d  usMBBitData %d %d %d\n\n",ucSndAddr, 
+//      debug("eMBMasterWriteCoil ucSndAddr  %d usCoilAddr %d  usMBBitData %d %d %d\n\n",ucSndAddr,
 //                usCoilAddr, usMBBitData, *(UCHAR*)pucDataBuffer, pSystem->psModularRoofList[0]->xErrClean);
 
         eStatus = eMBMasterReqWriteCoil(psMBMasterInfo, ucSndAddr, usCoilAddr, usMBBitData, lTimeOut);   
@@ -375,7 +375,7 @@ eMBMasterReqErrCode eMBMasterScanCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSn
     cByteValue = 0;
 	bStarted = FALSE;
 	
-//    myprintf("ucSlaveAddr %d  eMBMasterScanWriteCoils\n", ucSndAddr);
+//    debug("ucSlaveAddr %d  eMBMasterScanWriteCoils\n", ucSndAddr);
     
     if(psMBSlaveDevCur->ucDevAddr != ucSndAddr) //如果当前从设备地址与要轮询从设备地址不一致，则更新从设备
     {
@@ -391,7 +391,7 @@ eMBMasterReqErrCode eMBMasterScanCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSn
 	{
 		psCoilValue = (sMasterBitCoilData*)(psMBCoilTable->pvDataBuf) + iIndex;
         
-//      myprintf("psCoilValue  ucSndAddr %d  usCoilAddr %d pvValue %d ucPreVal %d\n\n",
+//      debug("psCoilValue  ucSndAddr %d  usCoilAddr %d pvValue %d ucPreVal %d\n\n",
 //                ucSndAddr, psCoilValue->usAddr, *(UCHAR*)psCoilValue->pvValue, psCoilValue->ucPreVal);
 
         /******************* 写线圈***************************/
@@ -651,7 +651,7 @@ void vMBMasterScanSlaveDevData(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr,
     {
         psMBSlaveDevCur->xStateTestRequest = TRUE;
         psMBSlaveDevCur->xSynchronized = FALSE;
-//        myprintf("vMBMasterScanSlaveDevData ucSlaveAddr %d  errorCode %d\n", ucSlaveAddr, errorCode);
+//        debug("vMBMasterScanSlaveDevData ucSlaveAddr %d  errorCode %d\n", ucSlaveAddr, errorCode);
     }
          
 }
@@ -696,7 +696,7 @@ void vMBMasterScanSlaveDev(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlave
                 psMBSlaveDev->xSynchronized = TRUE;  //同步完成
             }
         }
-//        myprintf("************vMBMasterScanSlaveDev  ucSlaveAddr %d  xDataReady %d  xSynchronized %d**************\n", 
+//        debug("************vMBMasterScanSlaveDev  ucSlaveAddr %d  xDataReady %d  xSynchronized %d**************\n",
 //        ucSlaveAddr, psMBSlaveDev->xDataReady, psMBSlaveDev->xSynchronized);            
     }		
 }
@@ -722,7 +722,7 @@ void vMBMasterScanSlaveDevTask(void *p_arg)
 
     while(1)
 	{
-//        myprintf("****************************************************************************\n");  
+//        debug("****************************************************************************\n");
         (void)vMBTimeDly(0, msReadInterval);    
  
 #if MB_MASTER_DTU_ENABLED > 0    //GPRS模块功能支持，特殊处理      
@@ -752,7 +752,7 @@ void vMBMasterScanSlaveDevTask(void *p_arg)
                 {                  
                     vMBMasterScanSlaveDev(psMBMasterInfo, psMBSlaveDev);
                 }
-//                myprintf("vMBDevCurStateTest  %d  psMBSlaveDev->xOnLine %d\n", psMBSlaveDev->ucDevAddr, psMBSlaveDev->xOnLine);                 
+//                debug("vMBDevCurStateTest  %d  psMBSlaveDev->xOnLine %d\n", psMBSlaveDev->ucDevAddr, psMBSlaveDev->xOnLine);
             }          
         }    
 	}
@@ -771,13 +771,13 @@ void* vMBMasterScanSlaveDevTask(void *p_arg)
 
     while(1)
     {
-//        myprintf("****************************************************************************\n");
+        //debug("**********************************************\n");
         (void)vMBTimeDly(0, msReadInterval);
-        if(psMBDevsInfo == NULL || psMBDevsInfo->psMBSlaveDevsList == NULL)
+/*        if(psMBDevsInfo == NULL || psMBDevsInfo->psMBSlaveDevsList == NULL)
         {
             continue;
         }
-
+*/
 #if MB_MASTER_DTU_ENABLED > 0    //GPRS模块功能支持，特殊处理
         if( (psMBMasterInfo->bDTUEnable == TRUE) && (psMBMasterInfo->pvDTUScanDevCallBack != NULL))
         {
@@ -805,7 +805,7 @@ void* vMBMasterScanSlaveDevTask(void *p_arg)
                 {
                     vMBMasterScanSlaveDev(psMBMasterInfo, psMBSlaveDev);
                 }
-//                myprintf("vMBDevCurStateTest  %d  psMBSlaveDev->xOnLine %d\n", psMBSlaveDev->ucDevAddr, psMBSlaveDev->xOnLine);
+//                debug("vMBDevCurStateTest  %d  psMBSlaveDev->xOnLine %d\n", psMBSlaveDev->ucDevAddr, psMBSlaveDev->xOnLine);
             }
         }
     }

@@ -86,7 +86,7 @@ public:
     static DataMonitor* getInstance();
 
 private:
-    explicit DataMonitor();
+    explicit DataMonitor(QObject *parent = nullptr);
 
     static DataMonitor*  g_pDataMonitor;
 

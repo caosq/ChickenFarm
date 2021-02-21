@@ -396,11 +396,11 @@ BOOL xMBSlaveRTUTimerT35Expired(sMBSlaveInfo* psMBSlaveInfo)
 	    if(psMBSlaveInfo->usRcvBufferPos >= 8)   
 		{
 	        xNeedPoll = xMBSlavePortEventPost(psMBPort, EV_FRAME_RECEIVED); //一帧数据接收完成，上报协议栈事件,接收到一帧完整的数据
-//			myprintf("EV_FRAME_RECEIVED  %d******************\n", psMBSlaveInfo->usRcvBufferPos);
+//			debug("EV_FRAME_RECEIVED  %d******************\n", psMBSlaveInfo->usRcvBufferPos);
 		}
 	    else
 		{
-//			myprintf("EV_FRAME_RECEIVED_ERROR %d ******************\n", psMBSlaveInfo->usRcvBufferPos);
+//			debug("EV_FRAME_RECEIVED_ERROR %d ******************\n", psMBSlaveInfo->usRcvBufferPos);
 			psMBSlaveInfo->usRcvBufferPos = 0;
 			psMBSlaveInfo->eRcvState = STATE_RX_RCV;
             xNeedPoll = FALSE;

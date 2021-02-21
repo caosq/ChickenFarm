@@ -19,9 +19,8 @@ class ModularChillerPage : public QWidget
     Q_OBJECT
 
 public:
-    QVector<ModularChiller*> m_ModularChillers;
-
     Meter         m_sMeter;   //电表
+    ModularChiller m_ModularChillers[2];
 
 private:
 
@@ -37,7 +36,6 @@ private:
     AnalogValButton  *m_pTempSetBtn;     //目标温度设定
     AnalogValButton  *m_pHumiSetBtn;     //目标湿度设定
     AnalogValButton  *m_pCO2SetBtn;      //目标CO2设定
-
 
     DataLabel  *m_pPowerLabel;           //实时功率
     DataLabel  *m_pTotalEnergyLabel;     //累计耗电量

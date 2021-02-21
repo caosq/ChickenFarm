@@ -115,7 +115,7 @@ BOOL xMBSlavePortSerialPutByte(sMBSlavePort* psMBPort, UCHAR ucByte)
 //	h= (h<10)? h+48: h+87;
 //	l= (l<10)? l+48: l+87;	
 //	
-//    myprintf("TX:%c%c\n", h,l);
+//    debug("TX:%c%c\n", h,l);
 	
 	UART_SendByte(psMBSlaveUart->ID, ucByte);
 #endif
@@ -136,7 +136,7 @@ BOOL xMBSlavePortSerialGetByte(sMBSlavePort* psMBPort, UCHAR* pucByte)
 //	h= (h<10)? h+48: h+87;
 //	l= (l<10)? l+48: l+87;	
 //	
-//    myprintf("RX:%c%c\n", h,l);
+//    debug("RX:%c%c\n", h,l);
 #endif
     return TRUE;
 }

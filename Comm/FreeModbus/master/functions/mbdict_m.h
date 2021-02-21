@@ -105,14 +105,16 @@ typedef struct sMBSlaveDevCommData   /* 从设备通讯字典数据结构 */
 	sMBDevDataTable      sMBCoilTable;        //线圈数据表
 	sMBDevDataTable      sMBDiscInTable;      //离散量数据表
     sMBTestDevCmd        sMBDevCmdTable;      //用于测试从设备状态命令表
-    
-#if MB_MASTER_HEART_BEAT_ENABLED
-    sMBDevHeartBeat      sMBDevHeartBeat;     //心跳帧
-#endif     
+       
     UCHAR                ucProtocolID;        //协议ID
     pxMBDevDataMapIndex  pxDevDataMapIndex;   //字典映射函数
     
     struct sMBSlaveDevCommData*   pNext;      //下一个数据表
+
+#if MB_MASTER_HEART_BEAT_ENABLED
+    sMBDevHeartBeat      sMBDevHeartBeat;     //心跳帧
+#endif
+
 }sMBSlaveDevCommData; 
 
 typedef struct sMBSlaveDev   /* 从设备信息列表 */   

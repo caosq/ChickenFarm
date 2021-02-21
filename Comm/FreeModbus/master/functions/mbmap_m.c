@@ -232,7 +232,7 @@ void vMBMasterDevCoilDataInit(sMasterBitCoilData* pData, USHORT usAddr, UCHAR uc
     
 //    if(usAddr ==0)
 //    {
-//         myprintf("vMBMasterDevCoilDataInit %d  pvValue %d \n", pData, pvValue);
+//         debug("vMBMasterDevCoilDataInit %d  pvValue %d \n", pData, pvValue);
 //    }
 }                                                        
 

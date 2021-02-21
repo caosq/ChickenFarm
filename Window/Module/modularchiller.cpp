@@ -46,6 +46,9 @@ ModularChiller::ModularChiller(QWidget *parent) :
     ModularChiller::m_usModularChillerCount++;
     this->m_usDeviceIndex = m_usModularChillerCount;
 
+    initLabel();
+    initButton();
+
     Modular *psModular = nullptr;
     for( uint8_t i = 0; i < MODULAR_NUM_IN_CHILLER; i++)
     {
@@ -54,8 +57,6 @@ ModularChiller::ModularChiller(QWidget *parent) :
                                psModular->width(), psModular->height());
         m_Modulars.append(psModular);
     }
-    initLabel();
-    initButton();
 }
 
 void ModularChiller::initLabel()
@@ -94,10 +95,10 @@ void ModularChiller::initButton()
 
     //机组运行工作模式设定
     m_pRunningModeCmdBtn = new ModeButton(ui->frame_2);
-    m_pRunningModeCmdBtn->setItem(0,tr("制冷"));
-    m_pRunningModeCmdBtn->setItem(1,tr("制热"));
-    m_pRunningModeCmdBtn->setItem(2,tr("手动化霜"));
-    m_pRunningModeCmdBtn->setDefaultValue(0);
+    m_pRunningModeCmdBtn->setItem(1,tr("制冷"));
+    m_pRunningModeCmdBtn->setItem(2,tr("制热"));
+    m_pRunningModeCmdBtn->setItem(3,tr("手动化霜"));
+    m_pRunningModeCmdBtn->setDefaultValue(1);
     m_pRunningModeCmdBtn->setMonitorData(&m_eRunningModeCmd, Monitor::Uint16t);
     m_Widgets.append(m_pRunningModeCmdBtn);
 

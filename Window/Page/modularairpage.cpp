@@ -16,7 +16,7 @@
 #define LABEL_INTERVAL_H_1    300
 #define LABEL_INTERVAL_V_1    40
 
-#define LABEL_UP_MARGIN_2     60
+#define LABEL_UP_MARGIN_2     50
 #define LABEL_LEFT_MARGIN_2   30
 #define LABEL_INTERVAL_H_2    300
 #define LABEL_INTERVAL_V_2    40
@@ -28,7 +28,7 @@
 #define DATA_LABEL_INTERVAL_H_1   300
 #define DATA_LABEL_INTERVAL_V_1   40
 
-#define DATA_LABEL_UP_MARGIN_2    62
+#define DATA_LABEL_UP_MARGIN_2    50
 #define DATA_LABEL_LEFT_MARGIN_2  150
 #define DATA_LABEL_INTERVAL_H_2   300
 #define DATA_LABEL_INTERVAL_V_2   40
@@ -66,7 +66,7 @@ void ModularAirPage::initDevice()
         pSystem->m_pModularAirs[n] = pModularAir;
 
         m_ModularAirs.append(pModularAir);
-        ui->modularAirStackedWidget->insertWidget(n, pModularAir);
+        ui->modularAirStackedWidget->addWidget(pModularAir);
     }
 }
 
@@ -200,16 +200,16 @@ void ModularAirPage::initButton()
 
 void ModularAirPage::on_pushButton_clicked()
 {
-    if(ui->modularAirStackedWidget->currentIndex() == 0)
+    if(ui->modularAirStackedWidget->currentWidget() == m_ModularAirs[0])
     {
-        m_pCurModularAir = System::getInstance()->m_pModularAirs[1];
-        ui->modularAirStackedWidget->setCurrentIndex(1);
+        m_pCurModularAir = m_ModularAirs[1];
+        ui->modularAirStackedWidget->setCurrentWidget(m_ModularAirs[1]);
         ui->pushButton->setText("上一页");
     }
-    else if(ui->modularAirStackedWidget->currentIndex() == 1)
+    else if(ui->modularAirStackedWidget->currentWidget() == m_ModularAirs[1])
     {
-        m_pCurModularAir = System::getInstance()->m_pModularAirs[0];
-        ui->modularAirStackedWidget->setCurrentIndex(0);
+        m_pCurModularAir = m_ModularAirs[0];
+        ui->modularAirStackedWidget->setCurrentWidget(m_ModularAirs[0]);
         ui->pushButton->setText("下一页");
     }
     m_pPowerLabel->setMonitorData(&m_pCurModularAir->m_sMeter.m_usPower, Monitor::Uint16t);

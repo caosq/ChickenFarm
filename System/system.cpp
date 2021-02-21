@@ -1,9 +1,6 @@
 #include "system.h"
 
-#define REG_HOLD_BUF_NUM  300
-#define BIT_COIL_BUF_NUM  200
-
-QString strPortName ="/dev/ttyS0";
+#define PORT_NAME "/dev/ttyUSB0"
 
 System* System::g_pSystem = nullptr;
 
@@ -25,14 +22,14 @@ System* System::getInstance()
 
 void System::initController()
 {
+
     pModbus = new Modbus(eMBType::TYPE_MASTER);
-    sMBMasterInfo *pMasterInfo = pModbus->masterInit(eMBMode::MB_RTU, strPortName.toUtf8().data(), 1, 1, false);
+    pModbus->uartConfig(9600, 8, 1, Modbus::eParityType::None);
 
-    if(pMasterInfo != nullptr)
+    if(pModbus->masterInit(eMBMode::MB_RTU, PORT_NAME, 1, 1, false))
     {
-        xMBMasterRegistNode(pMasterInfo, &pModbus->m_sMBMasterNode);
+       // xMBMasterRegistNode(pMasterInfo, &pModbus->m_sMBMasterNode);
         m_pController = new Controller();
-
-        m_pController->initComm(pMasterInfo, REG_HOLD_BUF_NUM, 0, BIT_COIL_BUF_NUM, 0);
+        m_pController->initComm(pModbus->getMBMasterInfo());
     }
 }

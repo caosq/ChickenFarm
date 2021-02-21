@@ -162,7 +162,7 @@ void vMBSlaveRegDataInit(sMBSlaveRegData* pData, USHORT usAddr, UCHAR ucDataType
 
 //    if(usAddr == 37)
 //    {
-//        myprintf("pData %d  pData->pvValue %d \n",  pData, (uint16_t*)pvValue );
+//        debug("pData %d  pData->pvValue %d \n",  pData, (uint16_t*)pvValue );
 //    }
     
 }
@@ -180,7 +180,7 @@ void vMBSlaveBitDataInit(sMBSlaveBitData* pData, USHORT usAddr, UCHAR ucAccessMo
 
 //    if(usAddr == 160)
 //    {
-//        myprintf("pData %d  pData->pvValue %d \n",  pData, (uint16_t*)pvValue );
+//        debug("pData %d  pData->pvValue %d \n",  pData, (uint16_t*)pvValue );
 //    }    
 }
 

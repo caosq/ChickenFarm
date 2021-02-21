@@ -48,7 +48,10 @@ BOOL xMBMasterPortSerialInit(sMBMasterPort* psMBPort)     //初始化
      */
 #if MB_LINUX_ENABLED 
     psMBPort->psMBMasterUart->fd = open(psMBPort->pcMBPortName, O_RDWR | O_NOCTTY | O_NDELAY);
-    if(psMBPort->psMBMasterUart->fd < 0) {return 0;}
+    if(psMBPort->psMBMasterUart->fd < 0)
+    {
+        return FALSE;
+    }
 #endif
     return xMB_UartInit(psMBPort->psMBMasterUart);
 }
@@ -119,7 +122,7 @@ BOOL xMBMasterPortSerialPutByte(sMBMasterPort* psMBPort, UCHAR ucByte)   //发�
 //	h= (h<10)? h+48: h+87;
 //	l= (l<10)? l+48: l+87;	
 	
-//    myprintf("TX:%c%c\n", h,l);
+//    debug("TX:%c%c\n", h,l);
 	const sUART_Def* psMBMasterUart = psMBPort->psMBMasterUart;
     UART_SendByte(psMBMasterUart->ID, ucByte);
 #endif
@@ -155,7 +158,7 @@ BOOL xMBMasterPortSerialGetByte(const sMBMasterPort* psMBPort, UCHAR* pucByte)  
 	l=(* pucByte ) % 16 ;	
 	h= (h<10)? h+48: h+87;
 	l= (l<10)? l+48: l+87;	 */
-//    myprintf("RX:%c%c\n", h,l);
+//    debug("RX:%c%c\n", h,l);
 #endif
     return TRUE;
 }
@@ -199,6 +202,6 @@ void prvvMasterUARTRxISR(const sMBMasterPort* psMBPort)
 	{
 		(void)pxMBMasterFrameCBByteReceivedCur(psMBMasterInfo);
 	} 
-    //myprintf("prvvMasterUARTRxISR\n");
+    //debug("prvvMasterUARTRxISR\n");
 }
 #endif

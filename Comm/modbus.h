@@ -6,17 +6,26 @@
 #include "mb.h"
 #include "mb_m.h"
 
-
 class Modbus : public QObject
 {
 public:
-    void uartConfig(uint32_t usBaudRate, uint8_t ucDataBit, uint8_t ucStopBit, char* pcParity);
 
-    sMBMasterInfo* masterInit(eMBMode eMode, char* pcPortName, uint8_t ucMinAddr, uint8_t ucMaxAddr, bool bDTUEnable);
+    typedef enum {
+        None 	= 0,					/*!< No parity */
+        Even, 							/*!< Even parity */
+        Odd,	 						/*!< Odd parity */
+        Sp_1, 							/*!< Forced "1" stick parity */
+        Sp_0 							/*!< Forced "0" stick parity */
+    }eParityType;
 
-    bool slaveInit(eMBMode eMode, char* pcPortName, uint8_t ucSlaveAddr);
 
-    sMBMasterNodeInfo m_sMBMasterNode;
+    void uartConfig(uint32_t usBaudRate, uint8_t ucDataBit, uint8_t ucStopBit, uint8_t pcParity);
+
+    bool masterInit(eMBMode eMode, const char* pcPortName, uint8_t ucMinAddr, uint8_t ucMaxAddr, bool bDTUEnable);
+
+    bool slaveInit(eMBMode eMode, const char* pcPortName, uint8_t ucSlaveAddr);
+
+
     sMBMasterInfo* getMBMasterInfo();
 
     static Modbus* getInstance();
@@ -26,12 +35,10 @@ public:
 private:
     eMBType         m_MBType;
     sUART_Def       m_Uart;
-
-    sMBMasterInfo*  m_MasterInfo;         //主栈接口
-    sMBSlaveInfo*   m_SlaveInfo;          //从栈接口
+    sMBMasterInfo   m_MasterInfo;  //主栈接口
+    sMBSlaveInfo*   m_SlaveInfo;  //从栈接口
 
     static Modbus *g_pModbus;
-
 };
 
 

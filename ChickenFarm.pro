@@ -60,6 +60,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        Comm/FreeModbus/config/mbdebug.c \
         Comm/FreeModbus/driver/ti_mbdriver.c \
         Comm/FreeModbus/master/functions/mb_m.c \
         Comm/FreeModbus/master/functions/mbbits_m.c \
@@ -179,6 +180,7 @@ SOURCES += \
         Window/Page/valvepage.cpp
 
 HEADERS += \
+        Comm/FreeModbus/config/mbdebug.h \
         Comm/FreeModbus/config/mbconfig.h \
         Comm/FreeModbus/config/mbframe.h \
         Comm/FreeModbus/config/mbproto.h \

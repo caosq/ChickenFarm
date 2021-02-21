@@ -1,6 +1,7 @@
 #include "modularchillerpage.h"
 #include "ui_modularchillerpage.h"
 #include "system.h"
+#include "stdio.h"
 
 #define LABEL_COLUMNS_1  1
 #define LABEL_ROWS_1     6
@@ -12,7 +13,7 @@
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN_1     30
-#define LABEL_LEFT_MARGIN_1   40
+#define LABEL_LEFT_MARGIN_1   35
 #define LABEL_INTERVAL_H_1    300
 #define LABEL_INTERVAL_V_1    40
 
@@ -24,14 +25,14 @@
 #define DATA_LABEL_SIZE  110, 28
 
 #define DATA_LABEL_UP_MARGIN_1    30
-#define DATA_LABEL_LEFT_MARGIN_1  140
+#define DATA_LABEL_LEFT_MARGIN_1  130
 #define DATA_LABEL_INTERVAL_H_1   300
 #define DATA_LABEL_INTERVAL_V_1   40
 
 #define DATA_LABEL_UP_MARGIN_2    65
 #define DATA_LABEL_LEFT_MARGIN_2  150
 #define DATA_LABEL_INTERVAL_H_2   300
-#define DATA_LABEL_INTERVAL_V_2   40
+#define DATA_LABEL_INTERVAL_V_2   38
 
 #define MODULAR_CHILLER_NUM   2
 
@@ -63,14 +64,21 @@ void ModularChillerPage::initDevice()
     }
     for(uint8_t n = 0; n < MODULAR_CHILLER_NUM; n++)
     {
-        pModularChiller = new ModularChiller(this);
-        pSystem->m_pModularChillers[n] = pModularChiller;
+     //   pModularChiller = new ModularChiller();
+        pSystem->m_pModularChillers[n] =  &m_ModularChillers[n];
 
-        m_ModularChillers.append(pModularChiller);
+       // m_ModularChillers.append(pModularChiller);
+        ui->modularChillerStackedWidget->addWidget(&m_ModularChillers[n]);
+
         //pModularChiller->setGeometry(296, 20, 611, 545);
-        ui->modularChillerStackedWidget->insertWidget(n, pModularChiller);
     }
-    m_ModularChillers[1]->hide();
+    //ui->modularChillerStackedWidget->setCurrentWidget(&m_ModularChillers[0]);
+
+    // ui->modularChillerStackedWidget->addWidget(&m_ModularChillers[0]);
+
+    m_ModularChillers[0].setParent(ui->modularChillerStackedWidget);
+    m_ModularChillers[1].setParent(ui->modularChillerStackedWidget);
+
 }
 
 void ModularChillerPage::initLabel()
@@ -121,9 +129,9 @@ void ModularChillerPage::initButton()
 
     //机组运行工作模式设定
     m_pRunningModeCmdBtn = new ModeButton(ui->frame);
-    m_pRunningModeCmdBtn->setItem(0,tr("制冷"));
-    m_pRunningModeCmdBtn->setItem(1,tr("制热"));
-    m_pRunningModeCmdBtn->setItem(2,tr("手动化霜"));
+    m_pRunningModeCmdBtn->setItem(1,tr("制冷"));
+    m_pRunningModeCmdBtn->setItem(2,tr("制热"));
+    m_pRunningModeCmdBtn->setItem(3,tr("手动化霜"));
     m_pRunningModeCmdBtn->setDefaultValue(0);
     m_Widgets_1.append(m_pRunningModeCmdBtn);
 
@@ -158,6 +166,8 @@ void ModularChillerPage::initButton()
     m_pPowerLabel->setMonitorData(&m_sMeter.m_usPower, Monitor::Uint16t);
     m_Widgets_2.append(m_pPowerLabel);
 
+    qDebug("m_pPowerLabel %d %s", m_sMeter.m_usPower, m_pPowerLabel->text().toUtf8().data());
+
     //累计耗电量
     m_pTotalEnergyLabel = new DataLabel(ui->frame_1, DataLabel::Data);
     m_pTotalEnergyLabel->setAlignment(Qt::AlignLeft);
@@ -184,22 +194,24 @@ void ModularChillerPage::initButton()
 
 void ModularChillerPage::on_pushButton_clicked()
 {
-    if(ui->modularChillerStackedWidget->currentIndex() == 0)
+    if(ui->modularChillerStackedWidget->currentWidget() == &m_ModularChillers[0])
     {
-        ui->modularChillerStackedWidget->setCurrentIndex(1);
+        ui->modularChillerStackedWidget->setCurrentWidget(&m_ModularChillers[1]);
         ui->pushButton->setText("上一页");
+
     }
-    else if(ui->modularChillerStackedWidget->currentIndex() == 1)
+    else if(ui->modularChillerStackedWidget->currentWidget() == &m_ModularChillers[1])
     {
-        ui->modularChillerStackedWidget->setCurrentIndex(0);
+        ui->modularChillerStackedWidget->setCurrentWidget(&m_ModularChillers[0]);
         ui->pushButton->setText("下一页");
     }
+   // qDebug("currentIndex %d", ui->modularChillerStackedWidget->currentIndex());
 
-/*    if(m_usCurrentIndex == 0)
+ /*   if(m_usCurrentIndex == 0)
     {
         m_usCurrentIndex = 1;
-        m_ModularChillers[0]->hide();
-        m_ModularChillers[1]->show();
+//        m_ModularChillers[0]->hide();
+//        m_ModularChillers[1]->show();
         ui->pushButton->setText("上一页");
 
         ui->modularChillerStackedWidget->setCurrentIndex(1);
@@ -207,8 +219,8 @@ void ModularChillerPage::on_pushButton_clicked()
     else if(m_usCurrentIndex == 1)
     {
         m_usCurrentIndex = 0;
-        m_ModularChillers[0]->show();
-        m_ModularChillers[1]->hide();
+//        m_ModularChillers[0]->show();
+//        m_ModularChillers[1]->hide();
         ui->pushButton->setText("下一页");
 
         ui->modularChillerStackedWidget->setCurrentIndex(0);

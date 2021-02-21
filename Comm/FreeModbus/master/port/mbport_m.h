@@ -60,7 +60,7 @@ typedef struct                                /* 主栈接口定义  */
     BOOL   xEventInQueue;                      //主栈接口有新事件
     BOOL   xWaitFinishInQueue;                 //主栈接口有新错误事件
 	
-    const  CHAR* pcMBPortName;                 //主栈接口名称
+    const CHAR* pcMBPortName;                        //主栈接口名称
 
 #if MB_UCOSIII_ENABLED
 
@@ -68,8 +68,8 @@ typedef struct                                /* 主栈接口定义  */
     OS_TMR sConvertDelayTmr;                      //主栈接口转换延时定时器
     OS_TMR sRespondTimeoutTmr;                    //主栈接口等待响应定时器
 
-    OS_SEM sMBIdleSem;                            //主栈接口空闲消息量                    
-	OS_SEM sMBEventSem;                           //主栈接口事件消息量
+    OS_SEM sMBIdleSem;                            //主栈接口空闲消息量
+    OS_SEM sMBEventSem;                           //主栈接口事件消息量
     OS_SEM sMBWaitFinishSem;                      //主栈接口等待消息量
 
 #elif MB_LINUX_ENABLED

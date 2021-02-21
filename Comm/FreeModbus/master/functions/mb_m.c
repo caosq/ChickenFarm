@@ -338,7 +338,7 @@ eMBErrorCode eMBMasterPoll(sMBMasterInfo* psMBMasterInfo)
      * Otherwise we will handle the event. */
     if( xMBMasterPortEventGet(psMBPort, &eEvent) == TRUE )
     {
-//        myprintf("eMBMasterPoll\n");
+//        debug("eMBMasterPoll\n");
         switch (eEvent)
         {
         case EV_MASTER_READY:
@@ -491,7 +491,7 @@ BOOL xMBMasterRegistNode(sMBMasterInfo* psMBMasterInfo, sMBMasterNodeInfo* psMas
         {
             psMBPort->psMBMasterInfo = psMBMasterInfo;
             psMBPort->psMBMasterUart = psMasterNode->psMasterUart;
-            psMBPort->pcMBPortName   = psMasterNode->pcMBPortName;
+            psMBPort->pcMBPortName = psMasterNode->pcMBPortName;
         }
         /***************************从设备列表设置***************************/
         psMBDevsInfo = (sMBMasterDevsInfo*)(&psMBMasterInfo->sMBDevsInfo);
@@ -518,12 +518,12 @@ BOOL xMBMasterRegistNode(sMBMasterInfo* psMBMasterInfo, sMBMasterNodeInfo* psMas
         psMBMasterInfo->bDTUEnable = psMasterNode->bDTUEnable;
 #endif   
         /*******************************创建主栈状态机任务*************************/
-        if(xMBMasterCreatePollTask(psMBMasterInfo) == FALSE)   
+        if(xMBMasterCreatePollTask(psMBMasterInfo) == FALSE)
         {
             return FALSE;
         }
         /*******************************创建主栈轮询任务*************************/
-        if(xMBMasterCreateScanSlaveDevTask(psMBMasterInfo) == FALSE)   
+        if(xMBMasterCreateScanSlaveDevTask(psMBMasterInfo) == FALSE)
         {
             return FALSE;
         }
@@ -587,13 +587,18 @@ void vMBMasterPollTask(void *p_arg)
 void* vMBMasterPollTask(void *p_arg)
 {
     sMBMasterInfo* psMBMasterInfo = (sMBMasterInfo*)p_arg;
+
+    debug("eMBMasterInit\n");
     if( eMBMasterInit(psMBMasterInfo) == MB_ENOERR && eMBMasterEnable(psMBMasterInfo) == MB_ENOERR )
     {
+
         while(1)
         {
+            debug("vMBMasterPollTask\n");
             (void)vMBTimeDly(0, MB_MASTER_POLL_INTERVAL_MS);
             (void)eMBMasterPoll(psMBMasterInfo);
         }
+        debug("vMBMasterPollTask\n");
     }
     return NULL;
 }
