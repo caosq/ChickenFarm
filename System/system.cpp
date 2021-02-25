@@ -22,14 +22,12 @@ System* System::getInstance()
 
 void System::initController()
 {
-
     pModbus = new Modbus(eMBType::TYPE_MASTER);
     pModbus->uartConfig(9600, 8, 1, Modbus::eParityType::None);
 
     if(pModbus->masterInit(eMBMode::MB_RTU, PORT_NAME, 1, 1, false))
     {
-       // xMBMasterRegistNode(pMasterInfo, &pModbus->m_sMBMasterNode);
         m_pController = new Controller();
-        m_pController->initComm(pModbus->getMBMasterInfo());
+        m_pController->initComm(pModbus->getMBMasterInfo(), 1);
     }
 }

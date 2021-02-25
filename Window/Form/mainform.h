@@ -27,10 +27,11 @@ private:
     void initForm();
 
 public:
-    explicit MainForm(QWidget *parent = nullptr);
-    ~MainForm();
 
     static void initButton();
+
+    explicit MainForm(QWidget *parent = nullptr);
+    ~MainForm();
 
 private slots:
     void on_systemButton_clicked();

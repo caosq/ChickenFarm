@@ -9,13 +9,14 @@ Controller::Controller()
 
 }
 
-void Controller::initComm(sMBMasterInfo* psMBMasterInfo)
+void Controller::initComm(sMBMasterInfo* psMBMasterInfo, uint8_t ucDevAddr)
 {
     if(psMBMasterInfo != nullptr)
     {
         m_psMBMasterInfo = psMBMasterInfo;
         registDevCommData();
     }
+    m_sMBSlaveDev.ucDevAddr = ucDevAddr;
 }
 
 void Controller::registDevCommData()
@@ -35,8 +36,9 @@ MASTER_BEGIN_DATA_BUF(m_psRegHoldBuf, m_sDevCommData.sMBRegHoldTable)
     MASTER_REG_HOLD_DATA(1, uint16, 1, 65535,  10,     RO, 1, pSystem->m_usProtocolVer);
     MASTER_REG_HOLD_DATA(2, uint16, 0, 3,      0,      RW, 1, pSystem->m_eSystemModeCmd);
     MASTER_REG_HOLD_DATA(3, uint16, 0, 7,      0,      RO, 1, pSystem->m_eSystemState);
+    MASTER_REG_HOLD_DATA(4, int16,  -400, 700,      0,      RO, 1, pSystem->m_sAmbientOut_T);
 
-MASTER_END_DATA_BUF(0, 3)
+MASTER_END_DATA_BUF(0, 4)
 
 MASTER_BEGIN_DATA_BUF(m_psBitCoilBuf, m_sDevCommData.sMBCoilTable)
 
@@ -50,7 +52,6 @@ MASTER_END_DATA_BUF(0, 1)
     m_sMBSlaveDev.psDevDataInfo = &m_sDevCommData;
 
     (void)xMBMasterRegistDev(m_psMBMasterInfo, &m_sMBSlaveDev);
-
 }
 
 uint8_t Controller::devDataMapIndex(eDataType eDataType, uint8_t ucProtocolID, uint16_t usAddr, uint16_t* psIndex)
@@ -66,6 +67,8 @@ uint8_t Controller::devDataMapIndex(eDataType eDataType, uint8_t ucProtocolID, u
                 case 0 :  i = 0 ;  break;
                 case 1 :  i = 1 ;  break;
                 case 2 :  i = 2 ;  break;
+                case 3 :  i = 3 ;  break;
+                case 4 :  i = 4 ;  break;
 
                 default:
                     return false;

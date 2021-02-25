@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <linux/serial.h>
 #endif
 
 
@@ -47,11 +48,35 @@ BOOL xMBMasterPortSerialInit(sMBMasterPort* psMBPort)     //初始化
      * @note MODBUS_MASTER_RT_CONTROL_PIN_INDEX need be defined by user
      */
 #if MB_LINUX_ENABLED 
-    psMBPort->psMBMasterUart->fd = open(psMBPort->pcMBPortName, O_RDWR | O_NOCTTY | O_NDELAY);
-    if(psMBPort->psMBMasterUart->fd < 0)
+
+    // struct termios tios;
+
+    psMBPort->psMBMasterUart->fd = open(psMBPort->pcMBPortName,  O_RDWR | O_NOCTTY | O_NDELAY);  // O_NOCTTY | O_NDELAY | O_NONBLOCK
+    //fcntl(psMBPort->psMBMasterUart->fd, F_SETFL, 0);
+
+    if(psMBPort->psMBMasterUart->fd < 0){return FALSE;}
+
+    struct serial_rs485 rs485conf;
+
+    rs485conf.flags |= SER_RS485_ENABLED;
+    rs485conf.flags |= SER_RS485_RTS_ON_SEND;
+    //rs485conf.flags &= ~(SER_RS485_RTS_ON_SEND);
+    //rs485conf.flags |= (SER_RS485_RTS_AFTER_SEND);
+    //rs485conf.flags &= ~SER_RS485_RX_DURING_TX;
+    //rs485conf.delay_rts_after_send = 0;
+
+    /*if (ioctl (psMBPort->psMBMasterUart->fd, TIOCSRS485, &rs485conf) < 0)
     {
+        //printf("ioctl error\n");
+        close(psMBPort->psMBMasterUart->fd);
         return FALSE;
-    }
+    }*/
+    //vMBTimeDly(0, 200);
+
+    tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
+
+    //printf("g_usMonitorID %d", psMBPort->psMBMasterUart->fd);
+
 #endif
     return xMB_UartInit(psMBPort->psMBMasterUart);
 }
@@ -89,11 +114,16 @@ void vMBMasterPortSerialEnable(sMBMasterPort* psMBPort, BOOL xRxEnable, BOOL xTx
 #elif MB_LINUX_ENABLED
     if(xRxEnable)
     {
-        ioctl(psMBPort->psMBMasterUart->fd, TCFLSH, TCIFLUSH);
+//        ioctl(psMBPort->psMBMasterUart->fd, TCFLSH, TCIFLUSH);
+
+//         tcflush(psMBPort->psMBMasterUart->fd, TCIFLUSH);
     }
     if(xTxEnable)
     {
-        ioctl(psMBPort->psMBMasterUart->fd, TCFLSH, TCOFLUSH);
+//        ioctl(psMBPort->psMBMasterUart->fd, TCFLSH, TCOFLUSH);
+       // tcflush(psMBPort->psMBMasterUart->fd, TCIFLUSH);
+        //usleep(2000);
+
     }
 #endif    
 }
@@ -132,19 +162,20 @@ BOOL xMBMasterPortSerialPutByte(sMBMasterPort* psMBPort, UCHAR ucByte)   //发�
 BOOL xMBMasterPortSerialPutBytes(sMBMasterPort* psMBPort, UCHAR* pucSndBufferCur, USHORT usBytes)
 {
 #if MB_LINUX_ENABLED
-    ssize_t ret = write(psMBPort->psMBMasterUart->fd, pucSndBufferCur, usBytes);
-    if ((ret == -1) || (ret != usBytes))
-	{
-        return FALSE;
-    }
-    else
-    {
-        return TRUE;
-    }
+
+//    ioctl(psMBPort->psMBMasterUart->fd, TCFLSH, TCOFLUSH);
+
+    ssize_t ret = 0;
+
+    //ret = read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
+
+    ret = write(psMBPort->psMBMasterUart->fd, pucSndBufferCur, usBytes);
+
+//    debug("xMBMasterPortSerialPutBytes ret %d  usBytes %d ucDevAddr %d \n", ret, usBytes, *pucSndBufferCur);
+    return ((ret == -1) || (ret != usBytes)) ? FALSE : TRUE;
+
 #endif
 }
-
-
 
 BOOL xMBMasterPortSerialGetByte(const sMBMasterPort* psMBPort, UCHAR* pucByte)  //接收一个字节
 {
@@ -166,8 +197,13 @@ BOOL xMBMasterPortSerialGetByte(const sMBMasterPort* psMBPort, UCHAR* pucByte)  
 BOOL xMBMasterPortSerialGetBytes(const sMBMasterPort* psMBPort, UCHAR* pucRcvBuf, USHORT* psReadBytes)
 {
 #if MB_LINUX_ENABLED
+
     ssize_t sReadBytes = read(psMBPort->psMBMasterUart->fd, pucRcvBuf, 255);
     *psReadBytes = (USHORT)sReadBytes;
+
+    debug("xMBMasterPortSerialGetBytes sReadBytes %d \n",  sReadBytes);
+
+   // ioctl(psMBPort->psMBMasterUart->fd, TCFLSH, TCIFLUSH);
 
     return *psReadBytes > 0 ? TRUE:FALSE;
 #endif

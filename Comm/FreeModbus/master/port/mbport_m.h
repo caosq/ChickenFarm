@@ -39,7 +39,6 @@ typedef enum
     EV_MASTER_ERROR_RESPOND_TIMEOUT    = 1<<6,  /*!< Request respond timeout. */
     EV_MASTER_ERROR_RECEIVE_DATA       = 1<<7,  /*!< Request receive data error. */
     EV_MASTER_ERROR_EXECUTE_FUNCTION   = 1<<8,  /*!< Request execute function error. */
-	EV_MASTER_ERROR_RESPOND_DATA       = 1<<9,  /*!< Respond data error. */
 } eMBMasterEventType;
 
 typedef enum
@@ -47,11 +46,12 @@ typedef enum
     EV_ERROR_RESPOND_TIMEOUT,         /*!< Slave respond timeout. */
     EV_ERROR_RECEIVE_DATA,            /*!< Receive frame data error. */
     EV_ERROR_EXECUTE_FUNCTION,        /*!< Execute function error. */
-	EV_ERROR_RESPOND_DATA,            /*!< Respond frame data error. */
 } eMBMasterErrorEventType;
 
 typedef struct                                /* 主栈接口定义  */
 {
+    fd_set rfds;
+
     sUART_Def* psMBMasterUart;                 //主栈接口通讯串口结构
                                            
     eMBMasterEventType  eQueuedEvent;          //主栈接口事件
@@ -74,6 +74,10 @@ typedef struct                                /* 主栈接口定义  */
 
 #elif MB_LINUX_ENABLED
 
+    BOOL xMBIsFinished;                         //主栈接口处理完成
+
+    pthread_mutex_t mutex;
+
     sem_t sMBIdleSem;                           //主栈接口空闲消息量                    
 	sem_t sMBEventSem;                          //主栈接口事件消息量
     sem_t sMBWaitFinishSem;                     //主栈接口等待消息量
@@ -85,6 +89,8 @@ typedef struct                                /* 主栈接口定义  */
     struct timeval sMasterPortTv;
     struct timeval sConvertDelayTv;
     struct timeval sRespondTimeoutTv;
+
+    struct timeval sMasterWaitFinishTv;
 
 #endif
 
@@ -127,9 +133,9 @@ BOOL xMBMasterPortEventGet(sMBMasterPort* psMBPort, eMBMasterEventType* peEvent)
 
 void vMBMasterOsResInit(void);
 
-BOOL xMBMasterRunResTake(LONG lTimeOut);
+BOOL xMBMasterRunResTake(sMBMasterPort* psMBPort, ULONG lTimeOutMs);
 
-void vMBMasterRunResRelease(void);
+void vMBMasterRunResRelease(sMBMasterPort* psMBPort);
 
 
 /* ----------------------- Timers functions ---------------------------------*/

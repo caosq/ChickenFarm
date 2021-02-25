@@ -10,7 +10,7 @@ class Controller
 {
 public:
     explicit Controller();
-    void initComm(sMBMasterInfo* psMBMasterInfo);
+    void initComm(sMBMasterInfo* psMBMasterInfo, uint8_t ucDevAddr);
 
 private:
 

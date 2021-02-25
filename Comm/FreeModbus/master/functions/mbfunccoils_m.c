@@ -85,18 +85,18 @@
  * @date 2019.01.22
  *************************************************************************************/
 eMBMasterReqErrCode
-eMBMasterReqReadCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usCoilAddr, USHORT usNCoils, LONG lTimeOut)
+eMBMasterReqReadCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr,
+                      USHORT usCoilAddr, USHORT usNCoils, ULONG ulTimeOut)
 {
     UCHAR  *pucMBFrame  = NULL;
 	sMBMasterDevsInfo*  psMBDevsInfo = &psMBMasterInfo->sMBDevsInfo;          //从设备状态表
     sMBMasterPort*      psMBPort     = &psMBMasterInfo->sMBPort;
 	
-    vMBMasterPortLock(psMBPort);
     if( (ucSndAddr < psMBDevsInfo->ucSlaveDevMinAddr) || (ucSndAddr > psMBDevsInfo->ucSlaveDevMaxAddr) ) 
 	{
         return MB_MRE_ILL_ARG;
 	}		
-    else if (xMBMasterRunResTake(lTimeOut) == FALSE)
+    else if (xMBMasterRunResTake(psMBPort, ulTimeOut) == FALSE)
     {
         return MB_MRE_MASTER_BUSY;
 	}		
@@ -207,13 +207,13 @@ eMBMasterFuncReadCoils( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT 
  * @date 2019.01.22
  *************************************************************************************/
 eMBMasterReqErrCode
-eMBMasterReqWriteCoil(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usCoilAddr, USHORT usMBBitData, LONG lTimeOut)
+eMBMasterReqWriteCoil(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr,
+                      USHORT usCoilAddr, USHORT usMBBitData, ULONG ulTimeOut)
 {
     UCHAR  *pucMBFrame  = NULL;
 	sMBMasterDevsInfo*  psMBDevsInfo = &psMBMasterInfo->sMBDevsInfo;          //从设备状态表
     sMBMasterPort*      psMBPort     = &psMBMasterInfo->sMBPort;
-    
-    vMBMasterPortLock(psMBPort);	
+    	
     if( (ucSndAddr < psMBDevsInfo->ucSlaveDevMinAddr) || (ucSndAddr > psMBDevsInfo->ucSlaveDevMaxAddr) ) 
 	{
         return MB_MRE_ILL_ARG;
@@ -222,7 +222,7 @@ eMBMasterReqWriteCoil(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usC
 	{
         return MB_MRE_ILL_ARG;
 	}
-    else if(xMBMasterRunResTake(lTimeOut) == FALSE ) 
+    else if(xMBMasterRunResTake(psMBPort, ulTimeOut) == FALSE )
 	{
         return MB_MRE_MASTER_BUSY;
 	}
@@ -317,7 +317,7 @@ eMBMasterFuncWriteCoil(sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT *
  *************************************************************************************/
 eMBMasterReqErrCode
 eMBMasterReqWriteMultipleCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usCoilAddr,
-                                USHORT usNCoils, UCHAR* pucDataBuffer, LONG lTimeOut)
+                                USHORT usNCoils, UCHAR* pucDataBuffer, ULONG ulTimeOut)
 {
     UCHAR  ucByteCount = 0;
     USHORT usRegIndex  = 0;
@@ -326,7 +326,6 @@ eMBMasterReqWriteMultipleCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, U
 	sMBMasterDevsInfo*  psMBDevsInfo = &psMBMasterInfo->sMBDevsInfo;          //从设备状态表
     sMBMasterPort*      psMBPort     = &psMBMasterInfo->sMBPort;
 
-    vMBMasterPortLock(psMBPort); 
     if( (ucSndAddr < psMBDevsInfo->ucSlaveDevMinAddr) || (ucSndAddr > psMBDevsInfo->ucSlaveDevMaxAddr) ) 
 	{
         return MB_MRE_ILL_ARG;
@@ -335,7 +334,7 @@ eMBMasterReqWriteMultipleCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, U
 	{
         return MB_MRE_ILL_ARG;
 	}
-    else if ( xMBMasterRunResTake( lTimeOut ) == FALSE ) 
+    else if ( xMBMasterRunResTake( psMBPort, ulTimeOut ) == FALSE )
 	{
         return MB_MRE_MASTER_BUSY;
 	}

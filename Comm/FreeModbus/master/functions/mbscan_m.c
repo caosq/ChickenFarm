@@ -13,8 +13,8 @@
 #include <pthread.h>
 #endif
 
-#define MB_SCAN_SLAVE_DELAY_MS             50    //主栈扫描从设备
-#define MB_SCAN_SLAVE_INTERVAL_MS          50
+#define MB_SCAN_SLAVE_DELAY_MS             200    //主栈扫描从设备
+#define MB_SCAN_SLAVE_INTERVAL_MS          200
 
 #define MB_SCAN_MAX_REG_INTERVAL           10    //寄存器轮询地址最大间隔
 #define MB_SCAN_MAX_REG_NUM                50    //寄存器轮询最大数量
@@ -618,6 +618,7 @@ void vMBMasterScanSlaveDevData(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr,
     {
         psMBSlaveDevCur->xStateTestRequest = TRUE;
         psMBSlaveDevCur->xSynchronized = FALSE;
+        return;
     }         
 #endif
 					
@@ -627,6 +628,7 @@ void vMBMasterScanSlaveDevData(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr,
     {
         psMBSlaveDevCur->xStateTestRequest = TRUE;
         psMBSlaveDevCur->xSynchronized = FALSE;
+        return;
     }     
 #endif
 					
@@ -636,6 +638,7 @@ void vMBMasterScanSlaveDevData(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr,
     {
         psMBSlaveDevCur->xStateTestRequest = TRUE;
         psMBSlaveDevCur->xSynchronized = FALSE;
+        return;
     }         
 #endif	
 				
@@ -645,15 +648,17 @@ void vMBMasterScanSlaveDevData(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr,
     {
         psMBSlaveDevCur->xStateTestRequest = TRUE;
         psMBSlaveDevCur->xSynchronized = FALSE;
+        return;
     }     
 #endif 
-    if(errorCode != MB_MRE_NO_ERR)
+/*    if(errorCode == MB_MRE_TIMEDOUT)
     {
         psMBSlaveDevCur->xStateTestRequest = TRUE;
         psMBSlaveDevCur->xSynchronized = FALSE;
+        return;
 //        debug("vMBMasterScanSlaveDevData ucSlaveAddr %d  errorCode %d\n", ucSlaveAddr, errorCode);
     }
-         
+   */
 }
 
 /**********************************************************************
@@ -760,8 +765,6 @@ void vMBMasterScanSlaveDevTask(void *p_arg)
 #elif MB_LINUX_ENABLED
 void* vMBMasterScanSlaveDevTask(void *p_arg)
 {
-    USHORT msReadInterval = MB_SCAN_SLAVE_INTERVAL_MS;
-
     sMBSlaveDev*       psMBSlaveDev   = NULL;
     sMBMasterInfo*     psMBMasterInfo = (sMBMasterInfo*)p_arg;
     sMBMasterDevsInfo* psMBDevsInfo   = &psMBMasterInfo->sMBDevsInfo;  //从设备状态信息
@@ -771,13 +774,11 @@ void* vMBMasterScanSlaveDevTask(void *p_arg)
 
     while(1)
     {
-        //debug("**********************************************\n");
-        (void)vMBTimeDly(0, msReadInterval);
-/*        if(psMBDevsInfo == NULL || psMBDevsInfo->psMBSlaveDevsList == NULL)
+        (void)vMBTimeDly(0, MB_SCAN_SLAVE_INTERVAL_MS);
+        if(psMBMasterInfo->eMBState == STATE_NOT_INITIALIZED)
         {
             continue;
         }
-*/
 #if MB_MASTER_DTU_ENABLED > 0    //GPRS模块功能支持，特殊处理
         if( (psMBMasterInfo->bDTUEnable == TRUE) && (psMBMasterInfo->pvDTUScanDevCallBack != NULL))
         {
@@ -785,6 +786,8 @@ void* vMBMasterScanSlaveDevTask(void *p_arg)
         }
 #endif
         /*********************************测试从设备***********************************/
+
+        //debug("**********************************************\n");
         for(psMBSlaveDev = psMBDevsInfo->psMBSlaveDevsList; psMBSlaveDev != NULL; psMBSlaveDev = psMBSlaveDev->pNext)
         {
             if(psMBSlaveDev->xOnLine == FALSE)   //如果设备不在线
@@ -805,7 +808,7 @@ void* vMBMasterScanSlaveDevTask(void *p_arg)
                 {
                     vMBMasterScanSlaveDev(psMBMasterInfo, psMBSlaveDev);
                 }
-//                debug("vMBDevCurStateTest  %d  psMBSlaveDev->xOnLine %d\n", psMBSlaveDev->ucDevAddr, psMBSlaveDev->xOnLine);
+//                debug("vMBMasterScanSlaveDevTask  %d  psMBSlaveDev->xOnLine %d\n", psMBSlaveDev->ucDevAddr, psMBSlaveDev->xOnLine);
             }
         }
     }

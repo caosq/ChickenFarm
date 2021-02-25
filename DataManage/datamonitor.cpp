@@ -169,9 +169,11 @@ void* DataMonitor::monitorPollTask(void *pvArg)
             {
                 pMonitor->m_iDataVal = iDataVal;
                 emit pMonitor->valChanged(pMonitor);
+
+                qDebug("pMonitor->valChanged %d", iDataVal);
             }
         }
-        usleep(800);
+        usleep(1000);
     }
 }
 
@@ -214,7 +216,7 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
             return nullptr;
         }
 
-        qDebug("pthread_create monitorRegist %d", g_usMonitorID);
+//        qDebug("pthread_create monitorRegist %d", g_usMonitorID);
     }
     else
     {
@@ -231,7 +233,6 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
         pmMonitorMapList->m_MonitorMap.insert(pvVal,pMonitor);
 
         g_usMonitorID++;
-
         //qDebug("g_usMonitorID %d", g_usMonitorID);
     }
 

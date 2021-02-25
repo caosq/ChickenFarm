@@ -35,7 +35,6 @@ MainForm::MainForm(QWidget *parent) :
     setWindowFlags(Qt::FramelessWindowHint);
     resize(maximumSize());
 
-
     initLabel();
     initButton();
     initForm();
@@ -92,7 +91,6 @@ void MainForm::initButton()
     //设置通用按键图标
     ubutton::forefather()->setFatherPixmap(ubutton::press,UB_PRESS_PIX);
     ubutton::forefather()->setFatherPixmap(ubutton::release,UB_RELEASE_PIX);
-
 
 
 }

@@ -235,6 +235,7 @@ void DataLabel::showData(int32_t val)
         break;
     default: break;
     }
+
 }
 
 void DataLabel::showText(int32_t val)
@@ -394,6 +395,8 @@ void DataLabel::setText(const QString text, int size)
 {
     setTextSize(size);
     QLabel::setText(text);
+
+//    qDebug("DataLabel::showData %s", text.toUtf8().data());
 }
 
 void DataLabel::setTextSize(int size)
@@ -461,6 +464,9 @@ void DataLabel::setBackGroundColorStyle(eLabelStyle style)
 void DataLabel::setValue(Monitor* pMonitor)
 {
     int32_t val = pMonitor->getCurVal();
+
+//    qDebug("DataLabel::setValue %d", val);
+
     setValue(val);
 }
 

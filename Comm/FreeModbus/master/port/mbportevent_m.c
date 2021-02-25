@@ -24,6 +24,11 @@
 #include "mbconfig.h"
 #include "mb_m.h"
 #include "mbport_m.h"
+#include <fcntl.h>
+#include <termios.h>
+#include <pthread.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 #if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
 
@@ -53,8 +58,11 @@ BOOL xMBMasterPortEventInit(sMBMasterPort* psMBPort)
     int ret = 0;
 
     ret = sem_init(&psMBPort->sMBIdleSem, 0, 0);      //主栈空闲消息量
-	ret = sem_init(&psMBPort->sMBEventSem, 0, 0);      //主栈事件消息量
+    ret = sem_init(&psMBPort->sMBEventSem, 0, 0);      //主栈事件消息量
     ret = sem_init(&psMBPort->sMBWaitFinishSem, 0, 0); //主栈错误消息
+
+    ret = pthread_mutex_init(&psMBPort->mutex, NULL);//初始化互斥量
+
 
     psMBPort->xEventInQueue = FALSE;
 	psMBPort->xWaitFinishInQueue = FALSE;
@@ -86,8 +94,21 @@ BOOL xMBMasterPortEventPost(sMBMasterPort* psMBPort, eMBMasterEventType eEvent)
     psMBPort->eQueuedEvent = eEvent;
 
     ret = sem_post(&psMBPort->sMBEventSem);
+
+//    debug("xMBMasterPortEventPost\n");
     return ret >= 0;
 #endif
+}
+
+// 时间 time 自加 ms 毫秒
+void time_add_ms(struct timeval *time, uint ms)
+{
+    time->tv_usec += ms * 1000; // 微秒 = 毫秒 * 1000
+    if(time->tv_usec >= 1000000) // 进位，1000 000 微秒 = 1 秒
+    {
+        time->tv_sec += time->tv_usec / 1000000;
+        time->tv_usec %= 1000000;
+    }
 }
 
 /**********************************************************************
@@ -112,8 +133,9 @@ BOOL xMBMasterPortEventGet(sMBMasterPort* psMBPort, eMBMasterEventType* eEvent)
 
     sem_wait(&psMBPort->sMBEventSem);
 #endif
-    if(psMBPort->xEventInQueue)
-    {
+
+    //if(psMBPort->xEventInQueue)
+    //{
 		switch(psMBPort->eQueuedEvent)
 		{
 		case EV_MASTER_READY:
@@ -131,17 +153,12 @@ BOOL xMBMasterPortEventGet(sMBMasterPort* psMBPort, eMBMasterEventType* eEvent)
 		case EV_MASTER_ERROR_PROCESS:
 			*eEvent = EV_MASTER_ERROR_PROCESS;
 			break;
-		case EV_MASTER_ERROR_RECEIVE_DATA:
-			*eEvent = EV_MASTER_ERROR_RECEIVE_DATA;
-			break;
-		case EV_MASTER_ERROR_RESPOND_DATA:
-			*eEvent = EV_MASTER_ERROR_RESPOND_DATA;
-			break;
 		default: break;
 		}
         psMBPort->xEventInQueue = FALSE;
         xEventHappened = TRUE;
-    }
+//        debug("xMBMasterPortEventGet %d\n", *eEvent);
+    //}
     return xEventHappened;
 }
 /**
@@ -162,11 +179,42 @@ void vMBMasterOsResInit( void )
  *
  * @return resource taked result
  */
-BOOL xMBMasterRunResTake( LONG lTimeOut )
+BOOL xMBMasterRunResTake(sMBMasterPort* psMBPort, ULONG lTimeOutMs)
 {
-    /*If waiting time is 0 .It will wait forever */
-//	usTimeOut = lTimeOut;
-    return  TRUE ;
+//    struct timeval time;
+
+//    clock_gettime(&time, NULL);
+ //   time_add_ms(&time, 200);
+
+//    psMBPort->sMasterWaitFinishTv.tv_sec = time.tv_sec;
+//    psMBPort->sMasterWaitFinishTv.tv_usec = time.tv_usec;
+
+
+#if  MB_UCOSIII_ENABLED
+    OS_ERR err = OS_ERR_NONE;
+
+    (void)OSSemPend(&psMBPort->sMBIdleSem, 0, OS_OPT_PEND_BLOCKING, NULL, &err);
+    (void)OSSemSet(&psMBPort->sMBIdleSem, 0, &err);
+#elif MB_LINUX_ENABLED
+
+    pthread_mutex_lock(&psMBPort->mutex);//加锁 若有线程获得锁，则会阻塞
+
+   // tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
+
+    //psMBPort->psMBMasterInfo->usRcvBufferPos = read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
+
+    debug(" xMBMasterRunResTake %d\n", psMBPort->psMBMasterInfo->usRcvBufferPos);
+
+
+    //vMBTimeDly(0, 200);
+
+    psMBPort->xMBIsFinished = FALSE;
+
+    //int ret = sem_timedwait(&psMBPort->sMBIdleSem, &psMBPort->sMasterWaitFinishTv);
+   // sem_wait(&psMBPort->sMBIdleSem);
+
+    return TRUE;
+#endif
 }
 
 /**
@@ -174,9 +222,20 @@ BOOL xMBMasterRunResTake( LONG lTimeOut )
  * Note:The resource is define by Operating System.If you not use OS this function can be empty.
  *
  */
-void vMBMasterRunResRelease( void )
+void vMBMasterRunResRelease(sMBMasterPort* psMBPort)
 {
     /* release resource */ 
+
+#if  MB_UCOSIII_ENABLED
+
+    (void)OSSemPost(&psMBPort->sMBIdleSem, OS_OPT_POST_ALL, &err);
+#elif MB_LINUX_ENABLED
+
+    //sem_post(&psMBPort->sMBIdleSem);
+
+    pthread_mutex_unlock(&psMBPort->mutex);//解锁
+
+#endif
 }
 
 /**
@@ -207,10 +266,13 @@ void vMBMasterErrorCBRespondTimeout(sMBMasterPort* psMBPort, UCHAR ucDestAddr,
 
 #elif MB_LINUX_ENABLED
 
-    (void)xMBMasterPortEventPost(psMBPort, EV_MASTER_ERROR_RESPOND_TIMEOUT);
+   // (void)xMBMasterPortEventPost(psMBPort, EV_MASTER_ERROR_RESPOND_TIMEOUT);
+    psMBPort->eQueuedEvent = EV_MASTER_ERROR_RESPOND_TIMEOUT;
     psMBPort->xWaitFinishInQueue = TRUE;
+    psMBPort->xMBIsFinished = TRUE;
 
     sem_post(&psMBPort->sMBWaitFinishSem);
+
 #endif
 }
 
@@ -241,20 +303,16 @@ void vMBMasterErrorCBReceiveData(sMBMasterPort* psMBPort, UCHAR ucDestAddr,
 
 #elif MB_LINUX_ENABLED
 
-    (void)xMBMasterPortEventPost(psMBPort, EV_MASTER_ERROR_RECEIVE_DATA);
+  //  (void)xMBMasterPortEventPost(psMBPort, EV_MASTER_ERROR_RECEIVE_DATA);
+    psMBPort->eQueuedEvent = EV_MASTER_ERROR_RECEIVE_DATA;
     psMBPort->xWaitFinishInQueue = TRUE;
+    psMBPort->xMBIsFinished = TRUE;
 
     sem_post(&psMBPort->sMBWaitFinishSem);
+
 #endif
 }
 		
-void vMBMasterErrorCBRespondData( sMBMasterPort* psMBPort, UCHAR ucDestAddr, 
-                                  const UCHAR* pucPDUData, USHORT ucPDULength ) 
-{    
-    (void)xMBMasterPortEventPost(psMBPort, EV_MASTER_ERROR_RESPOND_DATA);
-    vMBsMasterPortTmrsRespondTimeoutEnable(psMBPort);
-}
-
 /**
  * This is modbus master execute function error process callback function.
  * @note There functions will block modbus master poll while execute OS waiting.
@@ -282,10 +340,13 @@ void vMBMasterErrorCBExecuteFunction( sMBMasterPort* psMBPort, UCHAR ucDestAddr,
 
 #elif MB_LINUX_ENABLED
 
-    (void)xMBMasterPortEventPost(psMBPort, EV_MASTER_ERROR_EXECUTE_FUNCTION);
+    //(void)xMBMasterPortEventPost(psMBPort, EV_MASTER_ERROR_EXECUTE_FUNCTION);
+    psMBPort->eQueuedEvent = EV_MASTER_ERROR_EXECUTE_FUNCTION;
     psMBPort->xWaitFinishInQueue = TRUE;
-    
+    psMBPort->xMBIsFinished = TRUE;
+
     sem_post(&psMBPort->sMBWaitFinishSem);
+
 #endif
 }
 
@@ -311,10 +372,14 @@ void vMBMasterCBRequestSuccess(sMBMasterPort* psMBPort)
 
 #elif MB_LINUX_ENABLED
 
-    (void)xMBMasterPortEventPost(psMBPort, EV_MASTER_PROCESS_SUCCESS);
+   // (void)xMBMasterPortEventPost(psMBPort, EV_MASTER_PROCESS_SUCCESS);
+
+    psMBPort->eQueuedEvent = EV_MASTER_PROCESS_SUCCESS;
     psMBPort->xWaitFinishInQueue = TRUE;
+    psMBPort->xMBIsFinished = TRUE;
     
     sem_post(&psMBPort->sMBWaitFinishSem);
+
 #endif
 }
 
@@ -330,6 +395,8 @@ void vMBMasterCBRequestSuccess(sMBMasterPort* psMBPort)
 eMBMasterReqErrCode eMBMasterWaitRequestFinish(sMBMasterPort* psMBPort) 
 {
     eMBMasterReqErrCode  eErrStatus = MB_MRE_NO_ERR;
+    uint8_t ucDlyCount = 0;
+
 
 #if  MB_UCOSIII_ENABLED
     CPU_TS ts = 0;
@@ -337,47 +404,96 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(sMBMasterPort* psMBPort)
     
     (void)OSSemPend(&psMBPort->sMBWaitFinishSem, 0, OS_OPT_PEND_BLOCKING, &ts, &err);
 	(void)OSSemSet(&psMBPort->sMBWaitFinishSem, 0, &err);
+
 #elif MB_LINUX_ENABLED
-    sem_wait(&psMBPort->sMBWaitFinishSem);
+    //int ret = sem_timedwait(&psMBPort->sMBWaitFinishSem, &psMBPort->sMasterWaitFinishTv);
+
+    while(psMBPort->xMBIsFinished == FALSE && ucDlyCount < 10)
+    {
+        (void)vMBTimeDly(0, 400);
+        ucDlyCount++;
+    }
+
+    if(ucDlyCount == 10)
+    {
+        psMBPort->xMBIsFinished = TRUE;
+        //sem_post(&psMBPort->sMBIdleSem);
+
+        sem_post(&psMBPort->sMBEventSem);
+
+        //read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
+
+        pthread_mutex_unlock(&psMBPort->mutex);//解锁
+
+
+        return MB_MRE_TIMEDOUT;
+    }
+    //sem_wait(&psMBPort->sMBWaitFinishSem);
+
 #endif
     
-	if(psMBPort->xWaitFinishInQueue)
+/*    if(ret == -1)
     {
+        psMBPort->xWaitFinishInQueue = FALSE;
+       //psMBPort->eQueuedEvent = EV_MASTER_ERROR_RESPOND_TIMEOUT;
+        eErrStatus = MB_MRE_TIMEDOUT;
+#if  MB_UCOSIII_ENABLED
+
+        (void)OSSemPost(&psMBPort->sMBIdleSem, OS_OPT_POST_ALL, &err);
+#elif MB_LINUX_ENABLED
+
+        sem_post(&psMBPort->sMBIdleSem);
+ //       sem_post(&psMBPort->sMBEventSem);
+        return eErrStatus;
+    #endif
+
+    //    (void)xMBMasterPortEventPost(psMBPort, EV_MASTER_ERROR_RESPOND_TIMEOUT);
+    }*/
+
+    //if(psMBPort->xWaitFinishInQueue)
+    //{
         switch(psMBPort->eQueuedEvent)
         {
         case EV_MASTER_PROCESS_SUCCESS:
         	break;
         case EV_MASTER_ERROR_RESPOND_TIMEOUT:
         {
-//            debug(" EV_MASTER_ERROR_RESPOND_TIMEOUT \n");
+            debug(" EV_MASTER_ERROR_RESPOND_TIMEOUT \n");
         	eErrStatus = MB_MRE_TIMEDOUT;
+
+            //read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
         	break;
         }
         case EV_MASTER_ERROR_RECEIVE_DATA:
         {
-//            debug(" EV_MASTER_ERROR_RECEIVE_DATA \n");
+            debug(" EV_MASTER_ERROR_RECEIVE_DATA \n");
         	eErrStatus = MB_MRE_REV_DATA;
         	break;
         }
         case EV_MASTER_ERROR_EXECUTE_FUNCTION:
         {
-//            debug(" EV_MASTER_ERROR_EXECUTE_FUNCTION \n");
+            debug(" EV_MASTER_ERROR_EXECUTE_FUNCTION \n");
         	eErrStatus = MB_MRE_EXE_FUN;
+
+
+           // read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
+
+
         	break;
         }	
         default:	
         	break;
 		}
-	}
+    //}
 	psMBPort->xWaitFinishInQueue = FALSE;
 
-#if  MB_UCOSIII_ENABLED
 
-    (void)OSSemPost(&psMBPort->sMBIdleSem, OS_OPT_POST_ALL, &err);
-#elif MB_LINUX_ENABLED
+    //tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
 
-    sem_post(&psMBPort->sMBIdleSem);
-#endif
+    read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
+
+    debug(" eMBMasterWaitRequestFinish %d\n" ,psMBPort->eQueuedEvent);
+
     return eErrStatus;
 }
 

@@ -12,6 +12,11 @@ uint8_t xMB_UartInit(const sUART_Def *Uart)
     struct termios tios;
     speed_t speed;
 
+//    struct serial_rs485 rs485conf;
+//    rs485conf.flags |= SER_RS485_ENABLED;
+//    rs485conf.flags |= SER_RS485_RTS_ON_SEND;
+
+
     switch (Uart->baud)
     {
 	case 110:

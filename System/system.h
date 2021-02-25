@@ -53,7 +53,7 @@ public:
     uint16_t     m_usUnitID = 0x302A;            //机型ID
     uint16_t     m_usProtocolVer = 10;           //协议版本
     SystemMode   m_eSystemModeCmd = MODE_CLOSE;  //系统模式设定
-    SystemState  m_eSystemState = STATE_CLOSED;  //系统状态
+    SystemState  m_eSystemState = STATE_COOL;  //系统状态
 
     int16_t   m_sChickenGrowDays = -2;         //鸡生长周期天数
     uint16_t  m_usCO2PPMSet = 2000;            //目标CO2浓度设定

@@ -2,10 +2,15 @@
 #include "mbutils.h"
 #include "mbconfig.h"
 
+
 #if MB_UCOSIII_ENABLED
 
 #include "os.h"
 
+#elif MB_LINUX_ENABLED
+
+#include <unistd.h>
+#include <sys/ioctl.h>
 #endif
 
 void vMBTimeDly(uint16_t seconds, uint16_t milli)

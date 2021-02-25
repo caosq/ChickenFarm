@@ -84,7 +84,7 @@ extern "C" {
 #define MB_MASTER_SCAN_TASK_STK_SIZE        160
 #define MB_MASTER_HEART_BEAT_TASK_STK_SIZE  160
 
-#define MB_MASTER_WAITING_DELAY             80    //主栈等待响应时间
+#define MB_MASTER_WAITING_DELAY             1000    //主栈等待响应时间
 #define MB_MASTER_HEART_BEAT_DELAY_MS       100   //心跳延时
 
 /* ----------------------- Type definitions ---------------------------------*/
@@ -179,7 +179,8 @@ typedef struct sMBMasterInfo  /* master information */
     USHORT              usSndPDULength;                //PDU数据域长度
     USHORT              usSndBufferCount;              //发送缓冲区数据量
     USHORT              usRcvBufferPos;                //接收缓冲区数据位置
-	                                                         
+    USHORT              usRcvRequestBytes;             //需要接收的数据字节数
+
     UCHAR*              pucSndBufferCur;               //当前发送数据缓冲区指针
     UCHAR*              pucMasterPDUCur;               //当前发送帧PDU数据域指针
     UCHAR               ucMBDestAddr;                  //当前从设备地址

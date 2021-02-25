@@ -70,18 +70,17 @@
  * @author laoc
  * @date 2019.01.22
  *************************************************************************************/
-eMBMasterReqErrCode eMBMasterReqReadInputRegister(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usRegAddr, USHORT usNRegs, LONG lTimeOut)
+eMBMasterReqErrCode eMBMasterReqReadInputRegister(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usRegAddr, USHORT usNRegs, ULONG ulTimeOut)
 {
     UCHAR               *pucMBFrame  = NULL;
 	sMBMasterDevsInfo*  psMBDevsInfo = &psMBMasterInfo->sMBDevsInfo;    //从设备状态信息
 	sMBMasterPort*      psMBPort     = &psMBMasterInfo->sMBPort;      //硬件结构
     
-    vMBMasterPortLock(psMBPort);
     if( (ucSndAddr < psMBDevsInfo->ucSlaveDevMinAddr) || (ucSndAddr > psMBDevsInfo->ucSlaveDevMaxAddr) ) 
 	{
 		return MB_MRE_ILL_ARG;
 	}		
-    else if ( xMBMasterRunResTake(lTimeOut) == FALSE ) 
+    else if ( xMBMasterRunResTake(psMBPort, ulTimeOut) == FALSE )
 	{
 		return MB_MRE_MASTER_BUSY;
 	}
@@ -180,14 +179,14 @@ eMBErrorCode eMBMasterRegInputCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegBuf
 	eMBErrorCode            eStatus = MB_ENOERR;
 	sMasterRegInData*  pvRegInValue = NULL;
     
-	sMBSlaveDev*      psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur ;     //当前从设备
-    sMBDevDataTable*   psMBRegInTable = &psMBSlaveDevCur->psDevCurData->sMBRegInTable;    //从设备通讯协议表
-    UCHAR                ucMBDestAddr = ucMBMasterGetDestAddr(psMBMasterInfo);         //从设备通讯地址
-    
     if(psMBMasterInfo->eMBRunMode != STATE_SCAN_DEV) //非轮询从设备模式
     {
         return MB_ENOERR;
     }	
+    sMBSlaveDev*      psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur ;     //当前从设备
+    sMBDevDataTable*   psMBRegInTable = &psMBSlaveDevCur->psDevCurData->sMBRegInTable;    //从设备通讯协议表
+    UCHAR                ucMBDestAddr = ucMBMasterGetDestAddr(psMBMasterInfo);         //从设备通讯地址
+
     if(psMBSlaveDevCur->ucDevAddr != ucMBDestAddr) //如果当前从设备地址与要轮询从设备地址不一致，则更新从设备
     {
         psMBSlaveDevCur = psMBMasterGetDev(psMBMasterInfo, ucMBDestAddr);

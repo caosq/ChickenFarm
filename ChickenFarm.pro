@@ -74,7 +74,6 @@ SOURCES += \
         Comm/FreeModbus/master/port/mbportevent_m.c \
         Comm/FreeModbus/master/port/mbportserial_m.c \
         Comm/FreeModbus/master/port/mbporttimer_m.c \
-        Comm/FreeModbus/master/port/tempCodeRunnerFile.c \
         Comm/FreeModbus/master/rtu/mbrtu_m.c \
         Comm/FreeModbus/slave/ascii/mbascii.c \
         Comm/FreeModbus/slave/functions/mb.c \
@@ -210,17 +209,17 @@ HEADERS += \
         DataManage/datasave.h \
         Device/controller.h \
         Device/device.h \
-    Device/meter.h \
-    Main/global.h \
-    Widget/Event/usercurrentevent.h \
-    Widget/Event/userhistoryevent.h \
-    Widget/Temp/tempunit.h \
-    Window/Form/event.h \
-    Window/Form/home.h \
-    Window/Form/setting.h \
+        Device/meter.h \
+        Main/global.h \
+        Widget/Event/usercurrentevent.h \
+        Widget/Event/userhistoryevent.h \
+        Widget/Temp/tempunit.h \
+        Window/Form/event.h \
+        Window/Form/home.h \
+        Window/Form/setting.h \
         Window/Module/axialfan.h \
         Window/Module/butterflyvalve.h \
-    Window/Module/bypassvalve.h \
+        Window/Module/bypassvalve.h \
         Window/Module/chilledbump.h \
         Window/Module/co2sensor.h \
         Window/Module/modular.h \
@@ -231,27 +230,27 @@ HEADERS += \
         Window/Module/tempsensor.h \
         Window/Form/curve.h \
         Window/Form/systemmonitor.h \
-        System/system.h \
         Window/Form/mainform.h \
+        System/system.h \
         Widget/Button/analogvalbutton.h \
         Widget/Button/button.h \
         Widget/Button/modebutton.h \
         Widget/Button/statebutton.h \
-    Widget/Button/ubutton.h \
-    Widget/Button/ubuttonbk.h \
-    Widget/Diagram/barchartwidget.h \
-    Widget/Diagram/curvetracker.h \
-    Widget/Diagram/dotlineplot.h \
-    Widget/Diagram/historycurve.h \
-    Widget/Diagram/qwtcorewidget.h \
-    Widget/Diagram/realtimecurve.h \
-    Widget/Dialog/dialogbase.h \
-    Widget/Event/currenteventtable.h \
-    Widget/Event/eventdata.h \
-    Widget/Event/eventdatabase.h \
-    Widget/Event/eventmonitor.h \
-    Widget/Event/eventtable.h \
-    Widget/Event/historyeventtable.h \
+        Widget/Button/ubutton.h \
+        Widget/Button/ubuttonbk.h \
+        Widget/Diagram/barchartwidget.h \
+        Widget/Diagram/curvetracker.h \
+        Widget/Diagram/dotlineplot.h \
+        Widget/Diagram/historycurve.h \
+        Widget/Diagram/qwtcorewidget.h \
+        Widget/Diagram/realtimecurve.h \
+        Widget/Dialog/dialogbase.h \
+        Widget/Event/currenteventtable.h \
+        Widget/Event/eventdata.h \
+        Widget/Event/eventdatabase.h \
+        Widget/Event/eventmonitor.h \
+        Widget/Event/eventtable.h \
+        Widget/Event/historyeventtable.h \
         Widget/Keyboard/akeyboard.h \
         Widget/Keyboard/keybutton.h \
         Widget/Keyboard/pwdkeyboard.h \
@@ -259,38 +258,38 @@ HEADERS += \
         Widget/Label/datalabel.h \
         Widget/Label/textcontrol.h \
         Widget/Label/textlabel.h \ \
-    Widget/Message/messagebox.h \
-    Widget/Plot/axiscurve.h \
-    Widget/Plot/g_qwtplot.h \
-    Widget/Plot/g_qwtscaledraw.h \
-    Widget/Plot/glegenditem.h \
-    Widget/Plot/gplotcanvas.h \
-    Widget/Plot/gplotgrid.h \
-    Widget/Plot/gplotpicker.h \
-    Widget/Plot/gqwtlegendbase.h \
-    Widget/Plot/gqwtlegenditem.h \
-    Widget/Plot/gqwtplotzoomer.h \
-    Widget/Plot/gqwtscrollbar.h \
-    Widget/Plot/gqwtscrollbarwidget.h \
-    Widget/Plot/gtoolbutton.h \
-    Widget/Plot/gzoomwidget.h \
-    Widget/Plot/plotwidget.h \
-    Widget/Plot/qhistorycurve.h \
-    Widget/Plot/qrealtimecurve.h \
-    Widget/Plot/qwtscrollbarbutton.h \
-    Widget/Time/analogclock.h \
-    Widget/Time/m_calender.h \
-    Widget/Time/timesetting.h \
-    Window/Module/windowfan.h \
-    Window/Page/axialfanpage.h \
-    Window/Page/bumppage.h \
-    Window/Page/manuparampage.h \
-    Window/Page/modularairpage.h \
-    Window/Page/modularchillerpage.h \
-    Window/Page/sensorpage.h \
-    Window/Page/tempsetpage.h \
-    Window/Page/userparampage.h \
-    Window/Page/valvepage.h
+        Widget/Message/messagebox.h \
+        Widget/Plot/axiscurve.h \
+        Widget/Plot/g_qwtplot.h \
+        Widget/Plot/g_qwtscaledraw.h \
+        Widget/Plot/glegenditem.h \
+        Widget/Plot/gplotcanvas.h \
+        Widget/Plot/gplotgrid.h \
+        Widget/Plot/gplotpicker.h \
+        Widget/Plot/gqwtlegendbase.h \
+        Widget/Plot/gqwtlegenditem.h \
+        Widget/Plot/gqwtplotzoomer.h \
+        Widget/Plot/gqwtscrollbar.h \
+        Widget/Plot/gqwtscrollbarwidget.h \
+        Widget/Plot/gtoolbutton.h \
+        Widget/Plot/gzoomwidget.h \
+        Widget/Plot/plotwidget.h \
+        Widget/Plot/qhistorycurve.h \
+        Widget/Plot/qrealtimecurve.h \
+        Widget/Plot/qwtscrollbarbutton.h \
+        Widget/Time/analogclock.h \
+        Widget/Time/m_calender.h \
+        Widget/Time/timesetting.h \
+        Window/Module/windowfan.h \
+        Window/Page/axialfanpage.h \
+        Window/Page/bumppage.h \
+        Window/Page/manuparampage.h \
+        Window/Page/modularairpage.h \
+        Window/Page/modularchillerpage.h \
+        Window/Page/sensorpage.h \
+        Window/Page/tempsetpage.h \
+        Window/Page/userparampage.h \
+        Window/Page/valvepage.h
 
 FORMS += \
         Widget/Temp/tempunit.ui \

@@ -57,63 +57,63 @@ eMBException    eMBMasterFuncReportSlaveID( UCHAR * pucFrame, USHORT * usLen );
 
 #if MB_FUNC_READ_INPUT_ENABLED > 0
 eMBMasterReqErrCode eMBMasterReqReadInputRegister(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usRegAddr, 
-                                                  USHORT usNRegs, LONG lTimeOut);
+                                                  USHORT usNRegs, ULONG ulTimeOut);
 eMBException    eMBMasterFuncReadInputRegister( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT * usLen );
 #endif
 
 
 #if MB_FUNC_READ_HOLDING_ENABLED > 0
 eMBMasterReqErrCode eMBMasterReqReadHoldingRegister(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usRegAddr, 
-                                                     USHORT usNRegs, LONG lTimeOut);
+                                                     USHORT usNRegs, ULONG ulTimeOut);
 eMBException    eMBMasterFuncReadHoldingRegister( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT * usLen );
 #endif
 
 
 #if MB_FUNC_WRITE_HOLDING_ENABLED > 0
 eMBMasterReqErrCode eMBMasterReqWriteHoldingRegister(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usRegAddr, 
-                                                     USHORT usRegData, LONG lTimeOut);
+                                                     USHORT usRegData, ULONG ulTimeOut);
 eMBException    eMBMasterFuncWriteHoldingRegister( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT * usLen );
 #endif
 
 
 #if MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0
 eMBMasterReqErrCode eMBMasterReqWriteMultipleHoldingRegister( sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usRegAddr, 
-                                                              USHORT usNRegs, USHORT * pusDataBuffer, LONG lTimeOut );
+                                                              USHORT usNRegs, USHORT * pusDataBuffer, ULONG ulTimeOut );
 eMBException    eMBMasterFuncWriteMultipleHoldingRegister( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT * usLen );
 #endif
 
 
 #if MB_FUNC_READ_COILS_ENABLED > 0
 eMBMasterReqErrCode eMBMasterReqReadCoils( sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, 
-                                           USHORT usCoilAddr, USHORT usNCoils, LONG lTimeOut );
+                                           USHORT usCoilAddr, USHORT usNCoils, ULONG ulTimeOut );
 eMBException    eMBMasterFuncReadCoils( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT * usLen );
 #endif
 
 
 #if MB_FUNC_WRITE_COIL_ENABLED > 0
 eMBMasterReqErrCode eMBMasterReqWriteCoil( sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, 
-                                           USHORT usCoilAddr, USHORT usMBSlaveBitData, LONG lTimeOut );
+                                           USHORT usCoilAddr, USHORT usMBSlaveBitData, ULONG ulTimeOut );
 eMBException    eMBMasterFuncWriteCoil( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT * usLen );
 #endif
 
 
 #if MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
 eMBMasterReqErrCode eMBMasterReqWriteMultipleCoils( sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usCoilAddr, 
-                                                    USHORT usNCoils, UCHAR * pucDataBuffer, LONG lTimeOut );
+                                                    USHORT usNCoils, UCHAR * pucDataBuffer, ULONG ulTimeOut );
 eMBException    eMBMasterFuncWriteMultipleCoils( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT * usLen );
 #endif
 
 
 #if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
 eMBMasterReqErrCode eMBMasterReqReadDiscreteInputs( sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, 
-                                                    USHORT usDiscreteAddr, USHORT usNDiscreteIn, LONG lTimeOut );
+                                                    USHORT usDiscreteAddr, USHORT usNDiscreteIn, ULONG ulTimeOut );
 eMBException    eMBMasterFuncReadDiscreteInputs( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT * usLen );
 #endif
 
 #if MB_FUNC_READWRITE_HOLDING_ENABLED > 0
 eMBMasterReqErrCode eMBMasterReqReadWriteMultipleHoldingRegister( sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr,
 		                                                          USHORT usReadRegAddr, USHORT usNReadRegs, USHORT * pusDataBuffer,
-		                                                          USHORT usWriteRegAddr, USHORT usNWriteRegs, LONG lTimeOut );
+                                                                  USHORT usWriteRegAddr, USHORT usNWriteRegs, ULONG ulTimeOut );
 eMBException    eMBMasterFuncReadWriteMultipleHoldingRegister( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT * usLen );
 #endif
 

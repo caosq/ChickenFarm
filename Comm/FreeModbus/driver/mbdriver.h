@@ -25,6 +25,7 @@ typedef struct
 typedef struct
 {
     int fd;
+
     /* Parity: "even", "odd", "none" */
     uint8_t parity;
 

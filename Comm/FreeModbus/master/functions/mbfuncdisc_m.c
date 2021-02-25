@@ -68,18 +68,17 @@
  * @date 2019.01.22
  *************************************************************************************/
 eMBMasterReqErrCode
-eMBMasterReqReadDiscreteInputs(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usDiscreteAddr, USHORT usNDiscreteIn, LONG lTimeOut)
+eMBMasterReqReadDiscreteInputs(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usDiscreteAddr, USHORT usNDiscreteIn, ULONG ulTimeOut)
 {
     UCHAR  *pucMBFrame = NULL;
     sMBMasterDevsInfo*  psMBDevsInfo = &psMBMasterInfo->sMBDevsInfo;  //从设备状态信息
     sMBMasterPort*      psMBPort     = &psMBMasterInfo->sMBPort;      //硬件结构
 	
-    vMBMasterPortLock(psMBPort);
     if( (ucSndAddr < psMBDevsInfo->ucSlaveDevMinAddr) || (ucSndAddr > psMBDevsInfo->ucSlaveDevMaxAddr) ) 
 	{
         return MB_MRE_ILL_ARG;
 	}		
-    else if ( xMBMasterRunResTake( lTimeOut ) == FALSE ) 
+    else if ( xMBMasterRunResTake(psMBPort, ulTimeOut ) == FALSE )
 	{
         return MB_MRE_MASTER_BUSY;
 	}

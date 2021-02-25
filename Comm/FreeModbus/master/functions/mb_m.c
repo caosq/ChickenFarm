@@ -1,4 +1,4 @@
-/* 
+ /*
  * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (C) 2013 Armink <armink.ztl@gmail.com>
  * All rights reserved.
@@ -72,7 +72,7 @@
 #define MB_PORT_HAS_CLOSE 0
 #endif
 
-#define MB_MASTER_POLL_INTERVAL_MS           30
+#define MB_MASTER_POLL_INTERVAL_MS   30
 
 /* ----------------------- Static variables ---------------------------------*/
 static sMBMasterInfo*      psMBMasterList = NULL;    
@@ -314,7 +314,8 @@ eMBErrorCode eMBMasterDisable(sMBMasterInfo* psMBMasterInfo)
 *********************************************************************/
 eMBErrorCode eMBMasterPoll(sMBMasterInfo* psMBMasterInfo)
 {
-    static UCHAR   *pucMBFrame;
+    static UCHAR   *pucMBRcvFrame;
+    static UCHAR   *pucMBSndFrame;
     static UCHAR    ucRcvAddress,  ucFunctionCode;
     static USHORT   usLength;
     static eMBException eException;
@@ -338,7 +339,7 @@ eMBErrorCode eMBMasterPoll(sMBMasterInfo* psMBMasterInfo)
      * Otherwise we will handle the event. */
     if( xMBMasterPortEventGet(psMBPort, &eEvent) == TRUE )
     {
-//        debug("eMBMasterPoll\n");
+ //       debug("eMBMasterPoll\n");
         switch (eEvent)
         {
         case EV_MASTER_READY:
@@ -346,11 +347,11 @@ eMBErrorCode eMBMasterPoll(sMBMasterInfo* psMBMasterInfo)
 
         case EV_MASTER_FRAME_RECEIVED:
             
-			eStatus = peMBMasterFrameReceiveCur(psMBMasterInfo, &ucRcvAddress, &pucMBFrame, &usLength);  
+            eStatus = peMBMasterFrameReceiveCur(psMBMasterInfo, &ucRcvAddress, &pucMBRcvFrame, &usLength);
 			/* Check if the frame is for us. If not ,send an error process event. */
 			if ( (eStatus == MB_ENOERR) && (ucRcvAddress == ucMBMasterGetDestAddr(psMBMasterInfo)) )
 			{
-                psMBMasterInfo->pucMasterPDUCur = pucMBFrame;
+                psMBMasterInfo->pucMasterPDUCur = pucMBRcvFrame;
 				(void) xMBMasterPortEventPost(psMBPort, EV_MASTER_EXECUTE);
 			}
 			else
@@ -366,12 +367,12 @@ eMBErrorCode eMBMasterPoll(sMBMasterInfo* psMBMasterInfo)
         break;
           
         case EV_MASTER_EXECUTE:
-            ucFunctionCode = *(pucMBFrame + MB_PDU_FUNC_OFF);
+            ucFunctionCode = *(pucMBRcvFrame + MB_PDU_FUNC_OFF);
             eException = MB_EX_NONE;
             /* If receive frame has exception .The receive function code highest bit is 1.*/
             if(ucFunctionCode >> 7) 
 			{
-            	eException = (eMBException)( *(pucMBFrame + MB_PDU_DATA_OFF) );
+                eException = (eMBException)( *(pucMBRcvFrame + MB_PDU_DATA_OFF) );
             }
 			else
 			{
@@ -393,12 +394,12 @@ eMBErrorCode eMBMasterPoll(sMBMasterInfo* psMBMasterInfo)
 							for(j = psMBDevsInfo->ucSlaveDevMinAddr; j <= psMBDevsInfo->ucSlaveDevMaxAddr; j++)
 							{
 								vMBMasterSetDestAddress(psMBMasterInfo, j);
-								eException = xMasterFuncHandlers[i].pxHandler(psMBMasterInfo, pucMBFrame, &usLength);
+                                eException = xMasterFuncHandlers[i].pxHandler(psMBMasterInfo, pucMBRcvFrame, &usLength);
 							}
 						}
 						else 
 						{
-							eException = xMasterFuncHandlers[i].pxHandler(psMBMasterInfo, pucMBFrame, &usLength);
+                            eException = xMasterFuncHandlers[i].pxHandler(psMBMasterInfo, pucMBRcvFrame, &usLength);
 						}
 						break;
 					}
@@ -413,17 +414,18 @@ eMBErrorCode eMBMasterPoll(sMBMasterInfo* psMBMasterInfo)
             else 
 			{
             	vMBMasterCBRequestSuccess(psMBPort);
-            	vMBMasterRunResRelease();
+                vMBMasterRunResRelease(psMBPort);
             }
         break;
 
         case EV_MASTER_FRAME_SENT:     //主栈发送请求
-        	/* Master is busy now. */
-        	vMBMasterGetPDUSndBuf( psMBMasterInfo, &pucMBFrame );
+
+            //psMBMasterInfo->sMBPort.xMBIsFinished = FALSE;  /* Master is busy now. */
+            vMBMasterGetPDUSndBuf(psMBMasterInfo, &pucMBSndFrame);
 		
 #if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0		
 			eStatus = peMBMasterFrameSendCur( psMBMasterInfo,ucMBMasterGetDestAddr(psMBMasterInfo), 
-		                                      pucMBFrame, usMBMasterGetPDUSndLength(psMBMasterInfo) );    //发送数据帧     
+                                              pucMBSndFrame, usMBMasterGetPDUSndLength(psMBMasterInfo) );    //发送数据帧
 #endif
             if(pvMBMasterSendCallback != NULL)
             {
@@ -434,27 +436,23 @@ eMBErrorCode eMBMasterPoll(sMBMasterInfo* psMBMasterInfo)
         case EV_MASTER_ERROR_PROCESS:    //主栈处理错误
         	/* Execute specified error process callback function. */
 			errorType = eMBMasterGetErrorType(psMBMasterInfo);
-			vMBMasterGetPDUSndBuf(psMBMasterInfo, &pucMBFrame);
+            vMBMasterGetPDUSndBuf(psMBMasterInfo, &pucMBSndFrame);
 			switch(errorType) 
 			{
 			    case EV_ERROR_RESPOND_TIMEOUT:    //等待超时
 			    	vMBMasterErrorCBRespondTimeout( psMBPort, ucMBMasterGetDestAddr(psMBMasterInfo),
-			    			                        pucMBFrame, usMBMasterGetPDUSndLength(psMBMasterInfo));
+                                                    pucMBRcvFrame, usMBMasterGetPDUSndLength(psMBMasterInfo));
 			    	break;
 			    case EV_ERROR_RECEIVE_DATA:      //接收数据出错
-			    	vMBMasterErrorCBReceiveData( psMBPort, ucMBMasterGetDestAddr(psMBMasterInfo), pucMBFrame, 
+                    vMBMasterErrorCBReceiveData( psMBPort, ucMBMasterGetDestAddr(psMBMasterInfo), pucMBRcvFrame,
 			                                     usMBMasterGetPDUSndLength(psMBMasterInfo));
 			    	break;
 			    case EV_ERROR_EXECUTE_FUNCTION:   //处理数据出错
-			    	vMBMasterErrorCBExecuteFunction( psMBPort, ucMBMasterGetDestAddr(psMBMasterInfo), pucMBFrame, 
+                    vMBMasterErrorCBExecuteFunction( psMBPort, ucMBMasterGetDestAddr(psMBMasterInfo), pucMBRcvFrame,
 			                                         usMBMasterGetPDUSndLength(psMBMasterInfo));
 			    	break;
-			    case EV_ERROR_RESPOND_DATA:      //接收响应数据出错
-			    	vMBMasterErrorCBRespondData( psMBPort, ucMBMasterGetDestAddr(psMBMasterInfo), pucMBFrame, 
-			                                     usMBMasterGetPDUSndLength(psMBMasterInfo));
-			    	break;
 			}
-			vMBMasterRunResRelease();
+            vMBMasterRunResRelease(psMBPort);
         break;	
 		default:break;
         }
@@ -588,17 +586,16 @@ void* vMBMasterPollTask(void *p_arg)
 {
     sMBMasterInfo* psMBMasterInfo = (sMBMasterInfo*)p_arg;
 
-    debug("eMBMasterInit\n");
+ //   debug("eMBMasterInit\n");
     if( eMBMasterInit(psMBMasterInfo) == MB_ENOERR && eMBMasterEnable(psMBMasterInfo) == MB_ENOERR )
     {
-
         while(1)
         {
-            debug("vMBMasterPollTask\n");
-            (void)vMBTimeDly(0, MB_MASTER_POLL_INTERVAL_MS);
+//            debug("vMBMasterPollTask\n");
+
             (void)eMBMasterPoll(psMBMasterInfo);
+            (void)vMBTimeDly(0, MB_MASTER_POLL_INTERVAL_MS);
         }
-        debug("vMBMasterPollTask\n");
     }
     return NULL;
 }

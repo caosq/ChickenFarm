@@ -105,12 +105,6 @@ eMBErrorCode eMBMasterRTUInit(sMBMasterInfo* psMBMasterInfo)
 
 /**********************************************************************
  * @brief  开始RTU模式协议栈
- *         1. 设置接收状态机eRcvState为STATE_RX_INIT；
- *         2. 使能串口接收,禁止串口发送,作为从机,等待主机传送的数据?
- *         3. 开启定时器，3.5T时间后定时器发生第一次中断,此时eRcvState为STATE_RX_INIT,
- *            上报初始化完成事件,然后设置eRcvState为空闲STATE_RX_IDLE?
-
- *         4. 每次进入3.5T定时器中断,定时器被禁止，等待串口有字节接收后，才使能定时器?
  * @author laoc
  * @date 2019.01.22
  *********************************************************************/
@@ -118,14 +112,10 @@ void eMBMasterRTUStart(sMBMasterInfo* psMBMasterInfo)
 {
 	sMBMasterPort* psMBPort = &psMBMasterInfo->sMBPort;
 	
-    /* Initially the receiver is in the state STATE_M_RX_INIT. we start
-     * the timer and if no character is received within t3.5 we change
-     * to STATE_M_RX_IDLE. This makes sure that we delay startup of the
-     * modbus protocol stack until the bus is free.
-     */
-    psMBMasterInfo->eRcvState = STATE_M_RX_INIT;
-    vMBMasterPortSerialEnable(psMBPort, TRUE, FALSE);    //从栈等待数据，开启串口接收，发送未开启
-    vMBsMasterPortTmrsEnable(psMBPort);                  //启动定时器
+   // psMBMasterInfo->eSndState = STATE_M_TX_IDLE;
+    //psMBMasterInfo->eRcvState = STATE_M_RX_IDLE;
+    vMBMasterPortSerialEnable(psMBPort, FALSE, TRUE);    //从栈等待数据，开启串口接收，发送未开启
+    vMBsMasterPortTmrsEnable(psMBPort);                //启动定时器
 }
 
 /**********************************************************************
@@ -157,11 +147,8 @@ eMBErrorCode
 eMBMasterRTUReceive(sMBMasterInfo* psMBMasterInfo, UCHAR * pucRcvAddress, UCHAR ** pucFrame, USHORT * pusLength)
 {
     /*  eMBRTUReceive函数完成了CRC校验、帧数据地址和长度的赋值，便于给上层进行处理*/
-
     eMBErrorCode    eStatus = MB_ENOERR;
 
-    assert_param(usRcvBufferPos < MB_SER_PDU_SIZE_MAX);      //断言宏，判断接收到的字节数<256，如果>256，终止程序
-  
     /* Length and CRC check */
     if((psMBMasterInfo->usRcvBufferPos >= MB_SER_PDU_SIZE_MIN)
         && (usMBCRC16( (UCHAR*)psMBMasterInfo->ucRTURcvBuf, psMBMasterInfo->usRcvBufferPos ) == 0) )
@@ -222,7 +209,7 @@ eMBMasterRTUSend(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr, UCHAR* pucFra
         psMBMasterInfo->usSndBufferCount = 1;
 
         /* Now copy the Modbus-PDU into the Modbus-Serial-Line-PDU. */
-        *( psMBMasterInfo->pucSndBufferCur + MB_SER_PDU_ADDR_OFF ) = ucSlaveAddr;        //在协议数据单元前加从机地址
+        *(psMBMasterInfo->pucSndBufferCur + MB_SER_PDU_ADDR_OFF) = ucSlaveAddr;        //在协议数据单元前加从机地址
         psMBMasterInfo->usSndBufferCount += usLength;
 
         /* Calculate CRC16 checksum for Modbus-Serial-Line-PDU. */
@@ -238,7 +225,10 @@ eMBMasterRTUSend(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr, UCHAR* pucFra
         (void)xMBMasterPortSerialPutByte( psMBPort, (CHAR)(*psMBMasterInfo->pucSndBufferCur) );//启动第一次发送
         psMBMasterInfo->pucSndBufferCur++;
         psMBMasterInfo->usSndBufferCount--;
+
 #elif MB_LINUX_ENABLED
+
+        psMBMasterInfo->usRcvBufferPos = 0;
         xMBMasterRTUTransmitFSM(psMBMasterInfo);  
 #endif
     }
@@ -263,7 +253,8 @@ BOOL xMBMasterRTUReceiveFSM(sMBMasterInfo* psMBMasterInfo)
     /*在串口中断前，状态机为eRcvState=STATE_RX_IDLE，接收状态机开始后，读取uart串口缓存中的数据，并进入STATE_RX_IDLE分支中存储一次数据后开启定时器，
     然后进入STATE_RX_RCV分支继续接收后续的数据，直至定时器超时！如果没有超时的话，状态不会转换，将还可以继续接收数据。超时之后，
     在T3.5超时函数xMBRTUTimerT35Expired 中将发送EV_FRAME_RECEIVED事件。然后eMBPoll函数将会调用eMBRTUReceive函数。*/
-    UCHAR ucByte;
+    CHAR ucByte;
+    USHORT usRcvBytes;
     BOOL  xTaskNeedSwitch = FALSE;
     sMBMasterPort* psMBPort = &psMBMasterInfo->sMBPort;
 	
@@ -301,16 +292,21 @@ BOOL xMBMasterRTUReceiveFSM(sMBMasterInfo* psMBMasterInfo)
     	psMBMasterInfo->eSndState = STATE_M_TX_IDLE;
 
         psMBMasterInfo->usRcvBufferPos = 0;
+        psMBMasterInfo->eRcvState = STATE_M_RX_RCV;
 
 #if MB_UCOSIII_ENABLED
         psMBMasterInfo->ucRTURcvBuf[psMBMasterInfo->usRcvBufferPos++] = ucByte;
-#elif MB_LINUX_ENABLED
-        xMBMasterPortSerialGetBytes(psMBPort,psMBMasterInfo->ucRTURcvBuf, &psMBMasterInfo->usRcvBufferPos);
-#endif
-        psMBMasterInfo->eRcvState = STATE_M_RX_RCV;
-
-        /* Enable t3.5 timers. */
         vMBsMasterPortTmrsEnable(psMBPort);              //重启3.5T定时器
+
+#elif MB_LINUX_ENABLED
+
+        xMBMasterPortSerialGetBytes(psMBPort, &psMBMasterInfo->ucRTURcvBuf[psMBMasterInfo->usRcvBufferPos], &usRcvBytes);
+        psMBMasterInfo->usRcvBufferPos += usRcvBytes;
+
+        //xMBMasterRTUTimerExpired(psMBMasterInfo);
+        vMBsMasterPortTmrsEnable(psMBPort);              //重启3.5T定时器
+#endif
+
         break;
 
         /* We are currently receiving a frame. Reset the timer after
@@ -323,8 +319,12 @@ BOOL xMBMasterRTUReceiveFSM(sMBMasterInfo* psMBMasterInfo)
         {
 #if MB_UCOSIII_ENABLED
             psMBMasterInfo->ucRTURcvBuf[psMBMasterInfo->usRcvBufferPos++] = ucByte;
+
 #elif MB_LINUX_ENABLED
-            xMBMasterPortSerialGetBytes(psMBPort,psMBMasterInfo->ucRTURcvBuf, &psMBMasterInfo->usRcvBufferPos);
+
+            xMBMasterPortSerialGetBytes(psMBPort, &psMBMasterInfo->ucRTURcvBuf[psMBMasterInfo->usRcvBufferPos], &usRcvBytes);
+            psMBMasterInfo->usRcvBufferPos += usRcvBytes;
+
 #endif
         }
         else
@@ -370,10 +370,14 @@ BOOL xMBMasterRTUTransmitFSM(sMBMasterInfo* psMBMasterInfo)
             (void)xMBMasterPortSerialPutByte( psMBPort, (CHAR)(*psMBMasterInfo->pucSndBufferCur) );          //发送数据
             psMBMasterInfo->pucSndBufferCur++;  /* next byte in sendbuffer. */
             psMBMasterInfo->usSndBufferCount--;
+
 #elif MB_LINUX_ENABLED
             if( xMBMasterPortSerialPutBytes(psMBPort, psMBMasterInfo->pucSndBufferCur, psMBMasterInfo->usSndBufferCount) )
             {
                 psMBMasterInfo->usSndBufferCount = 0;
+                psMBMasterInfo->eSndState = STATE_M_TX_XFWR;
+
+                vMBMasterPortSerialEnable(psMBPort, TRUE, FALSE);
                 vMBsMasterPortTmrsRespondTimeoutEnable(psMBPort);
             }
 #endif              
@@ -386,6 +390,7 @@ BOOL xMBMasterRTUTransmitFSM(sMBMasterInfo* psMBMasterInfo)
 			
             vMBMasterPortSerialEnable(psMBPort, TRUE, FALSE);
             psMBMasterInfo->eSndState = STATE_M_TX_XFWR;
+
             /* If the frame is broadcast ,master will enable timer of convert delay,
              * else master will enable timer of respond timeout. */
             if ( psMBMasterInfo->xFrameIsBroadcast == TRUE )
@@ -395,7 +400,7 @@ BOOL xMBMasterRTUTransmitFSM(sMBMasterInfo* psMBMasterInfo)
             else
             {
             	vMBsMasterPortTmrsRespondTimeoutEnable(psMBPort);
-//                debug("vMBsMasterPortTmrsRespondTimeoutEnable\n");
+                debug("vMBsMasterPortTmrsRespondTimeoutEnable\n");
             }
         }
         break;
@@ -426,19 +431,21 @@ BOOL xMBMasterRTUTimerExpired(sMBMasterInfo* psMBMasterInfo)
 		/* A frame was received and t35 expired. Notify the listener that
 		 * a new frame was received. */
 	case STATE_M_RX_RCV:
-	    if( psMBMasterInfo->usRcvBufferPos >= 5)   //防止错误数据而导致激发接收事件,该芯片存在bug，发送完数据后会自动接收上次发送的数据
+
+        if(psMBMasterInfo->usRcvBufferPos >= MB_SER_PDU_SIZE_MIN)   //接收最少数据数
 		{
-			xNeedPoll = xMBMasterPortEventPost(psMBPort, EV_MASTER_FRAME_RECEIVED);   //一帧数据接收完成，上报协议栈事件,接收到一帧完整的数据
-//			debug("EV_MASTER_FRAME_RECEIVED******************\n");
+             xNeedPoll = xMBMasterPortEventPost(psMBPort, EV_MASTER_FRAME_RECEIVED);   //一帧数据接收完成，上报协议栈事件,接收到一帧完整的数据
+
+ //           debug("EV_MASTER_FRAME_RECEIVED  %d \n", psMBMasterInfo->usRcvBufferPos);
 		}
-		else
+/*		else
 		{
 			psMBMasterInfo->eSndState = STATE_M_TX_XFWR;
 			vMBsMasterPortTmrsRespondTimeoutEnable(psMBPort);      //接收数据不完整，重启定时器
 
 			xSndStateNeedChange = FALSE;
 //			debug("EV_MASTER_FRAME_RECEIVED_ERROR******************\n");
-		}
+        }*/
 		break;
 		/* An error occured while receiving the frame. */
 	case STATE_M_RX_ERROR:
@@ -477,7 +484,8 @@ BOOL xMBMasterRTUTimerExpired(sMBMasterInfo* psMBMasterInfo)
 
         vMBsMasterPortTmrsDisable(psMBPort);                                 //当接收到一帧数据后，禁止3.5T定时器，直到接受下一帧数据开始，开始计时
 	/* If timer mode is convert delay, the master event then turns EV_MASTER_EXECUTE status. */
-        if (psMBPort->eCurTimerMode == MB_TMODE_CONVERT_DELAY) {
+        if (psMBPort->eCurTimerMode == MB_TMODE_CONVERT_DELAY)
+        {
             xNeedPoll = xMBMasterPortEventPost(psMBPort, EV_MASTER_EXECUTE);
         }
 	}
