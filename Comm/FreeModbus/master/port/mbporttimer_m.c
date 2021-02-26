@@ -40,6 +40,8 @@
 
 #if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
 
+#define MB_MASTER_PORT_TIMEOUT_US   200    //协议规定50us  但需要根据实际情况调整
+
 void vMasterTimeoutInd(void * p_tmr, void * p_arg)
 {
     sMBMasterPort*   psMBPort = (sMBMasterPort*)p_arg;
@@ -73,16 +75,21 @@ void vMBsMasterPortTmrsEnable(sMBMasterPort* psMBPort)
 
     int select_ret;
     uint8_t usRetryTimes = 0;
+    fd_set rfds;
+    uint32_t i = psMBPort->usTim1Timerout50us * MB_MASTER_PORT_TIMEOUT_US;
+
+    psMBPort->sMasterPortTv.tv_sec = i / ( 1000*1000 );
+    psMBPort->sMasterPortTv.tv_usec = i % (1000*1000 );
 
     FD_ZERO(&psMBPort->rfds);
     FD_SET(psMBPort->psMBMasterUart->fd, &psMBPort->rfds);
 
     while( (select_ret = select(psMBPort->psMBMasterUart->fd+1, &psMBPort->rfds, NULL, NULL, &psMBPort->sMasterPortTv) ) == -1)
     {
-        FD_ZERO(&psMBPort->rfds);
-        FD_SET(psMBPort->psMBMasterUart->fd, &psMBPort->rfds);
+        FD_ZERO(&rfds);
+        FD_SET(psMBPort->psMBMasterUart->fd, &rfds);
 
-       // usleep(100000);
+        if(usRetryTimes++ > 3){break;}
     }
     if(select_ret > 0)
 	{              
@@ -90,7 +97,6 @@ void vMBsMasterPortTmrsEnable(sMBMasterPort* psMBPort)
 	}
 	else
 	{
-        //tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
         pxMBMasterFrameCBTimerExpiredCur(psMBPort->psMBMasterInfo);
 
 	}
@@ -150,28 +156,22 @@ void vMBsMasterPortTmrsRespondTimeoutEnable(sMBMasterPort* psMBPort)
     int select_ret;
     uint8_t usRetryTimes = 0;
 
+    fd_set rfds;
+
     FD_ZERO(&psMBPort->rfds);
     FD_SET(psMBPort->psMBMasterUart->fd, &psMBPort->rfds);
 
-    /*while((select_ret = select(psMBPort->psMBMasterUart->fd+1, &psMBPort->rfds, NULL, NULL, &psMBPort->sRespondTimeoutTv)) < 1 && usRetryTimes < 2)
-    {
-        FD_ZERO(&psMBPort->rfds);
-        FD_SET(psMBPort->psMBMasterUart->fd, &psMBPort->rfds);
-
-        //tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
-
-        usRetryTimes++;
-    }*/
-
-//    debug("vMBsMasterPortTmrsRespondTimeoutEnable ret %d  \n", select_ret);
+    uint32_t i  = MB_MASTER_TIMEOUT_MS_RESPOND * 1000;    //主栈等待从栈响应定时器
+    psMBPort->sRespondTimeoutTv.tv_sec = i / ( 1000*1000 );
+    psMBPort->sRespondTimeoutTv.tv_usec = i % (1000*1000 );
 
 
     while( (select_ret = select(psMBPort->psMBMasterUart->fd+1, &psMBPort->rfds, NULL, NULL, &psMBPort->sRespondTimeoutTv) ) == -1)
     {
-        FD_ZERO(&psMBPort->rfds);
-        FD_SET(psMBPort->psMBMasterUart->fd, &psMBPort->rfds);
+        FD_ZERO(&rfds);
+        FD_SET(psMBPort->psMBMasterUart->fd, &rfds);
 
-        if(usRetryTimes++ > 2){break;}
+        if(usRetryTimes++ > 3){break;}
     }
     if(select_ret > 0)
 	{              
@@ -179,19 +179,7 @@ void vMBsMasterPortTmrsRespondTimeoutEnable(sMBMasterPort* psMBPort)
 	}
 	else
 	{
-       // select_ret = select(psMBPort->psMBMasterUart->fd+1, &psMBPort->rfds, NULL, NULL, &psMBPort->sRespondTimeoutTv);
-
-        //psMBPort->psMBMasterInfo->usRcvBufferPos = read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
-/*        if(psMBPort->psMBMasterInfo->usRcvBufferPos == 0)
-        {
-            pxMBMasterFrameCBTimerExpiredCur(psMBPort->psMBMasterInfo);
-        }
-        else
-        {*/
-            vMBsMasterPortTmrsEnable(psMBPort);
-
-             //pxMBMasterFrameCBTimerExpiredCur(psMBPort->psMBMasterInfo);
-//        }
+        pxMBMasterFrameCBTimerExpiredCur(psMBPort->psMBMasterInfo);
 	}
 #endif	
 }
@@ -274,8 +262,8 @@ BOOL xMBsMasterPortTmrsInit(sMBMasterPort* psMBPort, USHORT usTim1Timerout50us)
     
 #elif MB_LINUX_ENABLED   
 
-    uint32_t i = usTim1Timerout50us * 50;
-    struct timeval time;
+    uint32_t i = usTim1Timerout50us * MB_MASTER_PORT_TIMEOUT_US;
+    psMBPort->usTim1Timerout50us = usTim1Timerout50us;
 
     psMBPort->sMasterPortTv.tv_sec = i / ( 1000*1000 );
     psMBPort->sMasterPortTv.tv_usec = i % (1000*1000 );
@@ -287,13 +275,6 @@ BOOL xMBsMasterPortTmrsInit(sMBMasterPort* psMBPort, USHORT usTim1Timerout50us)
     i = MB_MASTER_TIMEOUT_MS_RESPOND * 1000;    //主栈等待从栈响应定时器
     psMBPort->sRespondTimeoutTv.tv_sec = i / ( 1000*1000 );
     psMBPort->sRespondTimeoutTv.tv_usec = i % (1000*1000 );
-
-//    gettimeofday(&time, NULL);
-
-//    time_add_ms(&time, MB_MASTER_WAITING_DELAY);
-
-//    psMBPort->sMasterWaitFinishTv.tv_sec = time.tv_sec;
-//    psMBPort->sMasterWaitFinishTv.tv_usec = time.tv_usec;
 
     return TRUE;
 #endif    

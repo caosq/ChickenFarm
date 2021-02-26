@@ -1,6 +1,11 @@
 #include <string.h>
 #include <termios.h>
 #include "mbdriver.h"
+#include <linux/serial.h>
+#include <sys/ioctl.h>
+
+#define TIOCGRS485      0x542E
+#define TIOCSRS485      0x542F
 
 /**********************************************************************
  * @brief   UART初始化
@@ -12,10 +17,21 @@ uint8_t xMB_UartInit(const sUART_Def *Uart)
     struct termios tios;
     speed_t speed;
 
-//    struct serial_rs485 rs485conf;
-//    rs485conf.flags |= SER_RS485_ENABLED;
-//    rs485conf.flags |= SER_RS485_RTS_ON_SEND;
+    /*struct serial_rs485 rs485conf;
 
+    rs485conf.flags |= SER_RS485_ENABLED;
+    rs485conf.flags |= SER_RS485_RTS_ON_SEND;
+    //rs485conf.flags &= ~(SER_RS485_RTS_ON_SEND);
+    //rs485conf.flags |= (SER_RS485_RTS_AFTER_SEND);
+    //rs485conf.flags &= ~SER_RS485_RX_DURING_TX;
+    //rs485conf.delay_rts_after_send = 0;
+
+    /*if (ioctl(Uart->fd, TIOCSRS485, &rs485conf) < 0)
+    {
+        //printf("ioctl error\n");
+        close(Uart->fd);
+        return 0;
+    }*/
 
     switch (Uart->baud)
     {
@@ -231,6 +247,8 @@ uint8_t xMB_UartInit(const sUART_Def *Uart)
 	/* Unused because we use open with the NDELAY option */
 	tios.c_cc[VMIN] = 0;
 	tios.c_cc[VTIME] = 0;
+
+    tcflush(Uart->fd, TCIOFLUSH);
 
     if (tcsetattr(Uart->fd, TCSANOW, &tios) < 0)
     {

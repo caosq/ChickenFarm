@@ -183,10 +183,10 @@ public:
     uint16_t  m_usSysMin = 6;               //系统时间分
     uint16_t  m_usSysSec = 6;               //系统时间秒
 
-     uint32_t  m_ulExAirFanRatedVol = 30000;     //排风机额定风量
+    uint32_t  m_ulExAirFanRatedVol = 30000;     //排风机额定风量
 
     bool      xAlarmEnable = 0;             //声光报警使能
-    bool      xAlarmClean = 0;              //声光报警清除
+    uint8_t      xAlarmClean = 0;              //声光报警清除
 
     ModularAir     *m_pModularAirs[MODULAR_AIR_NUM];            //组空
     ModularChiller *m_pModularChillers[MODULAR_CHILLER_NUM];    //机组

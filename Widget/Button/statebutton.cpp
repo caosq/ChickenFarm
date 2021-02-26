@@ -157,7 +157,13 @@ void StateButton::setFatherPixmap(ButtonState state, QString filePath)
 void StateButton::setValue(Monitor* pMonitor)
 {
     int32_t val = pMonitor->getCurVal();
-    setValue(val);
+    ButtonState state =  m_StateValMap.key(val);
+    if(Error != state)
+    {
+        m_CurrentState = state;
+        defValState = (m_DefaultState == state) ? true:false;
+    }
+    update();
 }
 
 void StateButton::setValue(int32_t val)
@@ -167,6 +173,11 @@ void StateButton::setValue(int32_t val)
     {
         m_CurrentState = state;
         defValState = (m_DefaultState == state) ? true:false;
+    }
+
+    if(m_pMonitor)
+    {
+        m_pMonitor->setValue(val);
     }
     update();
 }

@@ -359,6 +359,9 @@ eMBMasterFuncReadHoldingRegister( sMBMasterInfo* psMBMasterInfo, UCHAR  *pucRcvF
         /* Check if the number of registers to read is valid. If not
          * return Modbus illegal data value exception.
          */
+
+        //debug("eMBMasterFuncReadHoldingRegister usRegCount %d  code %d \n",  usRegCount, *(pucMBSndFrame));
+
         if( (usRegCount >= 1) && ( 2*usRegCount == *(pucRcvFrame + MB_PDU_FUNC_READ_BYTECNT_OFF)) )
         {
             /* Make callback to fill the buffer. */
@@ -591,8 +594,15 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
     		    }
     			if (pvRegHoldValue->ucDataType == uint16)
     			{
-    				if( (usRegHoldValue >= (USHORT)pvRegHoldValue->lMinVal ) && (usRegHoldValue <= (USHORT)pvRegHoldValue->lMaxVal))
+                    if( (usRegHoldValue >= (USHORT)pvRegHoldValue->lMinVal ) && (usRegHoldValue <= (USHORT)pvRegHoldValue->lMaxVal))
     				{ 
+                        if((pvRegHoldValue->ucAccessMode == RW) && (*(USHORT*)pvRegHoldValue->pvValue != (USHORT)pvRegHoldValue->usPreVal))
+                        {
+                            pvRegHoldValue->usPreVal = (USHORT)usRegHoldValue;
+                            iRegIndex++;
+                            usNRegs--;
+                            continue;    //此时命令更新了，所以不更新实际点位，只更新先前值
+                        }
     					*(USHORT*)pvRegHoldValue->pvValue = (USHORT)usRegHoldValue;    //更新对应点位
                         pvRegHoldValue->usPreVal = (USHORT)usRegHoldValue;							
     				}										
@@ -601,6 +611,13 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
     			{  
     				if( ((UCHAR)usRegHoldValue >= (UCHAR)pvRegHoldValue->lMinVal ) && ((UCHAR)usRegHoldValue <= (UCHAR)pvRegHoldValue->lMaxVal) )
     				{
+                        if((pvRegHoldValue->ucAccessMode == RW) && (*(UCHAR*)pvRegHoldValue->pvValue != (UCHAR)pvRegHoldValue->usPreVal))
+                        {
+                            pvRegHoldValue->usPreVal = (UCHAR)usRegHoldValue;
+                            iRegIndex++;
+                            usNRegs--;
+                            continue;    //此时命令更新了，所以不更新实际点位，只更新先前值
+                        }
     					*(UCHAR*)pvRegHoldValue->pvValue = (UCHAR)usRegHoldValue;
                         pvRegHoldValue->usPreVal = (USHORT)usRegHoldValue;							
     				}
@@ -610,6 +627,13 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
     				sRegHoldValue = (SHORT)usRegHoldValue;
     				 if( (sRegHoldValue >= (SHORT)pvRegHoldValue->lMinVal ) && (sRegHoldValue <= (SHORT)pvRegHoldValue->lMaxVal) )	
     				{
+                         if((pvRegHoldValue->ucAccessMode == RW) && (*(SHORT*)pvRegHoldValue->pvValue != (SHORT)pvRegHoldValue->usPreVal))
+                         {
+                             pvRegHoldValue->usPreVal = (USHORT)sRegHoldValue;
+                             iRegIndex++;
+                             usNRegs--;
+                             continue;    //此时实际点位有更新，所以不更新实际点位，只更新先前值
+                         }
     					*(SHORT*)pvRegHoldValue->pvValue = (SHORT)sRegHoldValue;
     					pvRegHoldValue->usPreVal = (USHORT)sRegHoldValue;
     				}			
@@ -619,6 +643,13 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
                     cRegHoldValue = (int8_t)usRegHoldValue;
     				if( (cRegHoldValue >= (int8_t)pvRegHoldValue->lMinVal ) && (cRegHoldValue <= (int8_t)pvRegHoldValue->lMaxVal) )		
     				{
+                        if((pvRegHoldValue->ucAccessMode == RW) && (*(int8_t*)pvRegHoldValue->pvValue != (int8_t)pvRegHoldValue->usPreVal))
+                        {
+                            pvRegHoldValue->usPreVal = (USHORT)cRegHoldValue;
+                            iRegIndex++;
+                            usNRegs--;
+                            continue;    //此时命令更新了，所以不更新实际点位，只更新先前值
+                        }
     					*(int8_t*)pvRegHoldValue->pvValue = (int8_t)cRegHoldValue;
                         pvRegHoldValue->usPreVal = (USHORT)cRegHoldValue;							
     				}

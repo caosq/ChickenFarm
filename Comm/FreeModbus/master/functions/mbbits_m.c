@@ -95,7 +95,13 @@ eMBErrorCode eMBMasterUtilSetBits(sMBMasterInfo* psMBMasterInfo, UCHAR* ucByteBu
                     (void)eMBMasterCoilMap(psMBMasterInfo, ucMBDestAddr, usAddress, &pucBitCoilData);   //扫描，找到对应点位   
                     if( (pucBitCoilData != NULL) && (pucBitCoilData->pvValue != NULL) && (pucBitCoilData->ucAccessMode != WO))
                     {
-                        ucBit = (UCHAR)( ((*(UCHAR*)ucByteBuf) & (1 << i) ) >> i );	
+                         ucBit = (UCHAR)( ((*(UCHAR*)ucByteBuf) & (1 << i) ) >> i );
+                        if((pucBitCoilData->ucAccessMode == RW) && (*(UCHAR*)pucBitCoilData->pvValue != (UCHAR)pucBitCoilData->ucPreVal))
+                        {
+                            pucBitCoilData->ucPreVal = (UCHAR)ucBit;
+                            usAddress++;
+                            continue;    //此时实际点位有更新，所以不更新实际点位，只更新先前值
+                        }
                         *(UCHAR*)(pucBitCoilData->pvValue) = (UCHAR)ucBit;
                         pucBitCoilData->ucPreVal  = (UCHAR)ucBit;
                     }

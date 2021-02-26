@@ -1,6 +1,8 @@
 #include "system.h"
 
-#define PORT_NAME "/dev/ttyUSB0"
+//#define PORT_NAME "/dev/ttyUSB0"
+
+#define PORT_NAME "/dev/ttyS0"
 
 System* System::g_pSystem = nullptr;
 

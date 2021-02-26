@@ -112,10 +112,10 @@ void eMBMasterRTUStart(sMBMasterInfo* psMBMasterInfo)
 {
 	sMBMasterPort* psMBPort = &psMBMasterInfo->sMBPort;
 	
-   // psMBMasterInfo->eSndState = STATE_M_TX_IDLE;
-    //psMBMasterInfo->eRcvState = STATE_M_RX_IDLE;
-    vMBMasterPortSerialEnable(psMBPort, FALSE, TRUE);    //从栈等待数据，开启串口接收，发送未开启
-    vMBsMasterPortTmrsEnable(psMBPort);                //启动定时器
+    psMBMasterInfo->eSndState = STATE_M_TX_IDLE;
+    psMBMasterInfo->eRcvState = STATE_M_RX_IDLE;
+    //vMBMasterPortSerialEnable(psMBPort, FALSE, TRUE);    //从栈等待数据，开启串口接收，发送未开启
+    //vMBsMasterPortTmrsEnable(psMBPort);                //启动定时器
 }
 
 /**********************************************************************
@@ -305,6 +305,8 @@ BOOL xMBMasterRTUReceiveFSM(sMBMasterInfo* psMBMasterInfo)
 
         //xMBMasterRTUTimerExpired(psMBMasterInfo);
         vMBsMasterPortTmrsEnable(psMBPort);              //重启3.5T定时器
+
+        debug("xMBMasterRTUReceiveFSM usRcvBufferPos %d \n",  psMBMasterInfo->usRcvBufferPos);
 #endif
 
         break;

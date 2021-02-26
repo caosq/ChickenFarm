@@ -681,16 +681,16 @@ void vMBMasterScanSlaveDev(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlave
     }
     if( (psMBSlaveDev != NULL) && (psMBSlaveDev->xOnLine == TRUE) )       //如果设备在线则进行轮询
     {
-        if(psMBSlaveDev->xDataReady == TRUE)         //从设备数据准备好了才同步上来
+        if(psMBSlaveDev->xDataReady == TRUE)    //从设备数据准备好了才同步上来
         {	 	    
-            if(psMBSlaveDev->xSynchronized == FALSE) //重新上线的话，同步所有数据，先写后读
+            if(psMBSlaveDev->xSynchronized == FALSE)
             {
-                vMBMasterScanSlaveDevData(psMBMasterInfo, ucSlaveAddr, TRUE, TRUE, FALSE);   //同步从设备数据            
-                psMBSlaveDev->xSynchronized = TRUE;                              //同步完成
+                vMBMasterScanSlaveDevData(psMBMasterInfo, ucSlaveAddr, FALSE, TRUE, FALSE);   //同步从设备数据
+                psMBSlaveDev->xSynchronized = TRUE;   //同步完成
             }
-            else   //同步完成后，先写后读
+            else   //同步完成后
             {
-                vMBMasterScanSlaveDevData(psMBMasterInfo, ucSlaveAddr, TRUE, TRUE, FALSE);  //根据实际通讯需要灵活调整，可以只写有变化数据，也可轮询写             
+                vMBMasterScanSlaveDevData(psMBMasterInfo, ucSlaveAddr, TRUE, TRUE, TRUE);  //根据实际通讯需要灵活调整，可以只写有变化数据，也可轮询写
             }
         }
         else  //从设备数据未好，则只进行写不读

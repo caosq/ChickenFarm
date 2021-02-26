@@ -294,7 +294,13 @@ void ModeButton::hideMenu()
 void ModeButton::setValue(Monitor* pMonitor)
 {
     int32_t val = pMonitor->getCurVal();
-    setValue(val);
+
+    int intval = int32_t(val);
+    currentValue = intval;
+    currentText = _menu->currentText(intval);
+    defValState = (defVal == intval) ? true:false;
+
+    update();
 }
 
 void ModeButton::setValue(int32_t val)

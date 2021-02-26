@@ -78,13 +78,15 @@ typedef struct                                /* 主栈接口定义  */
 
     pthread_mutex_t mutex;
 
-    sem_t sMBIdleSem;                           //主栈接口空闲消息量                    
+    //sem_t sMBIdleSem;                           //主栈接口空闲消息量
 	sem_t sMBEventSem;                          //主栈接口事件消息量
     sem_t sMBWaitFinishSem;                     //主栈接口等待消息量
 
 //    struct timer_t sMasterPortTmr;            //主栈接口3.5字符间隔定时器
 //    struct timer_t sConvertDelayTmr;          //主栈接口转换延时定时器
 //    struct timer_t sRespondTimeoutTmr;        //主栈接口等待响应定时器
+
+    uint16_t usTim1Timerout50us;
 
     struct timeval sMasterPortTv;
     struct timeval sConvertDelayTv;

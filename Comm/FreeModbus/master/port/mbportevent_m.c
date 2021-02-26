@@ -57,7 +57,7 @@ BOOL xMBMasterPortEventInit(sMBMasterPort* psMBPort)
 #elif MB_LINUX_ENABLED
     int ret = 0;
 
-    ret = sem_init(&psMBPort->sMBIdleSem, 0, 0);      //主栈空闲消息量
+    //ret = sem_init(&psMBPort->sMBIdleSem, 0, 0);      //主栈空闲消息量
     ret = sem_init(&psMBPort->sMBEventSem, 0, 0);      //主栈事件消息量
     ret = sem_init(&psMBPort->sMBWaitFinishSem, 0, 0); //主栈错误消息
 
@@ -134,8 +134,8 @@ BOOL xMBMasterPortEventGet(sMBMasterPort* psMBPort, eMBMasterEventType* eEvent)
     sem_wait(&psMBPort->sMBEventSem);
 #endif
 
-    //if(psMBPort->xEventInQueue)
-    //{
+    if(psMBPort->xEventInQueue)
+    {
 		switch(psMBPort->eQueuedEvent)
 		{
 		case EV_MASTER_READY:
@@ -158,7 +158,7 @@ BOOL xMBMasterPortEventGet(sMBMasterPort* psMBPort, eMBMasterEventType* eEvent)
         psMBPort->xEventInQueue = FALSE;
         xEventHappened = TRUE;
 //        debug("xMBMasterPortEventGet %d\n", *eEvent);
-    //}
+    }
     return xEventHappened;
 }
 /**
@@ -197,16 +197,18 @@ BOOL xMBMasterRunResTake(sMBMasterPort* psMBPort, ULONG lTimeOutMs)
     (void)OSSemSet(&psMBPort->sMBIdleSem, 0, &err);
 #elif MB_LINUX_ENABLED
 
+    //psMBPort->psMBMasterInfo->usRcvBufferPos = read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
+
+
     pthread_mutex_lock(&psMBPort->mutex);//加锁 若有线程获得锁，则会阻塞
 
    // tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
 
-    //psMBPort->psMBMasterInfo->usRcvBufferPos = read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
 
-    debug(" xMBMasterRunResTake %d\n", psMBPort->psMBMasterInfo->usRcvBufferPos);
+   // debug(" xMBMasterRunResTake %d\n", psMBPort->psMBMasterInfo->usRcvBufferPos);
 
 
-    //vMBTimeDly(0, 200);
+    //vMBTimeDly(0, 50);
 
     psMBPort->xMBIsFinished = FALSE;
 
@@ -233,6 +235,7 @@ void vMBMasterRunResRelease(sMBMasterPort* psMBPort)
 
     //sem_post(&psMBPort->sMBIdleSem);
 
+    //tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
     pthread_mutex_unlock(&psMBPort->mutex);//解锁
 
 #endif
@@ -416,15 +419,19 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(sMBMasterPort* psMBPort)
 
     if(ucDlyCount == 10)
     {
+        //read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
+
+        //tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
+
         psMBPort->xMBIsFinished = TRUE;
-        //sem_post(&psMBPort->sMBIdleSem);
+        psMBPort->eQueuedEvent = EV_MASTER_ERROR_RESPOND_TIMEOUT;
+        psMBPort->xWaitFinishInQueue = TRUE;
 
         sem_post(&psMBPort->sMBEventSem);
 
-        //read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
-
         pthread_mutex_unlock(&psMBPort->mutex);//解锁
 
+        debug(" eMBMasterWaitRequestFinish %d\n" ,psMBPort->eQueuedEvent);
 
         return MB_MRE_TIMEDOUT;
     }
@@ -461,7 +468,7 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(sMBMasterPort* psMBPort)
             debug(" EV_MASTER_ERROR_RESPOND_TIMEOUT \n");
         	eErrStatus = MB_MRE_TIMEDOUT;
 
-            //read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
+           // read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
         	break;
         }
         case EV_MASTER_ERROR_RECEIVE_DATA:
@@ -488,9 +495,9 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(sMBMasterPort* psMBPort)
 	psMBPort->xWaitFinishInQueue = FALSE;
 
 
-    //tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
+   // tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
 
-    read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
+    //read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
 
     debug(" eMBMasterWaitRequestFinish %d\n" ,psMBPort->eQueuedEvent);
 
@@ -540,37 +547,6 @@ eMBException prveMBMasterError2Exception( eMBErrorCode eErrorCode )
     }
 
     return eStatus;
-}
-
-/**********************************************************************
- * @brief modbus主栈互锁
- *********************************************************************/
-void vMBMasterPortLock(sMBMasterPort* psMBPort)
-{
-#if  MB_UCOSIII_ENABLED
-    OS_ERR err = OS_ERR_NONE;
-    
-	(void)OSSemPend(&psMBPort->sMBIdleSem, 0, OS_OPT_PEND_BLOCKING, NULL, &err);
-    (void)OSSemSet(&psMBPort->sMBIdleSem, 0, &err); 
-#elif MB_LINUX_ENABLED
-
-    sem_wait(&psMBPort->sMBIdleSem);
-#endif   	
-}
- 
-/**********************************************************************
- * @brief modbus主栈释放锁
- *********************************************************************/
-void vMBMasterPortUnLock(sMBMasterPort* psMBPort)
-{
-#if  MB_UCOSIII_ENABLED
-    OS_ERR err = OS_ERR_NONE;
-	(void)OSSemPost(&psMBPort->sMBIdleSem, OS_OPT_POST_ALL, &err);
-
-#elif MB_LINUX_ENABLED
-
-    sem_post(&psMBPort->sMBIdleSem);
-#endif	
 }
 
 #endif

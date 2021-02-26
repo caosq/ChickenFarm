@@ -72,7 +72,7 @@
 #define MB_PORT_HAS_CLOSE 0
 #endif
 
-#define MB_MASTER_POLL_INTERVAL_MS   30
+#define MB_MASTER_POLL_INTERVAL_MS   100
 
 /* ----------------------- Static variables ---------------------------------*/
 static sMBMasterInfo*      psMBMasterList = NULL;    
@@ -263,7 +263,7 @@ eMBErrorCode eMBMasterEnable(sMBMasterInfo* psMBMasterInfo)
         pvMBMasterFrameStartCur(psMBMasterInfo);
         psMBMasterInfo->eMBState = STATE_ENABLED;
 
-        sem_post(&psMBPort->sMBIdleSem);
+        //sem_post(&psMBPort->sMBIdleSem);
     }
     else
     {
@@ -572,8 +572,7 @@ sMBMasterInfo* psMBMasterFindNodeByPort(const CHAR* pcMBPortName)
 void vMBMasterPollTask(void *p_arg)
 {
     sMBMasterInfo* psMBMasterInfo = (sMBMasterInfo*)p_arg;
-    if( eMBMasterInit(psMBMasterInfo) == MB_ENOERR && eMBMasterEnable(psMBMasterInfo) == MB_ENOERR )
-    {
+
         while(1)
         {
             (void)vMBTimeDly(0, MB_MASTER_POLL_INTERVAL_MS);
@@ -587,15 +586,13 @@ void* vMBMasterPollTask(void *p_arg)
     sMBMasterInfo* psMBMasterInfo = (sMBMasterInfo*)p_arg;
 
  //   debug("eMBMasterInit\n");
-    if( eMBMasterInit(psMBMasterInfo) == MB_ENOERR && eMBMasterEnable(psMBMasterInfo) == MB_ENOERR )
-    {
-        while(1)
-        {
-//            debug("vMBMasterPollTask\n");
 
-            (void)eMBMasterPoll(psMBMasterInfo);
-            (void)vMBTimeDly(0, MB_MASTER_POLL_INTERVAL_MS);
-        }
+    while(1)
+    {
+//        debug("vMBMasterPollTask\n");
+
+        (void)vMBTimeDly(0, MB_MASTER_POLL_INTERVAL_MS);
+        (void)eMBMasterPoll(psMBMasterInfo);      
     }
     return NULL;
 }
@@ -624,9 +621,12 @@ BOOL xMBMasterCreatePollTask(sMBMasterInfo* psMBMasterInfo)
     return (err == OS_ERR_NONE);
 
 #elif MB_LINUX_ENABLED
+    int ret = -1;
 
-    int ret = pthread_create(&psMBMasterInfo->sMBTask.sMBPollTask, NULL, vMBMasterPollTask, (void*)psMBMasterInfo);    //创建线程
-
+    if(eMBMasterInit(psMBMasterInfo) == MB_ENOERR && eMBMasterEnable(psMBMasterInfo) == MB_ENOERR )
+    {
+        ret = pthread_create(&psMBMasterInfo->sMBTask.sMBPollTask, NULL, vMBMasterPollTask, (void*)psMBMasterInfo);    //创建线程
+    }
     return ret == 0;
 #endif
 }

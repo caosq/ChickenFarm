@@ -2,8 +2,9 @@
 #include "stdint.h"
 #include "stddef.h"
 #include <unistd.h>
+#include "system.h"
 
-#define MONITOR_DATA_MAX_NUM   100     //最大可监控点位数，根据实际情况调整
+#define MONITOR_DATA_MAX_NUM   200     //最大可监控点位数，根据实际情况调整
 
 sMonitorMapList* DataMonitor::g_psMonitorMapList = nullptr;
 DataMonitor*     DataMonitor::g_pDataMonitor = nullptr;
@@ -41,6 +42,12 @@ void Monitor::setValue(int32_t iVal)
 
     if(m_pvVal != nullptr && iVal <= m_iMaxVal && iVal >= m_iMinVal)
     {
+        if(m_DataType == Boolean)
+        {
+            ucValue = uint8_t(iVal);
+            m_iDataVal = int32_t(ucValue);
+            *static_cast<uint8_t*>(m_pvVal) = ucValue;
+        }
         if(m_DataType == Uint8t)
         {
             ucValue = uint8_t(iVal);
@@ -128,9 +135,14 @@ void* DataMonitor::monitorPollTask(void *pvArg)
     QMap<uint16_t, Monitor*>* pMonitorMap = static_cast< QMap<uint16_t, Monitor*> *>(pvArg);
 
     Monitor*      pMonitor = nullptr;
+    pthread_mutex_t *mutex = &System::getInstance()->pModbus->getMBMasterInfo()->sMBPort.mutex;
+
 
     while(1)
     {
+        usleep(10000);
+        pthread_mutex_lock(mutex);
+
         for(it=pMonitorMap->begin(); it!=pMonitorMap->end(); ++it)
         {
             pMonitor = it.value();
@@ -173,7 +185,8 @@ void* DataMonitor::monitorPollTask(void *pvArg)
                 qDebug("pMonitor->valChanged %d", iDataVal);
             }
         }
-        usleep(1000);
+        pthread_mutex_unlock(mutex);//解锁
+
     }
 }
 
@@ -271,6 +284,11 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
     {
         iValue = *static_cast<int32_t*>(pvVal);
         pMonitor->m_iDataVal = iValue;
+    }
+    else if(eDataType == Monitor::Boolean)
+    {
+        ucValue = *static_cast<uint8_t*>(pvVal);
+        pMonitor->m_iDataVal = int32_t(ucValue);
     }
     return pMonitor;
 }
