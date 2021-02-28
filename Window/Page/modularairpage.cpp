@@ -12,7 +12,7 @@
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN_1     30
-#define LABEL_LEFT_MARGIN_1   45
+#define LABEL_LEFT_MARGIN_1   35
 #define LABEL_INTERVAL_H_1    300
 #define LABEL_INTERVAL_V_1    40
 
@@ -24,7 +24,7 @@
 #define DATA_LABEL_SIZE  110, 30
 
 #define DATA_LABEL_UP_MARGIN_1    30
-#define DATA_LABEL_LEFT_MARGIN_1  150
+#define DATA_LABEL_LEFT_MARGIN_1  135
 #define DATA_LABEL_INTERVAL_H_1   300
 #define DATA_LABEL_INTERVAL_V_1   40
 
@@ -32,8 +32,6 @@
 #define DATA_LABEL_LEFT_MARGIN_2  150
 #define DATA_LABEL_INTERVAL_H_2   300
 #define DATA_LABEL_INTERVAL_V_2   40
-
-#define MODULAR_NUM   2
 
 ModularAirPage::ModularAirPage(QWidget *parent) :
     QWidget(parent),
@@ -56,14 +54,11 @@ void ModularAirPage::initDevice()
     ModularAir* pModularAir = nullptr;
     System   *pSystem = System::getInstance();
 
-    if(pSystem == nullptr)
-    {
-        return;
-    }
-    for(uint8_t n = 0; n < MODULAR_NUM; n++)
+    if(pSystem == nullptr){return;}
+    for(uint8_t n = 0; n < MODULAR_AIR_NUM; n++)
     {
         pModularAir = new ModularAir();
-        pSystem->m_pModularAirs[n] = pModularAir;
+        pSystem->m_pModularAirs.append(pModularAir);
 
         m_ModularAirs.append(pModularAir);
         ui->modularAirStackedWidget->addWidget(pModularAir);
@@ -109,11 +104,8 @@ void ModularAirPage::initLabel()
 
 void ModularAirPage::initButton()
 {
-    System   *pSystem = System::getInstance();
-    if(pSystem == nullptr)
-    {
-        return;
-    }
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
     //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
@@ -196,6 +188,14 @@ void ModularAirPage::initButton()
                                   DATA_LABEL_UP_MARGIN_2 + m * DATA_LABEL_INTERVAL_V_2,
                                   DATA_LABEL_SIZE);
     }
+    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pRunningModeCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pTempSetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pHumiSetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pCO2SetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+
+    connect(System::getInstance(), SIGNAL(sysModeCmdChanged()), this, SLOT(sysModeCmdChangedSlot()));
+    sysModeCmdChangedSlot();
 }
 
 void ModularAirPage::on_pushButton_clicked()
@@ -217,4 +217,66 @@ void ModularAirPage::on_pushButton_clicked()
     m_pCommErrLabel->setMonitorData(&m_pCurModularAir->m_sMeter.m_xCommErr, Monitor::Boolean);
 
     ui->label_2->setText(QString::number(ui->modularAirStackedWidget->currentIndex()+1) + "# 组合柜能耗");
+}
+
+void ModularAirPage::paramSetBtnValChanged(int32_t val)
+{
+    System *pSystem = System::getInstance();
+    ModularAir* pCurModularAir =nullptr;
+    if(pSystem == nullptr){return;}
+
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    {
+        pSystem->m_usTempSet = uint16_t(m_pTempSetBtn->getCurrentValue());
+        pSystem->m_usHumiSet = uint16_t(m_pHumiSetBtn->getCurrentValue());
+        pSystem->m_usCO2PPMSet = uint16_t(m_pCO2SetBtn->getCurrentValue());
+
+        for(uint8_t i = 0; i < m_ModularAirs.count(); i++)
+        {
+             pCurModularAir = m_ModularAirs[i];
+             pCurModularAir->m_eSwitchCmd = ModularAir::SwitchCmd(m_pSwitchCmdBtn->getCurrentValue());
+             pCurModularAir->m_eRunningModeCmd = ModularAir::RunningMode(m_pRunningModeCmdBtn->getCurrentValue());
+             pCurModularAir->m_usTempSet = pSystem->m_usTempSet;
+             pCurModularAir->m_usHumiSet = pSystem->m_usHumiSet;
+             pCurModularAir->m_usCO2Set = pSystem->m_usCO2PPMSet;
+        }
+    }
+}
+
+void ModularAirPage::sysModeCmdChangedSlot()
+{
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    {
+        m_pSwitchCmdBtn->setEnabled(true);
+        m_pRunningModeCmdBtn->setEnabled(true);
+        m_pTempSetBtn->setEnabled(true);
+        m_pHumiSetBtn->setEnabled(true);
+        m_pCO2SetBtn->setEnabled(true);
+        for(uint8_t n = 0; n < MODULAR_AIR_NUM; n++)
+        {
+            m_ModularAirs[n]->m_pSwitchCmdBtn->setEnabled(true);
+            m_ModularAirs[n]->m_pRunningModeCmdBtn->setEnabled(true);
+            m_ModularAirs[n]->m_pTempSetBtn->setEnabled(true);
+            m_ModularAirs[n]->m_pHumiSetBtn->setEnabled(true);
+            m_ModularAirs[n]->m_pCO2SetBtn->setEnabled(true);
+        }
+    }
+    else
+    {
+        m_pSwitchCmdBtn->setEnabled(false);
+        m_pRunningModeCmdBtn->setEnabled(false);
+        m_pTempSetBtn->setEnabled(false);
+        m_pHumiSetBtn->setEnabled(false);
+        m_pCO2SetBtn->setEnabled(false);
+        for(uint8_t n = 0; n < MODULAR_AIR_NUM; n++)
+        {
+            m_ModularAirs[n]->m_pSwitchCmdBtn->setEnabled(false);
+            m_ModularAirs[n]->m_pRunningModeCmdBtn->setEnabled(false);
+            m_ModularAirs[n]->m_pTempSetBtn->setEnabled(false);
+            m_ModularAirs[n]->m_pHumiSetBtn->setEnabled(false);
+            m_ModularAirs[n]->m_pCO2SetBtn->setEnabled(false);
+        }
+    }
 }

@@ -13,7 +13,7 @@ CurrentEventTable::CurrentEventTable(int column, QString saveDir, QWidget *paren
 
     m_pEventMonitor = new EventMonitor(saveDir, this);
 
-    connect(m_pEventMonitor, SIGNAL(eventComing(sEventItem, Monitor*)), this, SLOT(addEvent(sEventItem, Monitor*)));
+    connect(m_pEventMonitor, SIGNAL(eventComing(sEventItem, Monitor*)), this, SLOT(eventComingSlot(sEventItem, Monitor*)));
 
    // connect(_data,SIGNAL(clearTable()),this,SLOT(clearTableSlot()));
 }
@@ -29,9 +29,9 @@ void CurrentEventTable::setClearAction(EventMonitor::clearAction action)
 }
 
 void CurrentEventTable::registMonitorItem(void* pvVal, Monitor::DataType emDataType, QString strContext,
-                               QColor colorOccurred, QColor colorCompleted, int32_t iMaxVal, int32_t iMinVal)
+                                          int32_t iOccurredVal, QColor colorOccurred, QColor colorCompleted)
 {
-    m_pEventMonitor->registMonitorItem(pvVal, emDataType, strContext,  colorOccurred, colorCompleted, iMaxVal, iMinVal);
+    m_pEventMonitor->registMonitorItem(pvVal, emDataType, strContext, iOccurredVal, colorOccurred, colorCompleted);
 }
 
 void CurrentEventTable::removeMonitorItem(void* pvVal)
@@ -39,9 +39,9 @@ void CurrentEventTable::removeMonitorItem(void* pvVal)
     m_pEventMonitor->removeMonitorItem(pvVal);
 }
 
-bool CurrentEventTable::setMonitorItemColor(void* pvVal, QColor onColor,QColor offColor)
+bool CurrentEventTable::setMonitorItemColor(void* pvVal, int32_t iOccurredVal, QColor onColor, QColor offColor)
 {
-    return m_pEventMonitor->setMonitorItemColor(pvVal, onColor, offColor);
+    return m_pEventMonitor->setMonitorItemColor(pvVal, iOccurredVal, onColor, offColor);
 }
 
 void CurrentEventTable::setMaxVisibleRowNum(int num)
@@ -71,15 +71,22 @@ void CurrentEventTable::checkMaxVisibleItem(void* pvVal)
     eventNum++;
 }
 
-void CurrentEventTable::addEvent(sEventItem mItem, Monitor* pMonitor)
+void CurrentEventTable::eventComingSlot(QMap<int32_t, EventMonitor::sEventItem> mEventMap, Monitor* pMonitor)
 {
-    if(pMonitor->getCurVal() == 0)
+    QMap<int32_t, EventMonitor::sEventItem>::iterator it;
+    EventMonitor::sEventItem mItem;
+
+    for(it=mEventMap.begin(); it!=mEventMap.end(); ++it)
     {
-        furbishEvent(pMonitor->getCurValAddr(), mItem.strContext, mItem.colorCompleted);
-    }
-    else
-    {
-        insertEvent(pMonitor->getCurValAddr(), mItem.strContext, mItem.colorOccurred);
+        mItem = it.value();
+        if(pMonitor->getCurVal() == mItem.iOccurredVal)
+        {
+            insertEvent(mItem, pMonitor);
+        }
+        else
+        {
+            furbishEvent(mItem, pMonitor);
+        }
     }
 }
 
@@ -90,12 +97,13 @@ void CurrentEventTable::clearTableSlot()
     clearTabel();
 }
 
-void CurrentEventTable::insertEvent(void* pvVal, QString str, QColor color)
+void CurrentEventTable::insertEvent(EventMonitor::sEventItem mItem, Monitor* pMonitor)
 {
-    checkMaxVisibleItem(pvVal);
+    checkMaxVisibleItem(pMonitor->getCurValAddr());
 
     QStringList list;
     QStringList ItemData;
+    sEventItemData mEventItemData;
 
     QString time = QDate::currentDate().toString("yyyy-MM-dd");
     time.append(" ");
@@ -104,18 +112,20 @@ void CurrentEventTable::insertEvent(void* pvVal, QString str, QColor color)
     ItemData.append(QString::number(eventNum));
     ItemData.append(time);
     ItemData.append("");
-    ItemData.append(str);
+    ItemData.append(mItem.strContext);
 
     list.append("1");
     list.append(ItemData[1]);
     list.append(ItemData[3]);
 
-    insertRow(ItemData,color);
+    insertRow(ItemData, mItem.colorOccurred);
+    mEventItemData = {eventNum, ItemData};
 
+    m_eventItemMap.insert(pMonitor->getCurValAddr(), mEventItemData);
     m_pEventMonitor->writeData(list);
 }
 
-void CurrentEventTable::furbishEvent(void* pvVal, QString str, QColor color)
+void CurrentEventTable::furbishEvent(EventMonitor::sEventItem mItem, Monitor* pMonitor)
 {
     QStringList list;
 
@@ -125,7 +135,7 @@ void CurrentEventTable::furbishEvent(void* pvVal, QString str, QColor color)
 
     list.append("0");
     list.append(time);
-    list.append(str);
+    list.append(mItem.strContext);
 
     m_pEventMonitor->writeData(list);
 

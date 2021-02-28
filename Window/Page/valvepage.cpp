@@ -21,8 +21,6 @@
 #define DATA_LABEL_INTERVAL_H   300
 #define DATA_LABEL_INTERVAL_V   40
 
-#define AXIAL_FAN_NUM  4
-
 ValvePage::ValvePage(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ValvePage)
@@ -43,17 +41,15 @@ void ValvePage::initDevice()
     ButterflyValve* pButterflyValve = nullptr;
     System   *pSystem = System::getInstance();
 
-    if(pSystem == nullptr)
-    {
-        return;
-    }
-    for(uint8_t n = 0, x = 0, y = 0; n < AXIAL_FAN_NUM; n++)
+    if(pSystem == nullptr){return;}
+    for(uint8_t n = 0, x = 0, y = 0; n < BUTTRERFLY_VALVE_NUM; n++)
     {
         x = n / 2;
         y = n % 2;
 
         pButterflyValve = new ButterflyValve();
-        pSystem->m_pButterflyValves[n] = pButterflyValve;
+        pSystem->m_pButterflyValves.append(pButterflyValve);
+
         m_ButterflyValves.append(pButterflyValve);
         ui->gridLayout->addWidget(pButterflyValve, x, y);
     }
@@ -105,5 +101,48 @@ void ValvePage::initButton()
         m_Widgets[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + n * DATA_LABEL_INTERVAL_H,
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
+    }
+    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(System::getInstance(), SIGNAL(sysModeCmdChanged()), this, SLOT(sysModeCmdChangedSlot()));
+    sysModeCmdChangedSlot();
+}
+
+void ValvePage::paramSetBtnValChanged(int32_t val)
+{
+    System *pSystem = System::getInstance();
+    ButterflyValve* pButterflyValve = nullptr;
+
+    if(pSystem == nullptr){return;}
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    {
+        for(uint8_t i = 0; i < m_ButterflyValves.count(); i++)
+        {
+             pButterflyValve = m_ButterflyValves[i];
+             pButterflyValve->m_eSwitchCmd = ButterflyValve::SwitchCmd(m_pSwitchCmdBtn->getCurrentValue());
+        }
+    }
+}
+
+void ValvePage::sysModeCmdChangedSlot()
+{
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    {
+        m_pSwitchCmdBtn->setEnabled(true);
+        m_BypassValve->m_pAngSetBtn->setEnabled(true);
+        for(uint8_t n = 0; n < BUTTRERFLY_VALVE_NUM; n++)
+        {
+            m_ButterflyValves[n]->m_pSwitchCmdBtn->setEnabled(true);
+        }
+    }
+    else
+    {
+        m_pSwitchCmdBtn->setEnabled(false);
+        m_BypassValve->m_pAngSetBtn->setEnabled(false);
+        for(uint8_t n = 0; n < BUTTRERFLY_VALVE_NUM; n++)
+        {
+            m_ButterflyValves[n]->m_pSwitchCmdBtn->setEnabled(false);
+        }
     }
 }

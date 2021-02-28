@@ -126,6 +126,9 @@ public:
     void enableDefaultMarker(bool ok){enableValMarker = ok;}
     //设置祖父的操作权限
 
+    int32_t getCurrentValue();
+
+    void setValue(int32_t val);
 protected:
     void paintEvent(QPaintEvent *e);
 
@@ -135,7 +138,7 @@ private:
     //virtual bool canPress();
 
 public slots:
-    void setValue(int32_t val);
+
     void setValue(Monitor* pMonitor);
 
 private slots:
@@ -146,6 +149,7 @@ private slots:
 
 signals:
     void fontChange();
+    void valChanged(int32_t val);
 
 private:
     Monitor*    m_pMonitor;

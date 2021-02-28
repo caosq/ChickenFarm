@@ -19,9 +19,9 @@
   <widget class="QFrame" name="frame_1">
    <property name="geometry">
     <rect>
-     <x>16</x>
+     <x>6</x>
      <y>370</y>
-     <width>281</width>
+     <width>301</width>
      <height>200</height>
     </rect>
    </property>
@@ -180,7 +180,7 @@ background:transparent;</string>
    <property name="geometry">
     <rect>
      <x>808</x>
-     <y>576</y>
+     <y>596</y>
      <width>89</width>
      <height>33</height>
     </rect>
@@ -400,8 +400,8 @@ background:transparent;</string>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>50</y>
+     <x>20</x>
+     <y>20</y>
      <width>153</width>
      <height>25</height>
     </rect>
@@ -540,16 +540,16 @@ background:transparent;</string>
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>80</y>
-     <width>271</width>
-     <height>271</height>
+     <x>10</x>
+     <y>50</y>
+     <width>291</width>
+     <height>301</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">#frame{
-background:transparent;
-border-image: url(:/UI/Widget/System_Air_2.png);}</string>
+border-image: url(:/UI/Widget/System_Air_2.png);
+background:transparent;}</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::StyledPanel</enum>
@@ -561,10 +561,10 @@ border-image: url(:/UI/Widget/System_Air_2.png);}</string>
   <widget class="QStackedWidget" name="modularChillerStackedWidget">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>20</y>
-     <width>611</width>
-     <height>545</height>
+     <x>300</x>
+     <y>15</y>
+     <width>601</width>
+     <height>580</height>
     </rect>
    </property>
    <property name="styleSheet">

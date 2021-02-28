@@ -74,6 +74,8 @@ public:
     //father这两个函数作用于全部abutton实体，但必须是在father初始化之后
     void setFatherPixmap(ButtonState state, QString filePath);
 
+     int32_t getCurrentValue();
+
 protected:
     void paintEvent(QPaintEvent *e);
 
@@ -87,6 +89,7 @@ public slots:
     void clickedSlot();
 signals:
     void fontChange();
+    void valChanged(int32_t val);
 
 protected:
     static StateButton *father;
@@ -106,6 +109,7 @@ private:
     QMap<ButtonState, int>  m_StateValMap;
     QVector<StateStyle>     m_StateStyleVector;
 
+    int32_t                 m_CurrentValue;
     ButtonState             m_CurrentState;
     ButtonState             m_DefaultState;
 protected:

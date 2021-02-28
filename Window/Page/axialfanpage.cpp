@@ -8,10 +8,10 @@
 #define LABEL_SIZE       110, 28
 #define LABEL_FONT_SIZE  14
 
-#define LABEL_UP_MARGIN     30
+#define LABEL_UP_MARGIN     25
 #define LABEL_LEFT_MARGIN   30
 #define LABEL_INTERVAL_H    150
-#define LABEL_INTERVAL_V    35
+#define LABEL_INTERVAL_V    38
 
 #define DATA_LABEL_SIZE  110, 28
 
@@ -19,9 +19,6 @@
 #define DATA_LABEL_LEFT_MARGIN  135
 #define DATA_LABEL_INTERVAL_H   300
 #define DATA_LABEL_INTERVAL_V   38
-
-#define AXIAL_FAN_NUM  4
-#define WINDOW_FAN_NUM  2
 
 AxialFanPage::AxialFanPage(QWidget *parent) :
     QWidget(parent),
@@ -44,10 +41,7 @@ void AxialFanPage::initDevice()
     AxialFan *pAxialFan = nullptr;
     System   *pSystem = System::getInstance();
 
-    if(pSystem == nullptr)
-    {
-        return;
-    }
+    if(pSystem == nullptr){return;}
     for(uint8_t n = 0, x = 0, y = 0; n < AXIAL_FAN_NUM; n++)
     {
         x = n / 2;
@@ -55,7 +49,7 @@ void AxialFanPage::initDevice()
 
         pAxialFan = new AxialFan(); 
         m_AxialFans.append(pAxialFan);
-        pSystem->m_pAxialFans[n] = pAxialFan;
+        pSystem->m_pAxialFans.append(pAxialFan);
         ui->gridLayout->addWidget(pAxialFan, x, y);
     }
 
@@ -64,7 +58,7 @@ void AxialFanPage::initDevice()
     {
         m_psWindowFan = new WindowFan();
         m_WindowFans.append(m_psWindowFan);
-        pSystem->m_pWindowFans[n] = m_psWindowFan;
+        pSystem->m_pWindowFans.append(m_psWindowFan);
         ui->verticalLayout->insertWidget(n, m_psWindowFan);
     }
 }
@@ -119,5 +113,62 @@ void AxialFanPage::initButton()
         m_Widgets[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + n * DATA_LABEL_INTERVAL_H,
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
+    }
+    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pFreqSetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(System::getInstance(), SIGNAL(sysModeCmdChanged()), this, SLOT(sysModeCmdChangedSlot()));
+    sysModeCmdChangedSlot();
+}
+
+void AxialFanPage::paramSetBtnValChanged(int32_t val)
+{
+    System *pSystem = System::getInstance();
+    AxialFan *pAxialFan = nullptr;
+
+    if(pSystem == nullptr){return;}
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    {
+        for(uint8_t i = 0; i < m_AxialFans.count(); i++)
+        {
+             pAxialFan = m_AxialFans[i];
+             pAxialFan->m_eSwitchCmd = AxialFan::SwitchCmd(m_pSwitchCmdBtn->getCurrentValue());
+             pAxialFan->m_usFreqSet = uint16_t(m_pFreqSetBtn->getCurrentValue());
+        }
+    }
+}
+
+void AxialFanPage::sysModeCmdChangedSlot()
+{
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    {
+        m_pSwitchCmdBtn->setEnabled(true);
+        m_pFreqSetBtn->setEnabled(true);
+        for(uint8_t n = 0; n < AXIAL_FAN_NUM; n++)
+        {
+            m_AxialFans[n]->m_pSwitchCmdBtn->setEnabled(true);
+            m_AxialFans[n]->m_pFreqSetBtn->setEnabled(true);
+        }
+        for(uint8_t n = 0; n < WINDOW_FAN_NUM; n++)
+        {
+            m_WindowFans[n]->m_pSwitchCmdBtn->setEnabled(true);
+            m_WindowFans[n]->m_pAngSetBtn->setEnabled(true);
+        }
+    }
+    else
+    {
+        m_pSwitchCmdBtn->setEnabled(false);
+        m_pFreqSetBtn->setEnabled(false);
+        for(uint8_t n = 0; n < AXIAL_FAN_NUM; n++)
+        {
+            m_AxialFans[n]->m_pSwitchCmdBtn->setEnabled(false);
+            m_AxialFans[n]->m_pFreqSetBtn->setEnabled(false);
+        }
+        for(uint8_t n = 0; n < WINDOW_FAN_NUM; n++)
+        {
+            m_WindowFans[n]->m_pSwitchCmdBtn->setEnabled(false);
+            m_WindowFans[n]->m_pAngSetBtn->setEnabled(false);
+        }
     }
 }

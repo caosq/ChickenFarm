@@ -27,13 +27,15 @@ private:
     void initForm();
 
 public:
-
-    static void initButton();
-
     explicit MainForm(QWidget *parent = nullptr);
     ~MainForm();
 
+    static void initButton();
+
 private slots:
+
+    void systemTimeChangedSlot();
+
     void on_systemButton_clicked();
 
     void on_curveButton_clicked();
@@ -47,11 +49,11 @@ private slots:
 private:
     Ui::MainForm *ui;
 
-    SystemMonitor m_pSystemMonitor;
-    Curve         m_pCurve;
-    Setting       m_pSetting;
-    Event         m_pEvent;
-    Home          m_pHome;
+    SystemMonitor m_SystemMonitor;
+    Curve         m_Curve;
+    Setting       m_Setting;
+    Event         m_Event;
+    Home          m_Home;
 
 };
 

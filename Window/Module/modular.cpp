@@ -2,6 +2,7 @@
 #include "ui_modular.h"
 #include "datamonitor.h"
 #include "textlabel.h"
+#include "system.h"
 
 #define LABEL_COLUMNS  1
 #define LABEL_ROWS     8
@@ -39,19 +40,17 @@ void Compressor::valChangedSlot(Monitor* pMonitor)
 
 uint8_t Modular::m_usModularCount = 0;
 
-Modular::Modular(QWidget *parent, uint8_t usCompNum) :
+Modular::Modular(QWidget *parent, uint16_t usDeviceIndex) :
     Device(parent),
     ui(new Ui::Modular)
 {
     ui->setupUi(this);
 
     Modular::m_usModularCount++;
-    this->m_usDeviceIndex = m_usModularCount;
-
-    this->m_usDeviceIndex == 1 ? m_usCompNum = 2 : usCompNum;   //模块一只有2个压缩机，其余都有4个压缩机
+    this->m_usDeviceIndex = usDeviceIndex;
 
     Compressor *pComp = nullptr;
-    for( uint8_t i = 0; i < usCompNum; i++)
+    for( uint8_t i = 0; i < COMP_NUM_IN_CHILLER; i++)
     {
         pComp = new Compressor(this);
         if(pComp != nullptr)

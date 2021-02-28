@@ -2,6 +2,8 @@
 #define SYSTEM_H
 
 #include <QObject>
+#include <QTimer>
+#include <QDateTime>
 #include "modularair.h"
 #include "modularchiller.h"
 #include "chilledbump.h"
@@ -25,9 +27,20 @@
 #define CHW_TEMP_SENSOR_NUM      2
 #define CHW_PRESSURE_SENSOR_NUM  2
 
+#define TEMP_HUMI_IN_NUM    8
+#define TEMP_HUMI_OUT_NUM   2
+#define CO2_NUM             4
+
+#define TEMP_HUMI_IN_NUM_IN_MODULAR_AIR   4
+#define TEMP_HUMI_OUT_NUM_IN_MODULAR_AIR  1
+#define CO2_NUM_IN_MODULAR_AIR            2
+
+#define MODULAR_NUM_IN_CHILLER  4
+#define COMP_NUM_IN_CHILLER     2
 
 class System : public QObject
 {
+    Q_OBJECT
 public:
 
     typedef enum   /*系统模式*/
@@ -52,10 +65,10 @@ public:
 
     uint16_t     m_usUnitID = 0x302A;            //机型ID
     uint16_t     m_usProtocolVer = 10;           //协议版本
-    SystemMode   m_eSystemModeCmd = MODE_CLOSE;  //系统模式设定
-    SystemState  m_eSystemState = STATE_COOL;  //系统状态
+    SystemMode   m_eSystemModeCmd = MODE_MANUAL;  //系统模式设定
+    SystemState  m_eSystemState = STATE_CLOSED;  //系统状态
 
-    int16_t   m_sChickenGrowDays = -2;         //鸡生长周期天数
+    int16_t   m_sChickenGrowDay = -2;          //鸡生长周期天数
     uint16_t  m_usCO2PPMSet = 2000;            //目标CO2浓度设定
     uint16_t  m_usTempSet = 240;               //目标温度设定
     uint16_t  m_usHumiSet = 60;                //目标湿度设定
@@ -176,8 +189,8 @@ public:
     uint16_t  m_usCHWOutletPressure = 0;      //冷冻总管出水压力
     uint16_t  m_usCHWInletPressure = 0;       //冷冻总管回水压力
 
-    uint16_t  m_usSysYear = 2021;              //系统时间年
-    uint16_t  m_usSysMon = 2;               //系统时间月
+    uint16_t  m_usSysYear = 2021;             //系统时间年
+    uint16_t  m_usSysMon = 2;                 //系统时间月
     uint16_t  m_usSysDay = 14;               //系统时间日
     uint16_t  m_usSysHour = 6;              //系统时间时
     uint16_t  m_usSysMin = 6;               //系统时间分
@@ -186,31 +199,37 @@ public:
     uint32_t  m_ulExAirFanRatedVol = 30000;     //排风机额定风量
 
     bool      xAlarmEnable = 0;             //声光报警使能
-    uint8_t      xAlarmClean = 0;              //声光报警清除
+    bool      xAlarmClean = 0;              //声光报警清除
 
-    ModularAir     *m_pModularAirs[MODULAR_AIR_NUM];            //组空
-    ModularChiller *m_pModularChillers[MODULAR_CHILLER_NUM];    //机组
-    ChilledBump    *m_pChilledBumps[CHILLED_BUMP_NUM];          //冷冻泵
-    AxialFan       *m_pAxialFans[AXIAL_FAN_NUM];                //畜牧风机
-
-    WindowFan      *m_pWindowFans[WINDOW_FAN_NUM];               //小窗电机
-    ButterflyValve *m_pButterflyValves[BUTTRERFLY_VALVE_NUM];    //蝶阀
-    TempSensor     *m_pCHWTempSensors[CHW_TEMP_SENSOR_NUM];      //冷冻总管温度传感器
-    PressureSensor *m_pCHWPressureSensors[CHW_PRESSURE_SENSOR_NUM]; //冷冻总管压力传感器
-
-    BypassValve    *m_pBypassValve;  //旁通阀
-
-    Controller     *m_pController;
+    QVector<ModularAir*>     m_pModularAirs;      //组空
+    QVector<ModularChiller*> m_pModularChillers;  //机组
+    QVector<ChilledBump*>    m_pChilledBumps;     //冷冻泵
+    QVector<AxialFan*>       m_pAxialFans;        //畜牧风机
+    QVector<WindowFan*>      m_pWindowFans;       //小窗电机
+    QVector<ButterflyValve*> m_pButterflyValves;  //蝶阀
+    QVector<TempSensor*>     m_pCHWTempSensors;     //冷冻总管温度传感器
+    QVector<PressureSensor*> m_pCHWPressureSensors; //冷冻总管压力传感器
+    BypassValve    *m_pBypassValve;                 //旁通阀
+    Controller     *m_pController;                  //控制器
     Modbus         *pModbus;
 
-    void initController();
+    Monitor        *m_pSysModeCmdMonitor;      //系统模式监控；
 
+    void initController();
     static System* getInstance();
 
 private:
+    QTimer m_Timer;
     explicit System(QObject *parent = nullptr);
-
     static System *g_pSystem;
+
+signals:
+    void systemTimeChanged();
+    void sysModeCmdChanged();
+
+private slots:
+    void systemTimeOut();
+    void sysModeCmdChangedSlot(Monitor* pMonitor);
 };
 
 #endif // SYSTEM_H

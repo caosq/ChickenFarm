@@ -91,8 +91,6 @@ void MainForm::initButton()
     //设置通用按键图标
     ubutton::forefather()->setFatherPixmap(ubutton::press,UB_PRESS_PIX);
     ubutton::forefather()->setFatherPixmap(ubutton::release,UB_RELEASE_PIX);
-
-
 }
 
 
@@ -104,42 +102,53 @@ void MainForm::initForm()
     m_pSetting       = new Setting();
     m_pEvent         = new Event();
 */
-    ui->mainStackedWidget->addWidget(&m_pSystemMonitor);
-    ui->mainStackedWidget->addWidget(&m_pHome);
-
-    ui->mainStackedWidget->addWidget(&m_pCurve);
-    ui->mainStackedWidget->addWidget(&m_pSetting);
-    ui->mainStackedWidget->addWidget(&m_pEvent);
-    ui->mainStackedWidget->setCurrentWidget(&m_pHome);
+    ui->mainStackedWidget->addWidget(&m_SystemMonitor);
+    ui->mainStackedWidget->addWidget(&m_Home);
+    ui->mainStackedWidget->addWidget(&m_Curve);
+    ui->mainStackedWidget->addWidget(&m_Setting);
+    ui->mainStackedWidget->addWidget(&m_Event);
+    ui->mainStackedWidget->setCurrentWidget(&m_Home);
 
     ui->backButton->setEnabled(true);
     ui->paraButton->setEnabled(true);
     ui->curveButton->setEnabled(true);
     ui->eventButton->setEnabled(true);
     ui->systemButton->setEnabled(true);
+
+    connect(System::getInstance(), SIGNAL(systemTimeChanged()), this, SLOT(systemTimeChangedSlot()));
 }
+
+void MainForm::systemTimeChangedSlot()
+{
+    QDateTime datatime = QDateTime::currentDateTime();
+    QString str1 = datatime.toString("yyyy-MM-dd"); //设置显示格式
+    QString str2 = datatime.toString("hh:mm:ss");
+    ui->label_6->setText(str1);
+    ui->label_7->setText(str2);
+}
+
 
 void MainForm::on_systemButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(&m_pSystemMonitor);
+    ui->mainStackedWidget->setCurrentWidget(&m_SystemMonitor);
 }
 
 void MainForm::on_curveButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(&m_pCurve);
+    ui->mainStackedWidget->setCurrentWidget(&m_Curve);
 }
 
 void MainForm::on_paraButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(&m_pSetting);
+    ui->mainStackedWidget->setCurrentWidget(&m_Setting);
 }
 
 void MainForm::on_backButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(&m_pHome);
+    ui->mainStackedWidget->setCurrentWidget(&m_Home);
 }
 
 void MainForm::on_eventButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(&m_pEvent);
+    ui->mainStackedWidget->setCurrentWidget(&m_Event);
 }

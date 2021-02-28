@@ -54,6 +54,8 @@ public:
     ~ModularAirPage();
 
 private slots:
+    void sysModeCmdChangedSlot();
+    void paramSetBtnValChanged(int32_t val);
     void on_pushButton_clicked();
 
 private:

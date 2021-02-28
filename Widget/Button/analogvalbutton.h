@@ -95,6 +95,7 @@ public:
     //使能默认值标记
     void enableDefaultMarker(bool ok){enableValMarker = ok;}
 
+    int32_t getCurrentValue();
 
 protected:
     void paintEvent(QPaintEvent *e);
@@ -107,6 +108,7 @@ private:
 
 signals:
     void fontChange();
+    void valChanged(int32_t val);
 
 public slots:
     void setValue(int32_t val);
@@ -152,9 +154,6 @@ private:
     bool automaticAttack;
 
     int defVal;
-
-
-
 };
 
 #endif // ANALOGVALBUTTON_H

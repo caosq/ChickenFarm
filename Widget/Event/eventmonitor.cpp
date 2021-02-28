@@ -16,23 +16,31 @@ EventMonitor::EventMonitor(QString strDirPath, QObject *parent) :
 }
 
 void EventMonitor::registMonitorItem(void* pvVal, Monitor::DataType emDataType, QString strContext,
-                               QColor colorOccurred, QColor colorCompleted, int32_t iMaxVal, int32_t iMinVal)
+                                     int32_t iOccurredVal, QColor colorOccurred, QColor colorCompleted)
 {
-    sEventItem tempEvent = {strContext, colorOccurred, colorCompleted};
-
-    Monitor* pMonitor = DataMonitor::getInstance()->monitorRegist(pvVal, emDataType, iMaxVal, iMinVal);
+    sEventItem tempEvent = {strContext, colorOccurred, colorCompleted, iOccurredVal};
+    Monitor* pMonitor = DataMonitor::getInstance()->monitorRegist(pvVal, emDataType);
 
     if(pMonitor)
     {
-        connect(pMonitor, SIGNAL(valChanged(Monitor)), this, SLOT(valChangedSlot(Monitor)));
+        connect(pMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(valChangedSlot(Monitor*)));
     }
     if(m_eventItemMap.contains(pvVal))
     {
-        return;
+        if(m_eventItemMap[pvVal].contains(iOccurredVal))
+        {
+            return;
+        }
+        else
+        {
+            m_eventItemMap[pvVal].insert(iOccurredVal, tempEvent);
+        }
     }
     else
     {
-        m_eventItemMap.insert(pvVal, tempEvent);
+        QMap<int32_t, sEventItem> tempMap;
+        tempMap.insert(iOccurredVal, tempEvent);
+        m_eventItemMap.insert(pvVal, tempMap);
     }
 }
 
@@ -54,14 +62,17 @@ void EventMonitor::enableAutoWork(bool state)
     autoWork = state;
 }
 
-bool EventMonitor::setMonitorItemColor(void* pvVal, QColor onColor,QColor offColor)
+bool EventMonitor::setMonitorItemColor(void* pvVal, int32_t iOccurredVal, QColor onColor, QColor offColor)
 {
     if(m_eventItemMap.contains(pvVal))
     {
-        m_eventItemMap[pvVal].colorOccurred = onColor;
-        m_eventItemMap[pvVal].colorCompleted = offColor;
-
-        return true;
+        if(m_eventItemMap[pvVal].contains(iOccurredVal))
+        {
+            m_eventItemMap[pvVal][iOccurredVal].colorOccurred = onColor;
+            m_eventItemMap[pvVal][iOccurredVal].colorCompleted = offColor;
+            return true;
+        }
+        return false;
     }
     else
     {
@@ -69,9 +80,12 @@ bool EventMonitor::setMonitorItemColor(void* pvVal, QColor onColor,QColor offCol
     }
 }
 
-void EventMonitor::autoWrite(sEventItem mItem, Monitor* pMonitor)
+void EventMonitor::autoWrite(QMap<int32_t, sEventItem> mEventMap, Monitor* pMonitor)
 {
     QStringList list;
+
+    sEventItem mItem = mEventMap[pMonitor->getCurVal()];
+
     list.append(QString::number(pMonitor->getCurVal()));
     list.append(QDate::currentDate().toString("yyyy-MM-dd"));
     list.append(QTime::currentTime().toString("hh:mm:ss"));
@@ -85,10 +99,9 @@ void EventMonitor::writeData(QStringList list)
      m_pDataBase->writeData(list);
 }
 
-
-void EventMonitor::emitEvent(sEventItem mItem, Monitor* pMonitor)
+void EventMonitor::emitEvent(QMap<int32_t, sEventItem> mEventMap, Monitor* pMonitor)
 {
-    if(mItem.strContext == "" )
+/*    if(mItem.strContext == "" )
     {
         if(pMonitor->getCurVal() != 0)
         {
@@ -102,6 +115,7 @@ void EventMonitor::emitEvent(sEventItem mItem, Monitor* pMonitor)
             emit eventComing(mItem, pMonitor);
         }
     }
+*/
 }
 
 void EventMonitor::valChangedSlot(Monitor* pMonitor)
@@ -112,15 +126,19 @@ void EventMonitor::valChangedSlot(Monitor* pMonitor)
     }
     else
     {
-        sEventItem mItem = m_eventItemMap[pMonitor->getCurValAddr()];
-
+        if(!m_eventItemMap[pMonitor->getCurValAddr()].contains(pMonitor->getCurVal()))
+        {
+            return;
+        }
+        QMap<int32_t, sEventItem> mEventMap = m_eventItemMap[pMonitor->getCurValAddr()];
         if(autoWork)
         {
-            autoWrite(mItem, pMonitor);
+            autoWrite(mEventMap, pMonitor);
         }
         else
         {
-            emitEvent(mItem, pMonitor);
+            //emitEvent(mEventMap, pMonitor);
+            emit eventComing(mEventMap, pMonitor);
         }
 
     }

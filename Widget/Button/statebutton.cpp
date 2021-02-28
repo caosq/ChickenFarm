@@ -21,6 +21,7 @@ StateButton::StateButton(QWidget *parent) :
     automaticAttack = true;
     m_DefaultState = State0;
     m_CurrentState = State0;
+    m_CurrentValue = 0;
 
 //    StateStyle strTextuct0 = {pixmap0, "", QColor(activeColor_COLOR), QColor(INactiveColor_COLOR), 0};
 
@@ -97,13 +98,13 @@ void StateButton::setPixmap(ButtonState state, QPixmap *pixmap)
 void StateButton::setStateActiveTextColor(ButtonState state, QColor color)
 {
      m_StateStyleVector[state].activeColor = color;
-    update();
+     update();
 }
 
 void StateButton::setStateInactiveTextColor(ButtonState state, QColor color)
 {
      m_StateStyleVector[state].inactiveColor = color;
-    update();
+     update();
 }
 
 void StateButton::setFatherFontSize(int size)
@@ -154,6 +155,11 @@ void StateButton::setFatherPixmap(ButtonState state, QString filePath)
     }
 }
 
+int32_t StateButton::getCurrentValue()
+{
+    return m_CurrentValue;
+}
+
 void StateButton::setValue(Monitor* pMonitor)
 {
     int32_t val = pMonitor->getCurVal();
@@ -161,9 +167,11 @@ void StateButton::setValue(Monitor* pMonitor)
     if(Error != state)
     {
         m_CurrentState = state;
+        m_CurrentValue = val;
         defValState = (m_DefaultState == state) ? true:false;
     }
     update();
+    emit valChanged(val);
 }
 
 void StateButton::setValue(int32_t val)
@@ -172,14 +180,15 @@ void StateButton::setValue(int32_t val)
     if(Error != state)
     {
         m_CurrentState = state;
+        m_CurrentValue = val;
         defValState = (m_DefaultState == state) ? true:false;
     }
-
     if(m_pMonitor)
     {
         m_pMonitor->setValue(val);
     }
     update();
+    emit valChanged(val);
 }
 
 void StateButton::setTextSize(int size)

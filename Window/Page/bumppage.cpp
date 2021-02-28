@@ -33,8 +33,6 @@
 #define DATA_LABEL_INTERVAL_H_2   300
 #define DATA_LABEL_INTERVAL_V_2   40
 
-#define BUMP_NUM   3
-
 BumpPage::BumpPage(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::BumpPage)
@@ -56,18 +54,14 @@ void BumpPage::initDevice()
     ChilledBump* pChilledBump = nullptr;
     System   *pSystem = System::getInstance();
 
-    if(pSystem == nullptr)
-    {
-        return;
-    }
-
-    for(uint8_t n = 0, x = 0, y = 0; n < BUMP_NUM; n++)
+    if(pSystem == nullptr){return;}
+    for(uint8_t n = 0, x = 0, y = 0; n < CHILLED_BUMP_NUM; n++)
     {
         x = n / 2;
         y = n % 2;
 
         pChilledBump = new ChilledBump();
-        pSystem->m_pChilledBumps[n] = pChilledBump;
+        pSystem->m_pChilledBumps.append(pChilledBump);
         m_ChilledBumps.append(pChilledBump);
         ui->gridLayout->addWidget(pChilledBump, x, y );
     }
@@ -170,5 +164,52 @@ void BumpPage::initButton()
         m_Widgets_2[i]->setGeometry(DATA_LABEL_LEFT_MARGIN_2 + n * DATA_LABEL_INTERVAL_H_2,
                                   DATA_LABEL_UP_MARGIN_2 + m * DATA_LABEL_INTERVAL_V_2,
                                   DATA_LABEL_SIZE);
+    }
+    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pFreqSetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(System::getInstance(), SIGNAL(sysModeCmdChanged()), this, SLOT(sysModeCmdChangedSlot()));
+    sysModeCmdChangedSlot();
+}
+
+void BumpPage::paramSetBtnValChanged(int32_t val)
+{
+    System *pSystem = System::getInstance();
+    ChilledBump* pChilledBump = nullptr;
+
+    if(pSystem == nullptr){return;}
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    {
+        for(uint8_t i = 0; i < m_ChilledBumps.count(); i++)
+        {
+             pChilledBump = m_ChilledBumps[i];
+             pChilledBump->m_eSwitchCmd = ChilledBump::SwitchCmd(m_pSwitchCmdBtn->getCurrentValue());
+             pChilledBump->m_usFreqSet = uint16_t(m_pFreqSetBtn->getCurrentValue());
+        }
+    }
+}
+
+void BumpPage::sysModeCmdChangedSlot()
+{
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    {
+        m_pSwitchCmdBtn->setEnabled(true);
+        m_pFreqSetBtn->setEnabled(true);
+        for(uint8_t n = 0; n < CHILLED_BUMP_NUM; n++)
+        {
+            m_ChilledBumps[n]->m_pSwitchCmdBtn->setEnabled(true);
+            m_ChilledBumps[n]->m_pFreqSetBtn->setEnabled(true);
+        }
+    }
+    else
+    {
+        m_pSwitchCmdBtn->setEnabled(false);
+        m_pFreqSetBtn->setEnabled(false);
+        for(uint8_t n = 0; n < CHILLED_BUMP_NUM; n++)
+        {
+            m_ChilledBumps[n]->m_pSwitchCmdBtn->setEnabled(false);
+            m_ChilledBumps[n]->m_pFreqSetBtn->setEnabled(false);
+        }
     }
 }

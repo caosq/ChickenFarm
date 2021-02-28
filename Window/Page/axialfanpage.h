@@ -40,6 +40,10 @@ public:
     explicit AxialFanPage(QWidget *parent = nullptr);
     ~AxialFanPage();
 
+private slots:
+    void sysModeCmdChangedSlot();
+    void paramSetBtnValChanged(int32_t val);
+
 private:
     Ui::AxialFanPage *ui;
 };

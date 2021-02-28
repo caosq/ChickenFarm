@@ -195,10 +195,62 @@ void AnalogValButton::setFatherPixmap(STATE state, QString filePath)
     }
     m_strUnit = strUnit;
 }*/
+
+int32_t AnalogValButton::getCurrentValue()
+{
+    return m_iCurrentVal;
+}
+
 void AnalogValButton::setValue(Monitor* pMonitor)
 {
     int32_t val = pMonitor->getCurVal();
-    setValue(val);
+    switch(m_eDataType)
+    {
+    case Monitor::Uint8t:
+    case Monitor::Uint16t:
+    case Monitor::Uint32t:
+    {
+        int32_t tempval = static_cast<int32_t>(defVal);
+        m_iCurrentVal = static_cast<int32_t>(val);
+
+        defValState = (tempval == val) ? true:false;
+        m_strCurrentText = QString::number( val/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
+    }
+        break;
+    case Monitor::Int8t:
+    {
+        int8_t tempval = static_cast<int8_t>(val);
+        m_iCurrentVal = static_cast<int32_t>(val);
+
+        defValState = (defVal == tempval) ? true:false;
+        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
+    }
+        break;
+    case Monitor::Int16t:
+    {
+        int16_t tempval = static_cast<int16_t>(val);
+        m_iCurrentVal = static_cast<int32_t>(val);
+        defValState = (defVal == tempval) ? true:false;
+
+        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
+    }
+        break;
+    case Monitor::Int32t:
+    {
+        int32_t tempval = static_cast<int32_t>(val);
+        m_iCurrentVal = static_cast<int32_t>(val);
+
+        defValState = (defVal == tempval) ? true:false;
+        m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
+    }
+        break;
+    default:
+        break;
+    }
+    setText(m_strCurrentText);
+    update();
+
+    emit valChanged(val);
 }
 
 void AnalogValButton::setValue(int32_t val)
@@ -252,6 +304,8 @@ void AnalogValButton::setValue(int32_t val)
     }
     setText(m_strCurrentText);
     update();
+
+    emit valChanged(val);
 }
 
 void AnalogValButton::setMaxValue(Monitor* pMonitor)

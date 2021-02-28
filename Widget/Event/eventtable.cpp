@@ -1,6 +1,6 @@
 #include "eventtable.h"
 
-#define DEF_TEXT_SIZE 20
+#define DEF_TEXT_SIZE 14
 
 EventTable::EventTable(int column, QWidget *parent) :
     QTableWidget(parent)
@@ -189,13 +189,13 @@ void EventTable::showEvent(QShowEvent *e)
 void EventTable::insertRow(QStringList list, QColor color)
 {
     QTableWidget::insertRow(0);
-
     QTableWidgetItem *item;
 
     int size = qMin(list.size(),columnCount());
-    for(int i = 0; i < size; i++){
+    for(int i = 0; i < size; i++)
+    {
         item = new QTableWidgetItem(list.at(i),i);
-        item->setTextAlignment(Qt::AlignCenter);
+        item->setTextAlignment(Qt::AlignLeft);
         item->setTextColor(color);
         item->setFont(_tFont);
         setItem(0,i,item);

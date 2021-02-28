@@ -34,7 +34,7 @@ public:
 
     static uint8_t  m_usButterflyValveCount;   //蝶阀数量
 
-private:
+public:
     QVector<TextLabel*> m_Labels;
     QVector<QWidget*>   m_Widgets;
 

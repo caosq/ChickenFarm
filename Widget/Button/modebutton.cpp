@@ -291,16 +291,20 @@ void ModeButton::hideMenu()
     _menu->hide();
 }
 
+int32_t ModeButton::getCurrentValue()
+{
+    return currentValue;
+}
+
 void ModeButton::setValue(Monitor* pMonitor)
 {
     int32_t val = pMonitor->getCurVal();
-
     int intval = int32_t(val);
     currentValue = intval;
     currentText = _menu->currentText(intval);
     defValState = (defVal == intval) ? true:false;
-
     update();
+    emit valChanged(val);
 }
 
 void ModeButton::setValue(int32_t val)
@@ -315,13 +319,15 @@ void ModeButton::setValue(int32_t val)
         m_pMonitor->setValue(val);
     }
     update();
+    emit valChanged(val);
 }
 
 void ModeButton::setDefaultValue(int defValue)
 {
     defVal = defValue;
+    currentValue = defValue;
     defValState = (defVal == currentValue) ? true:false;
-
+    setText(_menu->currentText(currentValue));
     update();
 }
 

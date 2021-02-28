@@ -32,6 +32,7 @@ void Monitor::setValType(DataType emDataType)
 
 void Monitor::setValue(int32_t iVal)
 {
+    bool     xValue = 0;
     uint8_t  ucValue = 0;
     uint16_t usValue = 0;
     uint32_t uiValue  = 0;
@@ -42,12 +43,6 @@ void Monitor::setValue(int32_t iVal)
 
     if(m_pvVal != nullptr && iVal <= m_iMaxVal && iVal >= m_iMinVal)
     {
-        if(m_DataType == Boolean)
-        {
-            ucValue = uint8_t(iVal);
-            m_iDataVal = int32_t(ucValue);
-            *static_cast<uint8_t*>(m_pvVal) = ucValue;
-        }
         if(m_DataType == Uint8t)
         {
             ucValue = uint8_t(iVal);
@@ -84,6 +79,13 @@ void Monitor::setValue(int32_t iVal)
             m_iDataVal = int32_t(uiValue);
             *static_cast<uint32_t*>(m_pvVal) = uiValue;
         }
+        else if(m_DataType == Boolean)
+        {
+            xValue = bool(iVal);
+            m_iDataVal = int32_t(xValue);
+            *static_cast<bool*>(m_pvVal) = xValue;
+        }
+        emit valChanged(this);
     }
 }
 
@@ -120,6 +122,7 @@ DataMonitor* DataMonitor::getInstance()
 
 void* DataMonitor::monitorPollTask(void *pvArg)
 {
+    bool     xValue;
     uint8_t  ucValue = 0;
     uint16_t usValue = 0;
 
@@ -135,17 +138,21 @@ void* DataMonitor::monitorPollTask(void *pvArg)
     QMap<uint16_t, Monitor*>* pMonitorMap = static_cast< QMap<uint16_t, Monitor*> *>(pvArg);
 
     Monitor*      pMonitor = nullptr;
-    pthread_mutex_t *mutex = &System::getInstance()->pModbus->getMBMasterInfo()->sMBPort.mutex;
-
+    pthread_mutex_t *mutex = nullptr;
 
     while(1)
     {
         usleep(10000);
-        pthread_mutex_lock(mutex);
+        //if((mutex = &System::getInstance()->pModbus->getMBMasterInfo()->sMBPort.mutex) == nullptr)
+        //{
+        //    continue;
+        //}
+        //pthread_mutex_lock(mutex);
 
         for(it=pMonitorMap->begin(); it!=pMonitorMap->end(); ++it)
         {
             pMonitor = it.value();
+            if(pMonitor == nullptr){continue;}
             if(pMonitor->m_DataType == Monitor::Uint8t)
             {
                 ucValue = *static_cast<uint8_t*>(pMonitor->m_pvVal);
@@ -176,6 +183,11 @@ void* DataMonitor::monitorPollTask(void *pvArg)
                 iValue = *static_cast<int32_t*>(pMonitor->m_pvVal);
                 iDataVal = int32_t(iValue);
             }
+            else if(pMonitor->m_DataType == Monitor::Boolean)
+            {
+                xValue = *static_cast<bool*>(pMonitor->m_pvVal);
+                iDataVal = int32_t(xValue);
+            }
 
             if(pMonitor->m_iDataVal != iDataVal)
             {
@@ -185,13 +197,13 @@ void* DataMonitor::monitorPollTask(void *pvArg)
                 qDebug("pMonitor->valChanged %d", iDataVal);
             }
         }
-        pthread_mutex_unlock(mutex);//解锁
-
+        //pthread_mutex_unlock(mutex);//解锁
     }
 }
 
 Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, int32_t iMaxVal, int32_t iMinVal)
 {
+    bool     xValue;
     uint8_t  ucValue;
     uint16_t usValue;
 
@@ -287,8 +299,8 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
     }
     else if(eDataType == Monitor::Boolean)
     {
-        ucValue = *static_cast<uint8_t*>(pvVal);
-        pMonitor->m_iDataVal = int32_t(ucValue);
+        xValue = *static_cast<bool*>(pvVal);
+        pMonitor->m_iDataVal = int32_t(xValue);
     }
     return pMonitor;
 }

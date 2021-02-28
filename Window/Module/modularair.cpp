@@ -1,6 +1,6 @@
 #include "modularair.h"
 #include "ui_modularair.h"
-
+#include "system.h"
 
 #define LABEL_COLUMNS  2
 #define LABEL_ROWS     14
@@ -21,7 +21,6 @@
 #define DATA_LABEL_INTERVAL_V   35
 
 uint8_t ModularAir::m_usModularAirCount = 0;
-
 
 ModularAir::ModularAir(QWidget *parent) :
     Device(parent),
@@ -44,7 +43,6 @@ ModularAir::~ModularAir()
 void ModularAir::initLabel()
 {
     TextLabel *pLabel = nullptr;
-
     for(uint8_t m = 0; m < LABEL_COLUMNS; m++)
     {
         for(uint8_t n = 0; n < LABEL_ROWS; n++)

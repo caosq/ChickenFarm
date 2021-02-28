@@ -17,8 +17,8 @@ class ChilledBump;
 class ChilledBump : public Device
 {
     Q_OBJECT
-public:
 
+public:
     typedef enum
     {
         CMD_CLOSE = 0,
@@ -38,7 +38,7 @@ public:
 
     static uint8_t  m_usChilledBumpCount;   //水泵数量
 
-private:
+public:
     QVector<TextLabel*> m_Labels;
     QVector<QWidget*>   m_Widgets;
 

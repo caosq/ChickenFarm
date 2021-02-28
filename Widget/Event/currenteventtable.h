@@ -12,21 +12,27 @@
 class CurrentEventTable : public EventTable
 {
     Q_OBJECT
+
 public:
+
+    typedef struct
+    {
+        int32_t iEventNum;
+        QStringList strItemData;
+    }sEventItemData;
+
     //当前事件记录
     explicit CurrentEventTable(int column = 0,QString saveDir = "",
                                QWidget *parent = nullptr);
 
     //绑定要监视的数据地址以及相应要显示的文字
-    void registMonitorItem(void* pvVal, Monitor::DataType emDataType, QString strContext,
-                        QColor colorOccurred = QColor(Qt::red), QColor colorCompleted = QColor("#0bd80b"),
-                        int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
+    void registMonitorItem(void* pvVal, Monitor::DataType emDataType, QString strContext, int32_t iOccurredVal,
+                           QColor colorOccurred = QColor(Qt::red), QColor colorCompleted = QColor("#0bd80b") );
     //移除监视地址
     void removeMonitorItem(void* pvVal);
 
     //设置某个绑定的数据地址产生事件时文字的颜色
-    //onColor决定状态1颜色，offColor决定状态0颜色
-    bool setMonitorItemColor(void* pvVal, QColor onColor,QColor offColor);
+    bool setMonitorItemColor(void* pvVal, int32_t iOccurredVal, QColor onColor,QColor offColor);
 
     //设置保存的文件中第一行的抬头信息
     void setSaveFileTitle(QStringList title);
@@ -51,15 +57,15 @@ public:
     EventMonitor *dataHandle(){return m_pEventMonitor;}
 
     //插入事件记录
-    void insertEvent(void* pvVal, QString str, QColor color);
+    void insertEvent(EventMonitor::sEventItem mItem, Monitor* pMonitor);
     //恢复事件记录
-    void furbishEvent(void* pvVal, QString str, QColor color);
+    void furbishEvent(EventMonitor::sEventItem mItem, Monitor* pMonitor);
 
 private:
     void checkMaxVisibleItem(void* pvVal);
 
 private slots:
-    void addEvent(sEventItem mItem, Monitor* pMonitor);
+    void eventComingSlot(QMap<int32_t, EventMonitor::sEventItem> mEventMap, Monitor* pMonitor);
     void clearTableSlot();
 
 private:
@@ -72,8 +78,9 @@ private:
     QMap<void*,int>   eventMap;
     QMap<int,void*>   addrMap;
 
-    uint32_t m_ucRowIndex = 0;
+    QMap<void*, sEventItemData> m_eventItemMap;
 
+    uint32_t m_ucRowIndex = 0;
 };
 
 #endif // CurrentEventTable_H

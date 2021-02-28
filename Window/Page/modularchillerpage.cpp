@@ -13,7 +13,7 @@
 #define LABEL_FONT_SIZE  14
 
 #define LABEL_UP_MARGIN_1     30
-#define LABEL_LEFT_MARGIN_1   35
+#define LABEL_LEFT_MARGIN_1   25
 #define LABEL_INTERVAL_H_1    300
 #define LABEL_INTERVAL_V_1    40
 
@@ -25,7 +25,7 @@
 #define DATA_LABEL_SIZE  110, 28
 
 #define DATA_LABEL_UP_MARGIN_1    30
-#define DATA_LABEL_LEFT_MARGIN_1  130
+#define DATA_LABEL_LEFT_MARGIN_1  155
 #define DATA_LABEL_INTERVAL_H_1   300
 #define DATA_LABEL_INTERVAL_V_1   40
 
@@ -33,9 +33,6 @@
 #define DATA_LABEL_LEFT_MARGIN_2  150
 #define DATA_LABEL_INTERVAL_H_2   300
 #define DATA_LABEL_INTERVAL_V_2   38
-
-#define MODULAR_CHILLER_NUM   2
-
 
 ModularChillerPage::ModularChillerPage(QWidget *parent) :
     QWidget(parent),
@@ -55,30 +52,24 @@ ModularChillerPage::~ModularChillerPage()
 
 void ModularChillerPage::initDevice()
 {
-    ModularChiller* pModularChiller = nullptr;
     System   *pSystem = System::getInstance();
+    ModularChiller* pModularChiller = nullptr;
 
-    if(pSystem == nullptr)
-    {
-        return;
-    }
+    if(pSystem == nullptr){return;}
     for(uint8_t n = 0; n < MODULAR_CHILLER_NUM; n++)
     {
-     //   pModularChiller = new ModularChiller();
-        pSystem->m_pModularChillers[n] =  &m_ModularChillers[n];
+        pModularChiller = new ModularChiller();
 
-       // m_ModularChillers.append(pModularChiller);
-        ui->modularChillerStackedWidget->addWidget(&m_ModularChillers[n]);
+        //pSystem->m_pModularChillers.append(&m_ModularChillers[n]);
 
-        //pModularChiller->setGeometry(296, 20, 611, 545);
+        pSystem->m_pModularChillers.append(pModularChiller);
+        m_ModularChillers.append(pModularChiller);
+
+        //ui->modularChillerStackedWidget->addWidget(&m_ModularChillers[n]);
+        ui->modularChillerStackedWidget->addWidget(pModularChiller);
     }
-    //ui->modularChillerStackedWidget->setCurrentWidget(&m_ModularChillers[0]);
-
-    // ui->modularChillerStackedWidget->addWidget(&m_ModularChillers[0]);
-
-    m_ModularChillers[0].setParent(ui->modularChillerStackedWidget);
-    m_ModularChillers[1].setParent(ui->modularChillerStackedWidget);
-
+    //m_ModularChillers[0].setParent(ui->modularChillerStackedWidget);
+    //m_ModularChillers[1].setParent(ui->modularChillerStackedWidget);
 }
 
 void ModularChillerPage::initLabel()
@@ -98,9 +89,10 @@ void ModularChillerPage::initLabel()
     }
     m_Labels_1[0]->setText(tr("启停命令"), LABEL_FONT_SIZE);
     m_Labels_1[1]->setText(tr("工作模式"), LABEL_FONT_SIZE);
-   // m_Labels_1[2]->setText(tr("目标温度"), LABEL_FONT_SIZE);
-   // m_Labels_1[3]->setText(tr("目标湿度"), LABEL_FONT_SIZE);
-   // m_Labels_1[4]->setText(tr("目标CO2"), LABEL_FONT_SIZE);
+    m_Labels_1[2]->setText(tr("制冷进水温度"), LABEL_FONT_SIZE);
+    m_Labels_1[3]->setText(tr("制冷出水温度"), LABEL_FONT_SIZE);
+    m_Labels_1[4]->setText(tr("制热进水温度"), LABEL_FONT_SIZE);
+    m_Labels_1[5]->setText(tr("制热出水温度"), LABEL_FONT_SIZE);
 
     for(uint8_t n = 0; n < LABEL_ROWS_2; n++)
     {
@@ -132,24 +124,28 @@ void ModularChillerPage::initButton()
     m_pRunningModeCmdBtn->setItem(1,tr("制冷"));
     m_pRunningModeCmdBtn->setItem(2,tr("制热"));
     m_pRunningModeCmdBtn->setItem(3,tr("手动化霜"));
-    m_pRunningModeCmdBtn->setDefaultValue(0);
+    m_pRunningModeCmdBtn->setDefaultValue(1);
     m_Widgets_1.append(m_pRunningModeCmdBtn);
 
-/*    //目标温度设定
-    m_pTempSetBtn = new AnalogValButton(ui->frame);
-    m_pTempSetBtn->setDataParameter("℃", 1, 500, 0, 0, Monitor::Uint16t);
-    m_Widgets_1.append(m_pTempSetBtn);
+    //机组制冷进水温度设定值
+    m_pChillerCoolInTemp = new AnalogValButton(ui->frame);
+    m_pChillerCoolInTemp->setDataParameter("℃", 1, 120, 250, 100, Monitor::Uint16t);
+    m_Widgets_1.append(m_pChillerCoolInTemp);
 
-    //目标湿度设定
-    m_pHumiSetBtn = new AnalogValButton(ui->frame);
-    m_pHumiSetBtn->setDataParameter("%", 1, 0, 0, 0, Monitor::Uint16t);
-    m_Widgets_1.append(m_pHumiSetBtn);
+    //机组制冷出水温度设定值
+    m_pChillerCoolOutTemp = new AnalogValButton(ui->frame);
+    m_pChillerCoolOutTemp->setDataParameter("℃", 1, 70, 200, 50, Monitor::Uint16t);
+    m_Widgets_1.append(m_pChillerCoolOutTemp);
 
-    //目标CO2设定
-    m_pCO2SetBtn = new AnalogValButton(ui->frame);
-    m_pCO2SetBtn->setDataParameter("ppm", 0, 0, 0, 0, Monitor::Uint16t);
-    m_Widgets_1.append(m_pCO2SetBtn);
-*/
+    //机组制热进水温度设定值
+    m_pChillerHeatInTemp = new AnalogValButton(ui->frame);
+    m_pChillerHeatInTemp->setDataParameter("℃", 1, 450, 450, 300, Monitor::Uint16t);
+    m_Widgets_1.append(m_pChillerHeatInTemp);
+
+    //机组制热出水温度设定值
+    m_pChillerHeatOutTemp = new AnalogValButton(ui->frame);
+    m_pChillerHeatOutTemp->setDataParameter("℃", 1, 500, 500, 350, Monitor::Uint16t);
+    m_Widgets_1.append(m_pChillerHeatOutTemp);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets_1.count(); i++)
     {
@@ -166,7 +162,7 @@ void ModularChillerPage::initButton()
     m_pPowerLabel->setMonitorData(&m_sMeter.m_usPower, Monitor::Uint16t);
     m_Widgets_2.append(m_pPowerLabel);
 
-    qDebug("m_pPowerLabel %d %s", m_sMeter.m_usPower, m_pPowerLabel->text().toUtf8().data());
+    //qDebug("m_pPowerLabel %d %s", m_sMeter.m_usPower, m_pPowerLabel->text().toUtf8().data());
 
     //累计耗电量
     m_pTotalEnergyLabel = new DataLabel(ui->frame_1, DataLabel::Data);
@@ -190,41 +186,93 @@ void ModularChillerPage::initButton()
                                   DATA_LABEL_UP_MARGIN_2 + m * DATA_LABEL_INTERVAL_V_2,
                                   DATA_LABEL_SIZE);
     }
+    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pRunningModeCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pChillerCoolInTemp, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pChillerCoolOutTemp, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pChillerHeatInTemp, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pChillerHeatOutTemp, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+
+    connect(System::getInstance(), SIGNAL(sysModeCmdChanged()), this, SLOT(sysModeCmdChangedSlot()));
+    sysModeCmdChangedSlot();
 }
 
 void ModularChillerPage::on_pushButton_clicked()
 {
-    if(ui->modularChillerStackedWidget->currentWidget() == &m_ModularChillers[0])
+    if(ui->modularChillerStackedWidget->currentWidget() == m_ModularChillers[0])
     {
-        ui->modularChillerStackedWidget->setCurrentWidget(&m_ModularChillers[1]);
+        ui->modularChillerStackedWidget->setCurrentWidget(m_ModularChillers[1]);
         ui->pushButton->setText("上一页");
 
     }
-    else if(ui->modularChillerStackedWidget->currentWidget() == &m_ModularChillers[1])
+    else if(ui->modularChillerStackedWidget->currentWidget() == m_ModularChillers[1])
     {
-        ui->modularChillerStackedWidget->setCurrentWidget(&m_ModularChillers[0]);
+        ui->modularChillerStackedWidget->setCurrentWidget(m_ModularChillers[0]);
         ui->pushButton->setText("下一页");
     }
    // qDebug("currentIndex %d", ui->modularChillerStackedWidget->currentIndex());
+}
 
- /*   if(m_usCurrentIndex == 0)
+void ModularChillerPage::paramSetBtnValChanged(int32_t val)
+{
+    System *pSystem = System::getInstance();
+    ModularChiller* pModularChiller = nullptr;
+    if(pSystem == nullptr){return;}
+
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
     {
-        m_usCurrentIndex = 1;
-//        m_ModularChillers[0]->hide();
-//        m_ModularChillers[1]->show();
-        ui->pushButton->setText("上一页");
-
-        ui->modularChillerStackedWidget->setCurrentIndex(1);
+        for(uint8_t i = 0; i < MODULAR_CHILLER_NUM; i++)
+        {
+             pModularChiller = m_ModularChillers[i];
+             pModularChiller->m_eSwitchCmd = ModularChiller::SwitchCmd(m_pSwitchCmdBtn->getCurrentValue());
+             pModularChiller->m_eRunningModeCmd = ModularChiller::RunningMode(m_pRunningModeCmdBtn->getCurrentValue());
+             pModularChiller->m_usChillerCoolInTemp = uint16_t(m_pChillerCoolInTemp->getCurrentValue());
+             pModularChiller->m_usChillerCoolOutTemp = uint16_t(m_pChillerCoolOutTemp->getCurrentValue());
+             pModularChiller->m_usChillerHeatInTemp = uint16_t(m_pChillerHeatInTemp->getCurrentValue());
+             pModularChiller->m_usChillerHeatOutTemp = uint16_t(m_pChillerHeatOutTemp->getCurrentValue());
+        }
     }
-    else if(m_usCurrentIndex == 1)
+}
+
+void ModularChillerPage::sysModeCmdChangedSlot()
+{
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
     {
-        m_usCurrentIndex = 0;
-//        m_ModularChillers[0]->show();
-//        m_ModularChillers[1]->hide();
-        ui->pushButton->setText("下一页");
+        m_pSwitchCmdBtn->setEnabled(true);
+        m_pRunningModeCmdBtn->setEnabled(true);
+        m_pChillerCoolInTemp->setEnabled(true);
+        m_pChillerCoolOutTemp->setEnabled(true);
+        m_pChillerHeatInTemp->setEnabled(true);
+        m_pChillerHeatOutTemp->setEnabled(true);
 
-        ui->modularChillerStackedWidget->setCurrentIndex(0);
+        for(uint8_t n = 0; n < MODULAR_CHILLER_NUM; n++)
+        {
+            m_ModularChillers[n]->m_pSwitchCmdBtn->setEnabled(true);
+            m_ModularChillers[n]->m_pRunningModeCmdBtn->setEnabled(true);
+            m_ModularChillers[n]->m_pChillerCoolInTempBtn->setEnabled(true);
+            m_ModularChillers[n]->m_pChillerCoolOutTempBtn->setEnabled(true);
+            m_ModularChillers[n]->m_pChillerHeatInTempBtn->setEnabled(true);
+            m_ModularChillers[n]->m_pChillerHeatOutTempBtn->setEnabled(true);
+        }
     }
-*/
-
+    else
+    {
+        m_pSwitchCmdBtn->setEnabled(false);
+        m_pRunningModeCmdBtn->setEnabled(false);
+        m_pChillerCoolInTemp->setEnabled(false);
+        m_pChillerCoolOutTemp->setEnabled(false);
+        m_pChillerHeatInTemp->setEnabled(false);
+        m_pChillerHeatOutTemp->setEnabled(false);
+        for(uint8_t n = 0; n < MODULAR_CHILLER_NUM; n++)
+        {
+            m_ModularChillers[n]->m_pSwitchCmdBtn->setEnabled(false);
+            m_ModularChillers[n]->m_pRunningModeCmdBtn->setEnabled(false);
+            m_ModularChillers[n]->m_pChillerCoolInTempBtn->setEnabled(false);
+            m_ModularChillers[n]->m_pChillerCoolOutTempBtn->setEnabled(false);
+            m_ModularChillers[n]->m_pChillerHeatInTempBtn->setEnabled(false);
+            m_ModularChillers[n]->m_pChillerHeatOutTempBtn->setEnabled(false);
+        }
+    }
 }

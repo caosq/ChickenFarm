@@ -38,7 +38,7 @@ public:
 
     static uint8_t  m_usAxialFanCount;   //风机数量
 
-private:
+public:
     QVector<TextLabel*> m_Labels;
     QVector<QWidget*>   m_Widgets;
 
@@ -58,6 +58,8 @@ private:
 public:
     explicit AxialFan(QWidget *parent = nullptr);
     ~AxialFan();
+
+
 
 private:
     Ui::AxialFan *ui;

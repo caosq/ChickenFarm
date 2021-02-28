@@ -19,9 +19,9 @@
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>80</y>
-     <width>265</width>
+     <width>270</width>
      <height>251</height>
     </rect>
    </property>
@@ -41,9 +41,9 @@ border-image: url(:/UI/Widget/System_Bump_1.png);}
   <widget class="QFrame" name="frame_1">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>400</y>
-     <width>273</width>
+     <width>261</width>
      <height>193</height>
     </rect>
    </property>

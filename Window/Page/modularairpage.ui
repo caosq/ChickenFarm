@@ -434,7 +434,7 @@ background:transparent;</string>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>24</x>
+     <x>35</x>
      <y>60</y>
      <width>153</width>
      <height>25</height>

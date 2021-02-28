@@ -70,7 +70,7 @@ void ButterflyValve::initButton()
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
-    m_pSwitchCmdBtn->setMonitorData(&m_eSwitchCmd, Monitor::Uint16t);
+    m_pSwitchCmdBtn->setMonitorData(&m_eSwitchCmd, Monitor::Boolean);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //远程/本地
@@ -114,3 +114,4 @@ void ButterflyValve::initButton()
                                   DATA_LABEL_SIZE);
     }
 }
+

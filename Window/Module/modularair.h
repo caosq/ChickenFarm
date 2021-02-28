@@ -30,14 +30,6 @@ public:
         CMD_CLOSE = 0x0055,
     }SwitchCmd;
 
-    typedef enum   /*系统模式*/
-    {
-        MODE_CLOSE     = 0,     //关闭模式
-        MODE_MANUAL    = 1,     //手动模式
-        MODE_AUTO      = 2,     //自动模式
-        MODE_EMERGENCY = 3,     //紧急送风模式
-    }SystemMode;
-
     typedef enum   /*运行模式*/
     {
         RUN_MODE_COOL         = 0,      //供冷
@@ -105,16 +97,15 @@ public:
     bool          m_xExitAirSenErr = 0;           //排风风速传感器故障
     bool          m_xFreAirSenErr = 0;            //新风风速传感器故障
 
-    Meter         m_sMeter;                   //电表
+    Meter         m_sMeter;                       //电表
 
-    TempHumiSensor *m_pTempHumiInSensors[TEMP_HUMI_IN_SENSOR_NUM];   //室内温湿度传感器
-    TempHumiSensor *m_pTempHumiOutSensor;                            //室外温湿度传感器
-    CO2Sensor      *m_pCO2Sensors[CO2_SENSOR_NUM];                   //CO2传感器
+    QVector<CO2Sensor*>      m_pCO2Sensors;        //CO2传感器
+    QVector<TempHumiSensor*> m_pTempHumiInSensors; //室内温湿度传感器
+    TempHumiSensor *m_pTempHumiOutSensor;          //室外温湿度传感器
 
     static uint8_t  m_usModularAirCount;      //组合柜数量
 
-private:
-
+public:
     QVector<TextLabel*> m_Labels;
     QVector<QWidget*>   m_Widgets;
 

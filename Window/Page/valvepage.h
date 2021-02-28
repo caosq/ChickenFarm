@@ -32,6 +32,10 @@ public:
     explicit ValvePage(QWidget *parent = nullptr);
     ~ValvePage();
 
+private slots:
+    void sysModeCmdChangedSlot();
+    void paramSetBtnValChanged(int32_t val);
+
 private:
     Ui::ValvePage *ui;
 };

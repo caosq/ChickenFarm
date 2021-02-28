@@ -16,7 +16,7 @@
   <widget class="QWidget" name="gridLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>16</x>
+     <x>300</x>
      <y>40</y>
      <width>609</width>
      <height>561</height>
@@ -27,8 +27,8 @@
   <widget class="QFrame" name="frame_1">
    <property name="geometry">
     <rect>
-     <x>640</x>
-     <y>400</y>
+     <x>20</x>
+     <y>330</y>
      <width>265</width>
      <height>193</height>
     </rect>
@@ -46,10 +46,10 @@
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>640</x>
-     <y>64</y>
+     <x>20</x>
+     <y>70</y>
      <width>265</width>
-     <height>249</height>
+     <height>231</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -68,7 +68,7 @@ border-image: url(:/UI/Widget/System_Bump_1.png);}
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>648</x>
+     <x>40</x>
      <y>40</y>
      <width>153</width>
      <height>25</height>

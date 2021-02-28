@@ -49,6 +49,10 @@ public:
     explicit BumpPage(QWidget *parent = nullptr);
     ~BumpPage();
 
+private slots:
+    void sysModeCmdChangedSlot();
+    void paramSetBtnValChanged(int32_t val);
+
 private:
     Ui::BumpPage *ui;
 };

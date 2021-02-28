@@ -7,6 +7,8 @@
 #include "datalabel.h"
 #include "textlabel.h"
 
+#define MODULAR_NUM_IN_CHILLER  4
+
 class Compressor : public QWidget
 {
     Q_OBJECT
@@ -44,9 +46,7 @@ public:
 
     ModularState   m_eModularState = STATE_ANTI_FREEZE;   //模块状态
 
-    uint8_t  m_usCompNum;
-    uint8_t  m_RunnningCompCount = 0;  //运行压缩机数量
-
+    uint8_t  m_RunnningCompCount = 0;   //运行压缩机数量
     int16_t  m_sInputWaterTemp = 0;     //进水温度
     int16_t  m_sOutputWaterTemp = 0;    //出水温度
 
@@ -75,7 +75,7 @@ private:
     void initButton();
 
 public:
-    explicit Modular(QWidget *parent = nullptr, uint8_t usCompNum = 4);
+    explicit Modular(QWidget *parent = nullptr, uint16_t usDeviceIndex = MODULAR_NUM_IN_CHILLER);
     ~Modular();
 
 private slots:

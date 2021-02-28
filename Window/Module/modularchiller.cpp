@@ -2,6 +2,7 @@
 #include "ui_modularchiller.h"
 #include <QMessageBox>
 #include "messagebox.h"
+#include "system.h"
 
 #define AB_PRESS_PIX ":UI/baseFile/abPress.png"
 #define AB_RELEASE_PIX ":UI/baseFile/abRelease.png"
@@ -11,28 +12,25 @@
 
 #define MB_PIX2 ":UI/baseFile/mbPix2.png"
 
-#define MODULAR_NUM_IN_CHILLER  2
-
 #define MODULAR_UP_MARGIN     30
-#define MODULAR_LEFT_MARGIN   15
-
+#define MODULAR_LEFT_MARGIN   5
 
 #define LABEL_COLUMNS  2
-#define LABEL_ROWS     2
+#define LABEL_ROWS     4
 
-#define LABEL_SIZE       120, 28
+#define LABEL_SIZE       115, 28
 #define LABEL_FONT_SIZE  14
 
-#define LABEL_UP_MARGIN     30
-#define LABEL_LEFT_MARGIN   80
-#define LABEL_INTERVAL_H    260
+#define LABEL_UP_MARGIN     20
+#define LABEL_LEFT_MARGIN   60
+#define LABEL_INTERVAL_H    240
 #define LABEL_INTERVAL_V    40
 
-#define DATA_LABEL_SIZE  100, 28
+#define DATA_LABEL_SIZE  110, 28
 
-#define DATA_LABEL_UP_MARGIN    30
-#define DATA_LABEL_LEFT_MARGIN  180
-#define DATA_LABEL_INTERVAL_H   260
+#define DATA_LABEL_UP_MARGIN    20
+#define DATA_LABEL_LEFT_MARGIN  160
+#define DATA_LABEL_INTERVAL_H   280
 #define DATA_LABEL_INTERVAL_V   40
 
 uint8_t ModularChiller::m_usModularChillerCount = 0;
@@ -46,23 +44,42 @@ ModularChiller::ModularChiller(QWidget *parent) :
     ModularChiller::m_usModularChillerCount++;
     this->m_usDeviceIndex = m_usModularChillerCount;
 
-    initLabel();
-    initButton();
-
     Modular *psModular = nullptr;
-    for( uint8_t i = 0; i < MODULAR_NUM_IN_CHILLER; i++)
+    QFrame  *pFrame =nullptr;
+
+    if(this->m_usDeviceIndex <= 1) //1#机组3个模块，2#机组有4个模块
     {
-        psModular = new Modular(ui->frame);
-        psModular->setGeometry(MODULAR_LEFT_MARGIN + i * psModular->width(), ui->frame_2->height(),
+        m_usModularNum = 3;
+    }
+    else
+    {
+        m_usModularNum =  MODULAR_NUM_IN_CHILLER;
+    }
+    for( uint8_t i = 0, m = 0; i < m_usModularNum; i++)
+    {
+        m = i % 2;
+        if(m == 0)
+        {
+            pFrame = new QFrame(ui->stackedWidget);
+            ui->stackedWidget->addWidget(pFrame);
+        }
+        psModular = new Modular(pFrame, i+1);
+        psModular->setGeometry(MODULAR_LEFT_MARGIN +  m * psModular->width(), 0,
                                psModular->width(), psModular->height());
         m_Modulars.append(psModular);
     }
+    initLabel();
+    initButton();
+}
+
+ModularChiller::~ModularChiller()
+{
+    delete ui;
 }
 
 void ModularChiller::initLabel()
 {
     TextLabel *pLabel = nullptr;
-
     for(uint8_t m = 0; m < LABEL_COLUMNS; m++)
     {
         for(uint8_t n = 0; n < LABEL_ROWS; n++)
@@ -78,6 +95,10 @@ void ModularChiller::initLabel()
     m_Labels[1]->setText(tr("工作模式"), LABEL_FONT_SIZE);
     m_Labels[2]->setText(tr("回水温度"), LABEL_FONT_SIZE);
     m_Labels[3]->setText(tr("通讯故障"), LABEL_FONT_SIZE);
+    m_Labels[4]->setText(tr("制冷进水温度"), LABEL_FONT_SIZE);
+    m_Labels[5]->setText(tr("制冷出水温度"), LABEL_FONT_SIZE);
+    m_Labels[6]->setText(tr("制热进水温度"), LABEL_FONT_SIZE);
+    m_Labels[7]->setText(tr("制热出水温度"), LABEL_FONT_SIZE);
 
     ui->label->setText(QString::number(this->m_usDeviceIndex) + "# 机组");
     //ui->label->setGeometry(128, 15, ui->label->width(), ui->label->height());
@@ -117,6 +138,30 @@ void ModularChiller::initButton()
     m_pCommErrLabel->setMonitorData(&m_xCommErr, Monitor::Boolean);
     m_Widgets.append(m_pCommErrLabel);
 
+    //机组制冷进水温度设定值
+    m_pChillerCoolInTempBtn = new AnalogValButton(ui->frame_2);
+    m_pChillerCoolInTempBtn->setDataParameter("℃", 1, 120, 250, 100, Monitor::Uint16t);
+    m_pChillerCoolInTempBtn->setMonitorData(&m_usChillerCoolInTemp, Monitor::Uint16t);
+    m_Widgets.append(m_pChillerCoolInTempBtn);
+
+    //机组制冷出水温度设定值
+    m_pChillerCoolOutTempBtn = new AnalogValButton(ui->frame_2);
+    m_pChillerCoolOutTempBtn->setDataParameter("℃", 1, 70, 200, 50, Monitor::Uint16t);
+    m_pChillerCoolOutTempBtn->setMonitorData(&m_usChillerCoolOutTemp, Monitor::Uint16t);
+    m_Widgets.append(m_pChillerCoolOutTempBtn);
+
+    //机组制热进水温度设定值
+    m_pChillerHeatInTempBtn = new AnalogValButton(ui->frame_2);
+    m_pChillerHeatInTempBtn->setDataParameter("℃", 1, 450, 450, 300, Monitor::Uint16t);
+    m_pChillerHeatInTempBtn->setMonitorData(&m_usChillerHeatInTemp, Monitor::Uint16t);
+    m_Widgets.append(m_pChillerHeatInTempBtn);
+
+    //机组制热出水温度设定值
+    m_pChillerHeatOutTempBtn = new AnalogValButton(ui->frame_2);
+    m_pChillerHeatOutTempBtn->setDataParameter("℃", 1, 500, 500, 350, Monitor::Uint16t);
+    m_pChillerHeatOutTempBtn->setMonitorData(&m_usChillerHeatOutTemp, Monitor::Uint16t);
+    m_Widgets.append(m_pChillerHeatOutTempBtn);
+
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
     {
         m = i / LABEL_ROWS;
@@ -125,10 +170,37 @@ void ModularChiller::initButton()
                                   DATA_LABEL_UP_MARGIN + n * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
+    connect(System::getInstance(), SIGNAL(sysModeCmdChanged()), this, SLOT(sysModeCmdChangedSlot()));
+    sysModeCmdChangedSlot();
 }
 
-
-ModularChiller::~ModularChiller()
+void ModularChiller::sysModeCmdChangedSlot()
 {
-    delete ui;
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    {
+        m_pSwitchCmdBtn->setEnabled(true);
+        m_pRunningModeCmdBtn->setEnabled(true);
+    }
+    else
+    {
+        m_pSwitchCmdBtn->setEnabled(false);
+        m_pRunningModeCmdBtn->setEnabled(false);
+    }
+}
+
+void ModularChiller::on_pushButton_clicked()
+{
+    if(ui->stackedWidget->currentIndex() == 0)
+    {
+        ui->stackedWidget->setCurrentIndex(1);
+        ui->pushButton->setText("上一页");
+
+    }
+    else if(ui->stackedWidget->currentIndex() == 1)
+    {
+        ui->stackedWidget->setCurrentIndex(0);
+        ui->pushButton->setText("下一页");
+    }
 }
