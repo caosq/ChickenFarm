@@ -211,6 +211,7 @@ eMBErrorCode eMBMasterRegInputCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegBuf
     iRegIndex = usAddress;
     while (usNRegs > 0)
     {
+        pvRegInValue = NULL;
         (void)eMBMasterRegInMap(psMBMasterInfo, ucMBDestAddr, iRegIndex, &pvRegInValue);    //扫描字典
     	
     	usRegInValue = ( (USHORT)(*pucRegBuffer++) ) << 8;

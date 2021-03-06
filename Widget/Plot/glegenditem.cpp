@@ -36,12 +36,10 @@ void gLegendItem::setStyle(gLegendItem::legendItemStyle style)
     _style = style;
 }
 
-void gLegendItem::drawIcon(QPainter *p,
-                               QColor baseColor, QRectF rectf) const
+void gLegendItem::drawIcon(QPainter *p, QColor baseColor, QRectF rectf) const
 {
-    QRadialGradient tb(rectf.center().x(),
-                       rectf.center().y(),rectf.width(),
-                       rectf.center().x() + rectf.width() / 4,
+    QRadialGradient tb(rectf.center().x(), rectf.center().y(),
+                       rectf.width(), rectf.center().x() + rectf.width() / 4,
                        rectf.center().y() - rectf.height() / 4);
 
     tb.setColorAt(0.0,Qt::white);

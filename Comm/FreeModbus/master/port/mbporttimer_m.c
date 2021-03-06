@@ -40,7 +40,7 @@
 
 #if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
 
-#define MB_MASTER_PORT_TIMEOUT_US   200    //协议规定50us  但需要根据实际情况调整
+#define MB_MASTER_PORT_TIMEOUT_US   800    //协议规定50us  但需要根据实际情况调整
 
 void vMasterTimeoutInd(void * p_tmr, void * p_arg)
 {
@@ -165,7 +165,6 @@ void vMBsMasterPortTmrsRespondTimeoutEnable(sMBMasterPort* psMBPort)
     psMBPort->sRespondTimeoutTv.tv_sec = i / ( 1000*1000 );
     psMBPort->sRespondTimeoutTv.tv_usec = i % (1000*1000 );
 
-
     while( (select_ret = select(psMBPort->psMBMasterUart->fd+1, &psMBPort->rfds, NULL, NULL, &psMBPort->sRespondTimeoutTv) ) == -1)
     {
         FD_ZERO(&rfds);
@@ -179,6 +178,7 @@ void vMBsMasterPortTmrsRespondTimeoutEnable(sMBMasterPort* psMBPort)
 	}
 	else
 	{
+
         pxMBMasterFrameCBTimerExpiredCur(psMBPort->psMBMasterInfo);
 	}
 #endif	

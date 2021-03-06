@@ -29,7 +29,7 @@ public:
         Uint32t,
     };
 
-    explicit  Monitor(void* pvVal, DataType eDataType, uint16_t usDataId, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
+    explicit  Monitor(void* pvVal, DataType eDataType, uint32_t uiDataId, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
 
     friend class DataMonitor;
 
@@ -38,15 +38,16 @@ public:
     void setValue(int32_t iVal);
 
     uint8_t  getValType();
-    int32_t getCurVal();
-    void* getCurValAddr();
+    int32_t  getCurVal();
+    uint32_t getDataId();
+    void*    getValueAddr();
 
 private:
 
     int32_t    m_iMaxVal = 0;
     int32_t    m_iMinVal = 0;
-    int32_t    m_iDataVal = 0;   //数据值
-    uint16_t   m_usDataId = 0;    //全局标示
+    int32_t    m_iDataVal = 0;     //数据值
+    uint32_t   m_uiDataId = 0;     //数据ID
     void*      m_pvVal = nullptr;
     DataType   m_DataType = Uint16t;  //数据类型
 
@@ -82,12 +83,12 @@ public:
 
     static Monitor* monitorRegist(void* pvVal, Monitor::DataType emDataType, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
     static void* monitorPollTask(void *pvArg);
-
     static DataMonitor* getInstance();
 
 private:
-    explicit DataMonitor(QObject *parent = nullptr);
+    static QMap<void* , Monitor*> g_Monitors;
 
+    explicit DataMonitor(QObject *parent = nullptr);
     static DataMonitor*  g_pDataMonitor;
 
 };

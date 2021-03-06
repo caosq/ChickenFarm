@@ -122,7 +122,8 @@ eMBMasterReqWriteHoldReg(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT 
  * @author laoc
  * @date 2019.01.22
  *************************************************************************************/
-eMBMasterReqErrCode eMBMasterScanHoldingRegister(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, BOOL xWriteEn, BOOL xReadEn, BOOL xCheckPreValue)
+eMBMasterReqErrCode eMBMasterScanHoldingRegister(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr,
+                                                 BOOL xWriteEn, BOOL xReadEn, BOOL xCheckPreValue)
 {
     BOOL   bStarted;
     USHORT iIndex, iReadStartRegAddr, iWriteStartRegAddr, iLastAddr, iReadCount, iWriteCount, iRegs, nRegs;
@@ -352,7 +353,8 @@ eMBMasterReqErrCode eMBMasterWriteCoil(sMBMasterInfo* psMBMasterInfo, UCHAR ucSn
  * @author laoc
  * @date 2019.01.22
  *************************************************************************************/
-eMBMasterReqErrCode eMBMasterScanCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, BOOL xWriteEn, BOOL xReadEn, BOOL xCheckPreValue)
+eMBMasterReqErrCode eMBMasterScanCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr,
+                                       BOOL xWriteEn, BOOL xReadEn, BOOL xCheckPreValue, BOOL xSynchronize)
 {
 	UCHAR  iBitInByte, cByteValue;
     BOOL bStarted;
@@ -466,7 +468,8 @@ eMBMasterReqErrCode eMBMasterScanCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSn
                 if(iWriteBits > 0)
                 {
                     //1. 未发生变化  2.地址到达字典最后 3.数据超过Modbus数据帧最大字节数，则发送写请求
-                    if( (iBits > iWriteBits) || (iIndex == psMBCoilTable->usDataCount-1) || (iWriteBits >= MB_SCAN_MAX_BIT_NUM) ) 
+                    if( (iBits > iWriteBits) || (iIndex == psMBCoilTable->usDataCount-1)
+                        || (iWriteBits >= MB_SCAN_MAX_BIT_NUM) )
                     {        
                         eStatus = eMBMasterWriteCoil(psMBMasterInfo, ucSndAddr, iWriteStartCoilAddr, iWriteBits, 
                                                      psMBMasterInfo->BitCoilByteValList, MB_MASTER_WAITING_DELAY);	//写线圈	
@@ -509,7 +512,8 @@ eMBMasterReqErrCode eMBMasterScanCoils(sMBMasterInfo* psMBMasterInfo, UCHAR ucSn
             	}	
             }
             //1. 只写 2.数据超过Modbus数据帧最大字节数，3. 到达数据域末尾， 发送读请求
-            if( (psCoilValue->ucAccessMode == WO || iIndex == psMBCoilTable->usDataCount-1 || iReadCount >= MB_SCAN_MAX_BIT_NUM) && (iReadCount>0) )  
+            if( (psCoilValue->ucAccessMode == WO || iIndex == psMBCoilTable->usDataCount-1
+                || iReadCount >= MB_SCAN_MAX_BIT_NUM) && (iReadCount>0) )
             {
                 eStatus = eMBMasterReqReadCoils(psMBMasterInfo, ucSndAddr, iReadStartCoilAddr, iReadCount, MB_MASTER_WAITING_DELAY);
                 if(eStatus == MB_MRE_ETIMEDOUT)
@@ -607,10 +611,20 @@ eMBMasterReqErrCode eMBMasterScanReadDiscreteInputs( sMBMasterInfo* psMBMasterIn
  * @author  laoc
  * @date    2019.01.22
  *********************************************************************/
-void vMBMasterScanSlaveDevData(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr, BOOL xWriteEn, BOOL xReadEn, BOOL xCheckPreValue)
+void vMBMasterScanSlaveDevData(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr,
+                               BOOL xWriteEn, BOOL xReadEn, BOOL xCheckPreValue, BOOL xSynchronize)
 {
     eMBMasterReqErrCode errorCode    = MB_MRE_NO_ERR;
     sMBSlaveDev*    psMBSlaveDevCur  = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;     //当前从设备
+
+    if(xSynchronize)
+    {
+        psMBMasterInfo->eMBRunMode = STATE_SYSN_DEV;
+    }
+    else
+    {
+        psMBMasterInfo->eMBRunMode = STATE_SCAN_DEV;
+    }
 
 #if MB_FUNC_READ_HOLDING_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0 || MB_FUNC_WRITE_HOLDING_ENABLED > 0	
     errorCode = eMBMasterScanHoldingRegister(psMBMasterInfo, ucSlaveAddr, xWriteEn, xReadEn, xCheckPreValue); //保持寄存器
@@ -623,7 +637,7 @@ void vMBMasterScanSlaveDevData(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr,
 #endif
 					
 #if MB_FUNC_READ_COILS_ENABLED > 0  || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0
-    errorCode = eMBMasterScanCoils(psMBMasterInfo, ucSlaveAddr, xWriteEn, xReadEn, xCheckPreValue);           //线圈
+    errorCode = eMBMasterScanCoils(psMBMasterInfo, ucSlaveAddr, xWriteEn, xReadEn, xCheckPreValue, xSynchronize);           //线圈
     if(errorCode == MB_MRE_TIMEDOUT)
     {
         psMBSlaveDevCur->xStateTestRequest = TRUE;
@@ -685,19 +699,19 @@ void vMBMasterScanSlaveDev(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlave
         {	 	    
             if(psMBSlaveDev->xSynchronized == FALSE)
             {
-                vMBMasterScanSlaveDevData(psMBMasterInfo, ucSlaveAddr, FALSE, TRUE, FALSE);   //同步从设备数据
+                vMBMasterScanSlaveDevData(psMBMasterInfo, ucSlaveAddr, FALSE, TRUE, FALSE, TRUE);   //同步从设备数据
                 psMBSlaveDev->xSynchronized = TRUE;   //同步完成
             }
             else   //同步完成后
             {
-                vMBMasterScanSlaveDevData(psMBMasterInfo, ucSlaveAddr, TRUE, TRUE, TRUE);  //根据实际通讯需要灵活调整，可以只写有变化数据，也可轮询写
+                vMBMasterScanSlaveDevData(psMBMasterInfo, ucSlaveAddr, TRUE, TRUE, TRUE, FALSE);  //根据实际通讯需要灵活调整，可以只写有变化数据，也可轮询写
             }
         }
         else  //从设备数据未好，则只进行写不读
         {
             if(psMBSlaveDev->xSynchronized == FALSE) 
             {
-                vMBMasterScanSlaveDevData(psMBMasterInfo, ucSlaveAddr, TRUE, FALSE, FALSE);   //同步从设备数据  
+                vMBMasterScanSlaveDevData(psMBMasterInfo, ucSlaveAddr, TRUE, FALSE, FALSE, TRUE);   //同步从设备数据
                 psMBSlaveDev->xSynchronized = TRUE;  //同步完成
             }
         }
@@ -771,6 +785,8 @@ void* vMBMasterScanSlaveDevTask(void *p_arg)
 
     UCHAR ucMaxAddr = psMBDevsInfo->ucSlaveDevMaxAddr;
     UCHAR ucMinAddr = psMBDevsInfo->ucSlaveDevMinAddr;
+
+    (void)vMBTimeDly(3, 0);
 
     while(1)
     {

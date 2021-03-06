@@ -31,7 +31,6 @@ public:
         NoStyle     //没有风格
     };
 
-
     explicit DataLabel(QWidget *parent = nullptr, eLabelType emLabelType = Data,
                        Monitor::DataType emDataType = Monitor::Uint16t);
 
@@ -119,6 +118,7 @@ private slots:
 
 signals:
     void fontChange();
+    void valChanged(int32_t val);
 
 private:
     typedef struct

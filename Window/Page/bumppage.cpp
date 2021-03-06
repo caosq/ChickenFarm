@@ -17,11 +17,11 @@
 #define LABEL_INTERVAL_V_1    40
 
 #define LABEL_UP_MARGIN_2     60
-#define LABEL_LEFT_MARGIN_2   30
+#define LABEL_LEFT_MARGIN_2   20
 #define LABEL_INTERVAL_H_2    300
 #define LABEL_INTERVAL_V_2    40
 
-#define DATA_LABEL_SIZE  100, 30
+#define DATA_LABEL_SIZE  110, 30
 
 #define DATA_LABEL_UP_MARGIN_1    30
 #define DATA_LABEL_LEFT_MARGIN_1  135
@@ -29,8 +29,8 @@
 #define DATA_LABEL_INTERVAL_V_1   40
 
 #define DATA_LABEL_UP_MARGIN_2    62
-#define DATA_LABEL_LEFT_MARGIN_2  150
-#define DATA_LABEL_INTERVAL_H_2   300
+#define DATA_LABEL_LEFT_MARGIN_2  125
+#define DATA_LABEL_INTERVAL_H_2   298
 #define DATA_LABEL_INTERVAL_V_2   40
 
 BumpPage::BumpPage(QWidget *parent) :
@@ -65,6 +65,7 @@ void BumpPage::initDevice()
         m_ChilledBumps.append(pChilledBump);
         ui->gridLayout->addWidget(pChilledBump, x, y );
     }
+    pSystem->m_pBumpMeter = &m_sBumpMeter;  //水泵电表
 }
 
 void BumpPage::initLabel()
@@ -109,22 +110,30 @@ void BumpPage::initLabel()
 
 void BumpPage::initButton()
 {
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
+
     //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
+    m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_Widgets_1.append(m_pSwitchCmdBtn);
 
     //频率设置
     m_pFreqSetBtn = new AnalogValButton(ui->frame);
-    m_pFreqSetBtn->setDataParameter("Hz", 1, 350, 500, 350, Monitor::Uint16t);
+    m_pFreqSetBtn->setDataParameter("Hz", 1, 0, 500, 0, Monitor::Uint16t);
+    m_pFreqSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
+    m_pFreqSetBtn->setMaxValMonitor(&pSystem->m_usCHWBumpMaxFreq, Monitor::Uint16t);
+    m_pFreqSetBtn->setMinValMonitor(&pSystem->m_usCHWBumpMinFreq, Monitor::Uint16t);
     m_Widgets_1.append(m_pFreqSetBtn);
 
     //故障清除
     m_pErrorCleanCmdBtn = new StateButton(ui->frame);
     m_pErrorCleanCmdBtn->setStateText(StateButton::State0,tr("否"));
     m_pErrorCleanCmdBtn->setStateText(StateButton::State1,tr("是"));
+    m_pErrorCleanCmdBtn->setDelayMode(8000, 0);
     m_pErrorCleanCmdBtn->setDeafultState(StateButton::State0);
     m_Widgets_1.append(m_pErrorCleanCmdBtn);
 
@@ -140,21 +149,21 @@ void BumpPage::initButton()
     m_pPowerLabel = new DataLabel(ui->frame_1, DataLabel::Data);
     m_pPowerLabel->setAlignment(Qt::AlignLeft);
     m_pPowerLabel->setDataParameter("kW", 1, Monitor::Uint16t);
-    m_pPowerLabel->setMonitorData(&m_sMeter.m_usPower, Monitor::Uint16t);
+    m_pPowerLabel->setMonitorData(&m_sBumpMeter.m_usPower, Monitor::Uint16t);
     m_Widgets_2.append(m_pPowerLabel);
 
     //累计耗电量
     m_pTotalEnergyLabel = new DataLabel(ui->frame_1, DataLabel::Data);
     m_pTotalEnergyLabel->setAlignment(Qt::AlignLeft);
     m_pTotalEnergyLabel->setDataParameter("kWh", 0, Monitor::Uint32t);
-    m_pTotalEnergyLabel->setMonitorData(&m_sMeter.m_ulTotalEnergy, Monitor::Uint32t);
+    m_pTotalEnergyLabel->setMonitorData(&m_sBumpMeter.m_ulTotalEnergy, Monitor::Uint32t);
     m_Widgets_2.append(m_pTotalEnergyLabel);
 
     m_pCommErrLabel = new DataLabel(ui->frame_1, DataLabel::Text);
     m_pCommErrLabel->setAlignment(Qt::AlignLeft);
     m_pCommErrLabel->setValueMap(0,tr("正常"));
-    m_pCommErrLabel->setValueMap(1,tr("故障"));
-    m_pCommErrLabel->setMonitorData(&m_sMeter.m_xCommErr, Monitor::Boolean);
+    m_pCommErrLabel->setValueMap(1,tr("故障"), Qt::red);
+    m_pCommErrLabel->setMonitorData(&m_sBumpMeter.m_xCommErr, Monitor::Boolean);
     m_Widgets_2.append(m_pCommErrLabel);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets_2.count(); i++)
@@ -163,15 +172,16 @@ void BumpPage::initButton()
         n = i % LABEL_COLUMNS_2;
         m_Widgets_2[i]->setGeometry(DATA_LABEL_LEFT_MARGIN_2 + n * DATA_LABEL_INTERVAL_H_2,
                                   DATA_LABEL_UP_MARGIN_2 + m * DATA_LABEL_INTERVAL_V_2,
-                                  DATA_LABEL_SIZE);
+                                  200, 28);
     }
     connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
     connect(m_pFreqSetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    connect(System::getInstance(), SIGNAL(sysModeCmdChanged()), this, SLOT(sysModeCmdChangedSlot()));
-    sysModeCmdChangedSlot();
+    connect(m_pErrorCleanCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(System::getInstance(), SIGNAL(systemDataChanged()), this, SLOT(systemDataChangedSlot()));
+    systemDataChangedSlot();
 }
 
-void BumpPage::paramSetBtnValChanged(int32_t val)
+void BumpPage::paramSetBtnValChanged(int32_t)
 {
     System *pSystem = System::getInstance();
     ChilledBump* pChilledBump = nullptr;
@@ -182,13 +192,25 @@ void BumpPage::paramSetBtnValChanged(int32_t val)
         for(uint8_t i = 0; i < m_ChilledBumps.count(); i++)
         {
              pChilledBump = m_ChilledBumps[i];
-             pChilledBump->m_eSwitchCmd = ChilledBump::SwitchCmd(m_pSwitchCmdBtn->getCurrentValue());
-             pChilledBump->m_usFreqSet = uint16_t(m_pFreqSetBtn->getCurrentValue());
+             pChilledBump->m_pSwitchCmdBtn->setValue( m_pSwitchCmdBtn->getCurrentValue() );
+             pChilledBump->m_pFreqSetBtn->setValue( uint16_t(m_pFreqSetBtn->getCurrentValue()) );
+
+             if(m_pErrorCleanCmdBtn->getCurrentValue() == 1)
+             {
+                 pChilledBump->m_xErrClean = true;
+                 pChilledBump->m_xErrorFlag = false;
+                 pChilledBump->m_xControlFlag = false;
+             }
+             else
+             {
+                 pChilledBump->m_xErrClean = false;
+             }
         }
     }
+    System::getInstance()->m_uiOffLogCount = 0;
 }
 
-void BumpPage::sysModeCmdChangedSlot()
+void BumpPage::systemDataChangedSlot()
 {
     System *pSystem = System::getInstance();
     if(pSystem == nullptr){return;}

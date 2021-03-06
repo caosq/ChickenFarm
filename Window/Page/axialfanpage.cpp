@@ -53,13 +53,13 @@ void AxialFanPage::initDevice()
         ui->gridLayout->addWidget(pAxialFan, x, y);
     }
 
-    WindowFan *m_psWindowFan = nullptr;
+    WindowFan *psWindowFan = nullptr;
     for(uint8_t n = 0; n < WINDOW_FAN_NUM; n++)
     {
-        m_psWindowFan = new WindowFan();
-        m_WindowFans.append(m_psWindowFan);
-        pSystem->m_pWindowFans.append(m_psWindowFan);
-        ui->verticalLayout->insertWidget(n, m_psWindowFan);
+        psWindowFan = new WindowFan();
+        m_WindowFans.append(psWindowFan);
+        pSystem->m_pWindowFans.append(psWindowFan);
+        ui->verticalLayout->insertWidget(n, psWindowFan);
     }
 }
 
@@ -87,22 +87,30 @@ void AxialFanPage::initLabel()
 
 void AxialFanPage::initButton()
 {
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
+
     //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
+    m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //频率设置
     m_pFreqSetBtn = new AnalogValButton(ui->frame);
-    m_pFreqSetBtn->setDataParameter("Hz", 1, 350, 500, 350, Monitor::Uint16t);
+    m_pFreqSetBtn->setDataParameter("Hz", 1, 0, 500, 0, Monitor::Uint16t);
+    m_pFreqSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
+    m_pFreqSetBtn->setMaxValMonitor(&pSystem->m_usExAirFanMaxFreq, Monitor::Uint16t);
+    m_pFreqSetBtn->setMinValMonitor(&pSystem->m_usExAirFanMinFreq, Monitor::Uint16t);
     m_Widgets.append(m_pFreqSetBtn);
 
     //故障清除
     m_pErrorCleanCmdBtn = new StateButton(ui->frame);
     m_pErrorCleanCmdBtn->setStateText(StateButton::State0,tr("否"));
     m_pErrorCleanCmdBtn->setStateText(StateButton::State1,tr("是"));
+    m_pErrorCleanCmdBtn->setDelayMode(8000, 0);
     m_pErrorCleanCmdBtn->setDeafultState(StateButton::State0);
     m_Widgets.append(m_pErrorCleanCmdBtn);
 
@@ -116,11 +124,12 @@ void AxialFanPage::initButton()
     }
     connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
     connect(m_pFreqSetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    connect(System::getInstance(), SIGNAL(sysModeCmdChanged()), this, SLOT(sysModeCmdChangedSlot()));
-    sysModeCmdChangedSlot();
+    connect(m_pErrorCleanCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(System::getInstance(), SIGNAL(systemDataChanged()), this, SLOT(systemDataChangedSlot()));
+    systemDataChangedSlot();
 }
 
-void AxialFanPage::paramSetBtnValChanged(int32_t val)
+void AxialFanPage::paramSetBtnValChanged(int32_t)
 {
     System *pSystem = System::getInstance();
     AxialFan *pAxialFan = nullptr;
@@ -131,13 +140,25 @@ void AxialFanPage::paramSetBtnValChanged(int32_t val)
         for(uint8_t i = 0; i < m_AxialFans.count(); i++)
         {
              pAxialFan = m_AxialFans[i];
-             pAxialFan->m_eSwitchCmd = AxialFan::SwitchCmd(m_pSwitchCmdBtn->getCurrentValue());
-             pAxialFan->m_usFreqSet = uint16_t(m_pFreqSetBtn->getCurrentValue());
+             pAxialFan->m_pSwitchCmdBtn->setValue(m_pSwitchCmdBtn->getCurrentValue());
+             pAxialFan->m_pFreqSetBtn->setValue( uint16_t(m_pFreqSetBtn->getCurrentValue()) );
+
+             if(m_pErrorCleanCmdBtn->getCurrentValue() == 1)
+             {
+                 pAxialFan->m_xErrClean = true;
+                 pAxialFan->m_xErrorFlag = false;
+                 pAxialFan->m_xControlFlag = false;
+             }
+             else
+             {
+                 pAxialFan->m_xErrClean = false;
+             }
         }
     }
+    System::getInstance()->m_uiOffLogCount = 0;
 }
 
-void AxialFanPage::sysModeCmdChangedSlot()
+void AxialFanPage::systemDataChangedSlot()
 {
     System *pSystem = System::getInstance();
     if(pSystem == nullptr){return;}

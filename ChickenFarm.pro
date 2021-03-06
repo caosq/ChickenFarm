@@ -32,6 +32,7 @@ INCLUDEPATH += /usr/local/qwt/qwt-6.1.2-x64/include \
             Widget/Time \
             Widget/Temp \
             Widget/Event \
+            Widget/Password \
             Device \
             DataManage \
             Window/Module \
@@ -99,6 +100,8 @@ SOURCES += \
         Device/meter.cpp \
         Widget/Event/usercurrentevent.cpp \
         Widget/Event/userhistoryevent.cpp \
+        Widget/Password/passwdedit.cpp \
+        Widget/Password/password.cpp \
         Widget/Temp/tempunit.cpp \
         Window/Form/event.cpp \
         Window/Form/home.cpp \
@@ -213,6 +216,8 @@ HEADERS += \
         Main/global.h \
         Widget/Event/usercurrentevent.h \
         Widget/Event/userhistoryevent.h \
+        Widget/Password/passwdedit.h \
+        Widget/Password/password.h \
         Widget/Temp/tempunit.h \
         Window/Form/event.h \
         Window/Form/home.h \

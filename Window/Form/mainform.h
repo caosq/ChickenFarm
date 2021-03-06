@@ -19,7 +19,7 @@ class MainForm : public QWidget
     Q_OBJECT
 
 public:
-    QLabel *m_pLogLabel;
+    DataLabel *m_pLogLabel;
     QLabel *m_pTitleLabel;
 
 private:
@@ -46,15 +46,16 @@ private slots:
 
     void on_eventButton_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::MainForm *ui;
 
     SystemMonitor m_SystemMonitor;
+    Home          m_Home;
     Curve         m_Curve;
     Setting       m_Setting;
     Event         m_Event;
-    Home          m_Home;
-
 };
 
 #endif // MAINFORM_H

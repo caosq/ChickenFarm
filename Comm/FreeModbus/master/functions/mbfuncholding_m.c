@@ -581,6 +581,7 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
     case MB_REG_READ:
         while (usNRegs > 0)          
         {
+            pvRegHoldValue = NULL;
     		(void)eMBMasterRegHoldingMap(psMBMasterInfo, ucMBDestAddr, iRegIndex, &pvRegHoldValue);     //扫描字典中变量，找出对应的变量
     
     		usRegHoldValue = ( (USHORT)(*pucRegBuffer++) ) << 8;
@@ -596,38 +597,41 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
     			{
                     if( (usRegHoldValue >= (USHORT)pvRegHoldValue->lMinVal ) && (usRegHoldValue <= (USHORT)pvRegHoldValue->lMaxVal))
     				{ 
-                        if((pvRegHoldValue->ucAccessMode == RW) && (*(USHORT*)pvRegHoldValue->pvValue != (USHORT)pvRegHoldValue->usPreVal))
+                        if( (pvRegHoldValue->ucAccessMode == RW) && (*(USHORT*)pvRegHoldValue->pvValue != (USHORT)pvRegHoldValue->usPreVal) &&
+                            (psMBMasterInfo->eMBRunMode == STATE_SCAN_DEV) )
                         {
                             pvRegHoldValue->usPreVal = (USHORT)usRegHoldValue;
                             iRegIndex++;
                             usNRegs--;
                             continue;    //此时命令更新了，所以不更新实际点位，只更新先前值
                         }
-    					*(USHORT*)pvRegHoldValue->pvValue = (USHORT)usRegHoldValue;    //更新对应点位
-                        pvRegHoldValue->usPreVal = (USHORT)usRegHoldValue;							
-    				}										
+    					*(USHORT*)pvRegHoldValue->pvValue = (USHORT)usRegHoldValue;    //更新对应点位						
+                    }
+                    pvRegHoldValue->usPreVal = (USHORT)usRegHoldValue;
     			}
     			else if(pvRegHoldValue->ucDataType == uint8)
     			{  
     				if( ((UCHAR)usRegHoldValue >= (UCHAR)pvRegHoldValue->lMinVal ) && ((UCHAR)usRegHoldValue <= (UCHAR)pvRegHoldValue->lMaxVal) )
     				{
-                        if((pvRegHoldValue->ucAccessMode == RW) && (*(UCHAR*)pvRegHoldValue->pvValue != (UCHAR)pvRegHoldValue->usPreVal))
+                        if( (pvRegHoldValue->ucAccessMode == RW) && (*(UCHAR*)pvRegHoldValue->pvValue != (UCHAR)pvRegHoldValue->usPreVal) &&
+                            (psMBMasterInfo->eMBRunMode == STATE_SCAN_DEV) )
                         {
                             pvRegHoldValue->usPreVal = (UCHAR)usRegHoldValue;
                             iRegIndex++;
                             usNRegs--;
                             continue;    //此时命令更新了，所以不更新实际点位，只更新先前值
                         }
-    					*(UCHAR*)pvRegHoldValue->pvValue = (UCHAR)usRegHoldValue;
-                        pvRegHoldValue->usPreVal = (USHORT)usRegHoldValue;							
+    					*(UCHAR*)pvRegHoldValue->pvValue = (UCHAR)usRegHoldValue;						
     				}
+                    pvRegHoldValue->usPreVal = (USHORT)usRegHoldValue;
     			}
     			else if (pvRegHoldValue->ucDataType == int16)
     			{
     				sRegHoldValue = (SHORT)usRegHoldValue;
     				 if( (sRegHoldValue >= (SHORT)pvRegHoldValue->lMinVal ) && (sRegHoldValue <= (SHORT)pvRegHoldValue->lMaxVal) )	
     				{
-                         if((pvRegHoldValue->ucAccessMode == RW) && (*(SHORT*)pvRegHoldValue->pvValue != (SHORT)pvRegHoldValue->usPreVal))
+                         if( (pvRegHoldValue->ucAccessMode == RW) && (*(SHORT*)pvRegHoldValue->pvValue != (SHORT)pvRegHoldValue->usPreVal) &&
+                             (psMBMasterInfo->eMBRunMode == STATE_SCAN_DEV) )
                          {
                              pvRegHoldValue->usPreVal = (USHORT)sRegHoldValue;
                              iRegIndex++;
@@ -635,24 +639,25 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
                              continue;    //此时实际点位有更新，所以不更新实际点位，只更新先前值
                          }
     					*(SHORT*)pvRegHoldValue->pvValue = (SHORT)sRegHoldValue;
-    					pvRegHoldValue->usPreVal = (USHORT)sRegHoldValue;
-    				}			
+                    }
+                    pvRegHoldValue->usPreVal = (USHORT)sRegHoldValue;
     			}
     			else if(pvRegHoldValue->ucDataType == int8)
     			{  	
                     cRegHoldValue = (int8_t)usRegHoldValue;
     				if( (cRegHoldValue >= (int8_t)pvRegHoldValue->lMinVal ) && (cRegHoldValue <= (int8_t)pvRegHoldValue->lMaxVal) )		
     				{
-                        if((pvRegHoldValue->ucAccessMode == RW) && (*(int8_t*)pvRegHoldValue->pvValue != (int8_t)pvRegHoldValue->usPreVal))
+                        if( (pvRegHoldValue->ucAccessMode == RW) && (*(int8_t*)pvRegHoldValue->pvValue != (int8_t)pvRegHoldValue->usPreVal) &&
+                            (psMBMasterInfo->eMBRunMode == STATE_SCAN_DEV) )
                         {
                             pvRegHoldValue->usPreVal = (USHORT)cRegHoldValue;
                             iRegIndex++;
                             usNRegs--;
                             continue;    //此时命令更新了，所以不更新实际点位，只更新先前值
                         }
-    					*(int8_t*)pvRegHoldValue->pvValue = (int8_t)cRegHoldValue;
-                        pvRegHoldValue->usPreVal = (USHORT)cRegHoldValue;							
+    					*(int8_t*)pvRegHoldValue->pvValue = (int8_t)cRegHoldValue;							
     				}
+                    pvRegHoldValue->usPreVal = (USHORT)cRegHoldValue;
     			}
     		}
             iRegIndex++;
@@ -664,6 +669,7 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
     case MB_REG_WRITE: 
         while (usNRegs > 0)          
         {
+            pvRegHoldValue = NULL;
     		(void)eMBMasterRegHoldingMap(psMBMasterInfo, ucMBDestAddr, iRegIndex, &pvRegHoldValue);     //扫描字典中变量，找出对应的变量
             if( (pvRegHoldValue != NULL) && (pvRegHoldValue->pvValue != NULL) && (pvRegHoldValue->ucAccessMode != RO) )
     		{	

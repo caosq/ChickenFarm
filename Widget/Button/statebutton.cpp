@@ -28,7 +28,6 @@ StateButton::StateButton(QWidget *parent) :
 //    StateStyle strTextuct1 = {pixmap1, "", QColor(activeColor_COLOR), QColor(INactiveColor_COLOR), 1};
 
     StateStyle strTextuct0 = {pixmap0, "", Qt::white, QColor(INactiveColor_COLOR), 0};
-
     StateStyle strTextuct1 = {pixmap1, "", Qt::green, QColor(INactiveColor_COLOR), 1};
 
     m_StateStyleVector.resize(0);
@@ -45,7 +44,8 @@ StateButton::StateButton(QWidget *parent) :
     }
     setFont(fatherFont);
 
-    connect(this,SIGNAL(clicked()),this,SLOT(clickedSlot()));
+    connect(this,SIGNAL(buttonClicked()),this,SLOT(clickedSlot()));
+    connect(this,SIGNAL(delayTimeOut(int32_t)),this,SLOT(setValue(int32_t)));
 }
 
 StateButton *StateButton::forefather()
@@ -163,7 +163,7 @@ int32_t StateButton::getCurrentValue()
 void StateButton::setValue(Monitor* pMonitor)
 {
     int32_t val = pMonitor->getCurVal();
-    ButtonState state =  m_StateValMap.key(val);
+    ButtonState state =  m_StateValMap.key(val, Error);
     if(Error != state)
     {
         m_CurrentState = state;
@@ -176,7 +176,7 @@ void StateButton::setValue(Monitor* pMonitor)
 
 void StateButton::setValue(int32_t val)
 {
-    ButtonState state =  m_StateValMap.key(val);
+    ButtonState state =  m_StateValMap.key(val, Error);
     if(Error != state)
     {
         m_CurrentState = state;
@@ -187,8 +187,12 @@ void StateButton::setValue(int32_t val)
     {
         m_pMonitor->setValue(val);
     }
+    else
+    {
+        emit valChanged(val);
+    }
     update();
-    emit valChanged(val);
+
 }
 
 void StateButton::setTextSize(int size)

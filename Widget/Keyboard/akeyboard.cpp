@@ -73,29 +73,24 @@ void aKeyBoard::setupUi()
     maxLabel = new TextLabel(this);
     maxLabel->setAlignment(Qt::AlignCenter);
     maxLabel->setGeometry(12,6,50,30);
-    maxLabel->setText("最大",textControl::size20);
+    maxLabel->setText("最大",textControl::size18);
 
     maxValuelLabel = new TextLabel(this);
-    maxValuelLabel->setTextSize(22);
+    maxValuelLabel->setTextSize(18);
     maxValuelLabel->setAlignment(Qt::AlignCenter);
     maxValuelLabel->setGeometry(55,6,95,30);
-
-
 
     minLabel = new TextLabel(this);
     minLabel->setAlignment(Qt::AlignCenter);
     minLabel->setGeometry(153,6,50,30);
-    minLabel->setText(tr("最小"), textControl::size20);
+    minLabel->setText(tr("最小"), textControl::size18);
 
     minValuelLabel = new TextLabel(this);
-    minValuelLabel->setTextSize(22);
+    minValuelLabel->setTextSize(18);
     minValuelLabel->setAlignment(Qt::AlignCenter);
     minValuelLabel->setGeometry(203,6,95,30);
 
     _fontMetrics = new QFontMetrics(minValuelLabel->font());
-
-
-
 
     //数值0
     digitButton[0] = new keyButton(this);

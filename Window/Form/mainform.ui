@@ -40,7 +40,7 @@ background-image: url(:/UI/Frame/背景.png);
     <property name="geometry">
      <rect>
       <x>920</x>
-      <y>520</y>
+      <y>505</y>
       <width>101</width>
       <height>101</height>
      </rect>
@@ -57,7 +57,7 @@ background-color: transparent; }</string>
     <property name="geometry">
      <rect>
       <x>920</x>
-      <y>390</y>
+      <y>375</y>
       <width>101</width>
       <height>101</height>
      </rect>
@@ -74,7 +74,7 @@ background-color: transparent; }</string>
     <property name="geometry">
      <rect>
       <x>920</x>
-      <y>260</y>
+      <y>245</y>
       <width>101</width>
       <height>101</height>
      </rect>
@@ -91,7 +91,7 @@ background-color: transparent; }</string>
     <property name="geometry">
      <rect>
       <x>920</x>
-      <y>130</y>
+      <y>115</y>
       <width>101</width>
       <height>101</height>
      </rect>
@@ -108,7 +108,7 @@ background-color: transparent; }</string>
     <property name="geometry">
      <rect>
       <x>950</x>
-      <y>50</y>
+      <y>35</y>
       <width>33</width>
       <height>35</height>
      </rect>
@@ -144,7 +144,7 @@ background-color: transparent; }</string>
     <property name="geometry">
      <rect>
       <x>935</x>
-      <y>90</y>
+      <y>75</y>
       <width>81</width>
       <height>21</height>
      </rect>
@@ -199,7 +199,7 @@ background-color: transparent; }</string>
     <property name="geometry">
      <rect>
       <x>935</x>
-      <y>230</y>
+      <y>215</y>
       <width>81</width>
       <height>21</height>
      </rect>
@@ -254,7 +254,7 @@ background-color: transparent; }</string>
     <property name="geometry">
      <rect>
       <x>935</x>
-      <y>360</y>
+      <y>345</y>
       <width>81</width>
       <height>21</height>
      </rect>
@@ -309,7 +309,7 @@ background-color: transparent; }</string>
     <property name="geometry">
      <rect>
       <x>935</x>
-      <y>490</y>
+      <y>475</y>
       <width>81</width>
       <height>21</height>
      </rect>
@@ -364,7 +364,7 @@ background-color: transparent; }</string>
     <property name="geometry">
      <rect>
       <x>935</x>
-      <y>620</y>
+      <y>605</y>
       <width>81</width>
       <height>21</height>
      </rect>
@@ -539,6 +539,64 @@ background-color: transparent; }</string>
     </property>
     <property name="currentIndex">
      <number>-1</number>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>928</x>
+      <y>660</y>
+      <width>89</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="ButtonText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>252</red>
+          <green>175</green>
+          <blue>62</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="ButtonText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>252</red>
+          <green>175</green>
+          <blue>62</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="ButtonText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>190</red>
+          <green>190</green>
+          <blue>190</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-image: url(:/UI/Frame/logBtn.png);</string>
+    </property>
+    <property name="text">
+     <string>用户登录</string>
     </property>
    </widget>
   </widget>

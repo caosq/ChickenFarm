@@ -4,7 +4,7 @@
 #include <qmath.h>
 
 #define MAX_COUNT 8
-#define BACKGROUND ":/images/baseFile/pwdkeyboard.png"
+#define BACKGROUND ":/UI/baseFile/pwdkeyboard.png"
 
 #define WRONG_PASSWORD -1000000
 
@@ -15,7 +15,6 @@ bool pwdKeyBoard::exitState = true;
 pwdKeyBoard::pwdKeyBoard(QWidget *parent) :
     skeyboard(parent)
 {
-
     setupUi();
     connect(digitButton[0],SIGNAL(pressed()),this,SLOT(digitClicked()));
     connect(enterButton,SIGNAL(clicked()),this,SLOT(accept()));
@@ -24,7 +23,6 @@ pwdKeyBoard::pwdKeyBoard(QWidget *parent) :
     connect(clearButton,SIGNAL(clicked()),this,SLOT(clearClicked()));
 
     setAlwaysStay(false);
-
 }
 
 int pwdKeyBoard::getValue(int value, bool *exit)
@@ -40,7 +38,6 @@ int pwdKeyBoard::getValue(int value, bool *exit)
     if(exit){
         *exit = exitState;
     }
-
     return _value;
 }
 
@@ -49,7 +46,8 @@ QString pwdKeyBoard::getValueString(int value)
     pwdKeyBoard::instance()->initValueShow(value);
 
     QString valStr = QString::number(value);
-    if( pwdKeyBoard::instance()->exec() == QDialog::Accepted ){
+    if( pwdKeyBoard::instance()->exec() == QDialog::Accepted )
+    {
         valStr = pwdKeyBoard::instance()->lineEditText();
     }
 
@@ -93,6 +91,7 @@ void pwdKeyBoard::setupUi()
     enterButton->setGeometry(157, 298, 138, 56);
 
   //  retranslateUi(translate::instance()->currentLanguage());
+    setChinese();
 }
 
 int pwdKeyBoard::getLineEditValue()
@@ -187,7 +186,8 @@ void pwdKeyBoard::exitSlot()
 
 pwdKeyBoard *pwdKeyBoard::instance()
 {
-    if( core == NULL ){
+    if( core == NULL )
+    {
         core = new pwdKeyBoard;
     }
     return core;

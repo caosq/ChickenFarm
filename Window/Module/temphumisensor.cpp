@@ -69,4 +69,40 @@ void TempHumiSensor::initButton()
     }
     ui->frame_2->hide();
     ui->frame_3->hide();
+
+    m_pTempErrMonitor = DataMonitor::monitorRegist(&m_xTempErr, Monitor::DataType::Boolean);
+    connect(m_pTempErrMonitor, SIGNAL(valChanged(Monitor*)),this,SLOT(tempValChangedSlot(Monitor*)));
+
+    m_pHumiErrMonitor = DataMonitor::monitorRegist(&m_xHumiErr, Monitor::DataType::Boolean);
+    connect(m_pHumiErrMonitor, SIGNAL(valChanged(Monitor*)),this,SLOT(humiValChangedSlot(Monitor*)));
+}
+
+void TempHumiSensor::tempValChangedSlot(Monitor* pMonitor)
+{
+    int32_t val = pMonitor->getCurVal();
+    if(val==0)
+    {
+        m_pTempLabel->show();
+        ui->frame_2->hide();
+    }
+    else
+    {
+        m_pTempLabel->hide();
+        ui->frame_2->show();
+    }
+}
+
+void TempHumiSensor::humiValChangedSlot(Monitor* pMonitor)
+{
+    int32_t val = pMonitor->getCurVal();
+    if(val==0)
+    {
+        m_pHumiLabel->show();
+        ui->frame_3->hide();
+    }
+    else
+    {
+        m_pHumiLabel->hide();
+        ui->frame_3->show();
+    }
 }

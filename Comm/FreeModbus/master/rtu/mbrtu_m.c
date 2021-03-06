@@ -219,7 +219,7 @@ eMBMasterRTUSend(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddr, UCHAR* pucFra
 
         /* Activate the transmitter. */
         psMBMasterInfo->eSndState = STATE_M_TX_XMIT;               //发送状态
-        vMBMasterPortSerialEnable( psMBPort, FALSE, TRUE );  //使能发送，禁止接收	
+        vMBMasterPortSerialEnable(psMBPort, FALSE, TRUE);  //使能发送，禁止接收
 
 #if MB_UCOSIII_ENABLED
         (void)xMBMasterPortSerialPutByte( psMBPort, (CHAR)(*psMBMasterInfo->pucSndBufferCur) );//启动第一次发送
@@ -374,12 +374,12 @@ BOOL xMBMasterRTUTransmitFSM(sMBMasterInfo* psMBMasterInfo)
             psMBMasterInfo->usSndBufferCount--;
 
 #elif MB_LINUX_ENABLED
-            if( xMBMasterPortSerialPutBytes(psMBPort, psMBMasterInfo->pucSndBufferCur, psMBMasterInfo->usSndBufferCount) )
+            if(xMBMasterPortSerialPutBytes(psMBPort, psMBMasterInfo->pucSndBufferCur, psMBMasterInfo->usSndBufferCount) )
             {
                 psMBMasterInfo->usSndBufferCount = 0;
                 psMBMasterInfo->eSndState = STATE_M_TX_XFWR;
 
-                vMBMasterPortSerialEnable(psMBPort, TRUE, FALSE);
+                //vMBMasterPortSerialEnable(psMBPort, TRUE, FALSE);
                 vMBsMasterPortTmrsRespondTimeoutEnable(psMBPort);
             }
 #endif              
@@ -390,7 +390,7 @@ BOOL xMBMasterRTUTransmitFSM(sMBMasterInfo* psMBMasterInfo)
             /* Disable transmitter. This prevents another transmit buffer
              * empty interrupt. */
 			
-            vMBMasterPortSerialEnable(psMBPort, TRUE, FALSE);
+            //vMBMasterPortSerialEnable(psMBPort, TRUE, FALSE);
             psMBMasterInfo->eSndState = STATE_M_TX_XFWR;
 
             /* If the frame is broadcast ,master will enable timer of convert delay,

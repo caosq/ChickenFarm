@@ -15,7 +15,7 @@
 #define DATA_LABEL_SIZE  100, 25
 
 #define DATA_LABEL_UP_MARGIN    15
-#define DATA_LABEL_LEFT_MARGIN  100
+#define DATA_LABEL_LEFT_MARGIN  110
 #define DATA_LABEL_INTERVAL_H   220
 #define DATA_LABEL_INTERVAL_V   35
 
@@ -49,7 +49,7 @@ void TempSensor::initButton()
     //温度
     m_pTempLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pTempLabel->setAlignment(Qt::AlignLeft);
-    m_pTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
+    m_pTempLabel->setDataParameter("℃", 1, Monitor::Int16t);
     m_pTempLabel->setMonitorData(&m_sTemp, Monitor::Int16t);
     m_Widgets.append(m_pTempLabel);
 
@@ -62,4 +62,22 @@ void TempSensor::initButton()
                                   DATA_LABEL_SIZE);
     }
     ui->frame_2->hide();
+
+    m_pErrMonitor = DataMonitor::monitorRegist(&m_xError, Monitor::DataType::Boolean);
+    connect(m_pErrMonitor, SIGNAL(valChanged(Monitor*)),this,SLOT(valChangedSlot(Monitor*)));
+}
+
+void TempSensor::valChangedSlot(Monitor* pMonitor)
+{
+    int32_t val = pMonitor->getCurVal();
+    if(val==0)
+    {
+        m_pTempLabel->show();
+        ui->frame_2->hide();
+    }
+    else
+    {
+        m_pTempLabel->hide();
+        ui->frame_2->show();
+    }
 }

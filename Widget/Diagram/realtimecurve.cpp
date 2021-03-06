@@ -39,7 +39,6 @@ void RealTimeCurve::InitMember()
 
     fileNameList.clear();
 
-
     data_addr.resize(maxCurveNum);
     save_name.resize(maxCurveNum);
     points.resize(maxCurveNum);
@@ -49,7 +48,6 @@ void RealTimeCurve::InitMember()
 
     sampleTime = new QTimer();
     sampleTime->setInterval(10 * 1000);
-
 }
 
 RealTimeCurve::~RealTimeCurve()
@@ -78,15 +76,13 @@ bool RealTimeCurve::checkDir(QString dir)
     relativelyPath = dir;
 
     QString temp = getBaseSavePath();
-
     temp += dir;
 
     QDir path(temp);
-
-    if(!path.exists()){
+    if(!path.exists())
+    {
         return path.mkpath(temp);
     }
-
     return true;
 }
 
@@ -181,8 +177,7 @@ void RealTimeCurve::updateFileList(QString str)
             break;
         }
     }
-
-    if( isFind )
+    if(isFind)
     {
         if( i == max - 1 )
             return;

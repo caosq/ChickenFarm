@@ -46,6 +46,15 @@ public:
         STATE_RUNNING   = 3,    //运行中
     }ModularState;
 
+    typedef enum   /*组空状态*/
+    {
+        AIR_RUN_MODE_COOL         = 0,      //供冷
+        AIR_RUN_MODE_FAN          = 1,      //通风
+        AIR_RUN_MODE_HEAT         = 2,      //供热
+        AIR_RUN_MODE_NEGATICE_FAN = 3,      //负压通风
+        AIR_RUN_MODE_CLOSED       = 4,      //已关闭
+    }AirRunState;
+
     typedef enum   /*控制模式*/
     {
         MODE_LOCATE   = 0,    //本地
@@ -55,15 +64,16 @@ public:
     uint16_t      m_usUnitID = 0x402C;          //机型ID
     uint16_t      m_usProtocolVer = 10;         //协议版本
 
-    SwitchCmd     m_eSwitchCmd = CMD_CLOSE;           //启停命令
-    RunningMode   m_eRunningModeCmd = RUN_MODE_COOL;  //机组运行工作模式设定
-    ModularState  m_eModularState = STATE_CLOSED;     //机组状态
-    RunningMode   m_eRunningMode = RUN_MODE_COOL;     //机组运行模式
-    ControlMode   m_eControlMode = MODE_LOCATE;       //机组控制模式
+    SwitchCmd     m_eSwitchCmd = CMD_CLOSE;              //启停命令
+    RunningMode   m_eRunningModeCmd = RUN_MODE_COOL;     //机组运行工作模式设定
+    RunningMode   m_eRunningMode = RUN_MODE_COOL;        //机组运行模式
+    ModularState  m_eModularState = STATE_CLOSED;        //机组开关机状态
+    AirRunState   m_eRunningState = AIR_RUN_MODE_CLOSED; //机组运行状态
+    ControlMode   m_eControlMode = MODE_LOCATE;          //机组控制模式
 
     uint16_t      m_usTempSet = 240;         //目标温度设定
-    uint16_t      m_usHumiSet = 60;          //目标湿度设定
-    uint16_t      m_usCO2Set = 2000;         //目标CO2设定
+    uint16_t      m_usHumiSet = 600;          //目标湿度设定
+    uint16_t      m_usCO2Set = 20000;         //目标CO2设定
 
     uint16_t      m_usExitAirDamperAng = 0;      //排风阀当前开度
     uint16_t      m_usRetAirDamperAng = 0;       //回风阀当前开度
@@ -142,9 +152,14 @@ public:
     DataLabel      *m_pExitAirSenErrLabel;         //排风风速传感器故障
     DataLabel      *m_pFreAirSenErrLabel;          //新风风速传感器故障
 
+    Monitor        *m_pSysModeCmdMonitor;           //系统模式监控；
+
 private:
     void initLabel();
     void initButton();
+
+private slots:
+     void stateChangedSlot(int32_t);
 
 public:
     explicit ModularAir(QWidget *parent = nullptr);

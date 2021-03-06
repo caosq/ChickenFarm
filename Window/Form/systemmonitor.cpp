@@ -1,5 +1,6 @@
 #include "systemmonitor.h"
 #include "ui_systemmonitor.h"
+#include "system.h"
 
 SystemMonitor::SystemMonitor(QWidget *parent) :
     QWidget(parent),
@@ -40,6 +41,8 @@ void SystemMonitor::initForm()
     m_Widgets.append(ui->pushButton_6);
 
     on_pushButton_2_clicked();
+
+    System::getInstance()->initController();  //控制器初始化
 }
 
 void SystemMonitor::on_pushButton_clicked()
@@ -56,6 +59,7 @@ void SystemMonitor::on_pushButton_clicked()
             m_Widgets[i]->setPalette(pe);
         }
     }
+    System::getInstance()->m_uiOffLogCount = 0;
     ui->systemStackedWidget->setCurrentWidget(m_pModularAirPage);
 }
 
@@ -73,6 +77,7 @@ void SystemMonitor::on_pushButton_2_clicked()
             m_Widgets[i]->setPalette(pe);
         }
     }
+    System::getInstance()->m_uiOffLogCount = 0;
     ui->systemStackedWidget->setCurrentWidget(m_pModularChillerPage);
 }
 
@@ -90,6 +95,7 @@ void SystemMonitor::on_pushButton_3_clicked()
             m_Widgets[i]->setPalette(pe);
         }
     }
+    System::getInstance()->m_uiOffLogCount = 0;
     ui->systemStackedWidget->setCurrentWidget(m_pBumpPage);
 }
 
@@ -107,6 +113,7 @@ void SystemMonitor::on_pushButton_4_clicked()
             m_Widgets[i]->setPalette(pe);
         }
     }
+    System::getInstance()->m_uiOffLogCount = 0;
     ui->systemStackedWidget->setCurrentWidget(m_pAxialFanPage);
 }
 
@@ -124,6 +131,7 @@ void SystemMonitor::on_pushButton_5_clicked()
             m_Widgets[i]->setPalette(pe);
         }
     }
+    System::getInstance()->m_uiOffLogCount = 0;
     ui->systemStackedWidget->setCurrentWidget(m_pValvePage);
 }
 
@@ -141,5 +149,6 @@ void SystemMonitor::on_pushButton_6_clicked()
             m_Widgets[i]->setPalette(pe);
         }
     }
+    System::getInstance()->m_uiOffLogCount = 0;
     ui->systemStackedWidget->setCurrentWidget(m_pSensorPage);
 }

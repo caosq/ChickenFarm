@@ -3,10 +3,9 @@
 Modbus* Modbus::g_pModbus = nullptr;
 //sMBMasterInfo Modbus::m_MasterInfo;
 
-Modbus::Modbus(eMBType eMBType, QObject *parent) :
+Modbus::Modbus(QObject *parent) :
     QObject(parent)
 {
-    m_MBType = eMBType;
 }
 
 void Modbus::uartConfig(uint32_t usBaudRate, uint8_t ucDataBit, uint8_t ucStopBit, uint8_t pcParity)
@@ -19,10 +18,6 @@ void Modbus::uartConfig(uint32_t usBaudRate, uint8_t ucDataBit, uint8_t ucStopBi
 
 bool Modbus::masterInit(eMBMode eMode, const char* pcPortName, uint8_t ucMinAddr, uint8_t ucMaxAddr, bool bDTUEnable)
 {
-    if(this->m_MBType == TYPE_SLAVE)
-    {
-        return false;
-    }
     m_MasterInfo.eMode = MB_RTU;
     m_MasterInfo.eMBState = STATE_NOT_INITIALIZED;
     m_MasterInfo.eSndState = STATE_M_TX_IDLE;

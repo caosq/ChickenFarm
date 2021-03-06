@@ -27,7 +27,7 @@ public:
 
     //绑定要监视的数据地址以及相应要显示的文字
     void registMonitorItem(void* pvVal, Monitor::DataType emDataType, QString strContext, int32_t iOccurredVal,
-                           QColor colorOccurred = QColor(Qt::red), QColor colorCompleted = QColor("#0bd80b") );
+                           QColor colorOccurred = QColor("#0bd80b"), QColor colorCompleted = Qt::gray);
     //移除监视地址
     void removeMonitorItem(void* pvVal);
 
@@ -59,26 +59,26 @@ public:
     //插入事件记录
     void insertEvent(EventMonitor::sEventItem mItem, Monitor* pMonitor);
     //恢复事件记录
-    void furbishEvent(EventMonitor::sEventItem mItem, Monitor* pMonitor);
+    void furbishEvent(int32_t iMapKey, EventMonitor::sEventItem mItem, Monitor* pMonitor);
 
 private:
     void checkMaxVisibleItem(void* pvVal);
 
 private slots:
-    void eventComingSlot(QMap<int32_t, EventMonitor::sEventItem> mEventMap, Monitor* pMonitor);
+    void eventComingSlot(QMap<int32_t, EventMonitor::sEventItem>, Monitor*);
     void clearTableSlot();
 
 private:
 
     EventMonitor *m_pEventMonitor;
     int maxVisibleNum;
-    int eventNum;
+    int eventNum = 0;
     int minNum;
 
     QMap<void*,int>   eventMap;
     QMap<int,void*>   addrMap;
 
-    QMap<void*, sEventItemData> m_eventItemMap;
+    QMap<void*, QMap<int32_t, sEventItemData>> m_eventItemMap;
 
     uint32_t m_ucRowIndex = 0;
 };

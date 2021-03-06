@@ -94,11 +94,11 @@ void vMBMasterPortSerialEnable(sMBMasterPort* psMBPort, BOOL xRxEnable, BOOL xTx
 #elif MB_LINUX_ENABLED
     if(xRxEnable)
     {
-        tcflush(psMBPort->psMBMasterUart->fd, TCIFLUSH);
+        //tcflush(psMBPort->psMBMasterUart->fd, TCIFLUSH);
     }
     if(xTxEnable)
     {
-        tcflush(psMBPort->psMBMasterUart->fd, TCOFLUSH);
+        //tcflush(psMBPort->psMBMasterUart->fd, TCOFLUSH);
     }
 #endif    
 }
@@ -172,7 +172,7 @@ BOOL xMBMasterPortSerialGetBytes(const sMBMasterPort* psMBPort, UCHAR* pucRcvBuf
         *psReadBytes += (USHORT)sReadBytes;
     }
 
-   /* while(sReadBytes < *psReadBytes)
+/*    while(sReadBytes < *psReadBytes)
     {
          debug("%d ", *(pucRcvBuf + sReadBytes));
          sReadBytes++;

@@ -31,23 +31,32 @@ public:
         RUN_MODE_DEFROST  = 3,      //手动化霜
     }RunningMode;
 
+    typedef enum   /*模块状态*/
+    {
+        STATE_CLOSED        = 0,      //关机
+        STATE_COOL          = 1,      //制冷
+        STATE_HEAT          = 2,      //制热
+        STATE_DEFROST       = 3,      //手动化霜
+        STATE_ANTI_FREEZE   = 4,      //冬天防冻
+    }ModularState;
+
     uint16_t      m_usUnitID = 0x2017;    //机型ID
     uint16_t      m_usProtocolVer = 10;   //协议版本
 
     SwitchCmd     m_eSwitchCmd = CMD_CLOSE;           //启停命令
     RunningMode   m_eRunningModeCmd = RUN_MODE_COOL;  //机组运行工作模式设定
+    ModularState  m_eModularState = STATE_CLOSED;     //机组状态
 
-    int16_t   m_sRetWaterTemp = 0;             //平均回水温度
+    int16_t   m_sRetWaterTemp = 0;            //平均回水温度
     uint16_t  m_usChillerCoolInTemp = 120;    //机组制冷进水温度设定值
     uint16_t  m_usChillerCoolOutTemp = 70;    //机组制冷出水温度设定值
     uint16_t  m_usChillerHeatInTemp = 450;    //机组制热进水温度设定值
     uint16_t  m_usChillerHeatOutTemp = 500;   //机组制热出水温度设定值
 
-    bool          m_xCommErr = 0;             //通讯故障
-    bool          m_xErrClean = 0;            //故障清除
+    bool      m_xCommErr = 0;             //通讯故障
+    bool      m_xErrClean = 0;            //故障清除
 
     QVector<Modular*>  m_Modulars;
-
     uint16_t  m_usModularNum = 0;
     static uint8_t  m_usModularChillerCount;  //机组数量
 
@@ -71,14 +80,13 @@ private:
     void initLabel();
     void initButton();
 
-
 public:
     explicit ModularChiller(QWidget *parent = nullptr);
     ~ModularChiller();
 
 private slots:
-    void sysModeCmdChangedSlot();
-
+    void stateChangedSlot(int32_t);
+    void systemDataChangedSlot();
     void on_pushButton_clicked();
 
 private:

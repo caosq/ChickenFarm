@@ -11,16 +11,35 @@ extern "C" {
 #ifndef MASTER_DEV_DICT_ALLOC
 #define MASTER_DEV_DICT_ALLOC
 
+#if  MB_UCOSIII_ENABLED
 #define MASTER_PBUF_INDEX_ALLOC \
         void*             pvDataBuf   = NULL; \
         sMBDevDataTable*  psDataTable = NULL;  \
         uint16_t          usIndex     = 0;
-        
+#elif MB_LINUX_ENABLED
+
+#define MASTER_PBUF_INDEX_ALLOC \
+        void*             pvDataBuf   = NULL; \
+        sMBDevDataTable*  psDataTable = NULL;  \
+        uint16_t          usIndex     = 0; \
+        uint16_t*         pDaTableIndex = NULL;
+#endif
+
 //开始数据表申请 
+#if  MB_UCOSIII_ENABLED
 #define MASTER_BEGIN_DATA_BUF(BUF, TABLE) \
         usIndex = 0; \
         pvDataBuf   = BUF; \
         psDataTable = &TABLE;
+
+#elif   MB_LINUX_ENABLED
+
+#define MASTER_BEGIN_DATA_BUF(BUF, TABLE, TABLE_INDEX) \
+        usIndex = 0; \
+        pvDataBuf   = BUF; \
+        psDataTable = &TABLE; \
+        pDaTableIndex = TABLE_INDEX;
+#endif
 
 #if MB_UCOSIII_ENABLED
 //保持寄存器数据申请  
@@ -69,25 +88,30 @@ extern "C" {
 #define MASTER_REG_HOLD_DATA(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
         vMBMasterDevRegHoldDataInit(static_cast<sMasterRegHoldData*>(pvDataBuf) + usIndex, \
         arg1, arg2, arg3, arg4, arg5, arg6, arg7, static_cast<void*>(&arg8)); \
-        usIndex++;
+        usIndex++; \
+        pDaTableIndex[arg1] = usIndex;
 
 //输入寄存器数据申请
 #define MASTER_REG_IN_DATA(arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
         vMBMasterDevRegInDataInit(static_cast<sMasterRegInData*>(pvDataBuf) + usIndex, \
         arg1, arg2, arg3, arg4, arg5, arg6, static_cast<void*>(&arg7)); \
-        usIndex++;
+        pDaTableIndex[arg1] = usIndex; \
+        usIndex++; \
+        pDaTableIndex[arg1] = usIndex;
 
 //线圈数据申请
 #define MASTER_COIL_BIT_DATA(arg1, arg2, arg3, arg4) \
         vMBMasterDevCoilDataInit(static_cast<sMasterBitCoilData*>(pvDataBuf) + usIndex, \
         arg1, arg2, arg3, static_cast<void*>(&arg4)); \
-        usIndex++;
+        usIndex++; \
+        pDaTableIndex[arg1] = usIndex;
 
 //离散量数据申请
 #define MASTER_DISC_BIT_DATA(arg1, arg2, arg3) \
         vMBMasterDevDiscDataInit(static_cast<sMasterBitDiscData*>(pvDataBuf) + usIndex, \
         arg1, arg2, static_cast<void*>(&arg3)); \
-        usIndex++;
+        usIndex++; \
+        pDaTableIndex[arg1] = usIndex;
 
 //结束数据表申请
 #define MASTER_END_DATA_BUF(usStartAddr, usEndAddr)\

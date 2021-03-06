@@ -128,6 +128,7 @@ typedef enum
     STATE_HEART_BEAT,            //心跳模式
     STATE_SCAN_DEV,              //主栈轮询从设备模式
     STATE_TEST_DEV,              //主栈测试从设备模式
+    STATE_SYSN_DEV,              //主栈同步从设备数据模式
 }eMasterRunMode;
 
 

@@ -21,8 +21,8 @@ public:
 
 private:
     QVector<QWidget*>   m_Widgets;
-
     DataLabel     *m_pTempLabel;    //温度
+    Monitor       *m_pErrMonitor;   //故障监控；
 
 private:
     void initLabel();
@@ -31,6 +31,9 @@ private:
 public:
     explicit TempSensor(QWidget *parent = nullptr);
     ~TempSensor();
+
+private slots:
+    void valChangedSlot(Monitor* pMonitor);
 
 private:
     Ui::TempSensor *ui;

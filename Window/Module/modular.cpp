@@ -5,41 +5,32 @@
 #include "system.h"
 
 #define LABEL_COLUMNS  1
-#define LABEL_ROWS     8
+#define LABEL_ROWS     9
 
 #define LABEL_SIZE       120, 28
 #define LABEL_FONT_SIZE  14
 
-#define LABEL_UP_MARGIN     30
-#define LABEL_LEFT_MARGIN   20
+#define LABEL_UP_MARGIN     20
+#define LABEL_LEFT_MARGIN   30
 #define LABEL_INTERVAL_H    300
 #define LABEL_INTERVAL_V    35
 
 #define DATA_LABEL_SIZE  100, 25
 
-#define DATA_LABEL_UP_MARGIN    30
-#define DATA_LABEL_LEFT_MARGIN  160
+#define DATA_LABEL_UP_MARGIN    20
+#define DATA_LABEL_LEFT_MARGIN  170
 #define DATA_LABEL_INTERVAL_H   220
 #define DATA_LABEL_INTERVAL_V   35
 
-Compressor::Compressor(QWidget *parent) :
-    QWidget(parent)
-{
-    Monitor *m_pMonitor = DataMonitor::monitorRegist(&m_xRunningFlag, Monitor::Boolean);
-
-    if(m_pMonitor != nullptr)
-    {
-        connect(m_pMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(valChangedSlot(Monitor*)));
-    }
-}
-
-void Compressor::valChangedSlot(Monitor* pMonitor)
-{
-    emit stateChanged(pMonitor->getCurVal());
-}
+#define COLOR_STATE_COOL         "#00BBFF"
+#define COLOR_STATE_HEAT         "#FF5511"
+#define COLOR_STATE_FAN          "#00FF00"
+#define COLOR_STATE_NEGATICE_FAN "#40E0D0"
+#define COLOR_STATE_EX_FAN       "#EE82EE"
+#define COLOR_STATE_DEFROST      "#87CEFA"
+#define COLOR_STATE_ANTI_FREEZE  "#FFFF00"
 
 uint8_t Modular::m_usModularCount = 0;
-
 Modular::Modular(QWidget *parent, uint16_t usDeviceIndex) :
     Device(parent),
     ui(new Ui::Modular)
@@ -49,18 +40,13 @@ Modular::Modular(QWidget *parent, uint16_t usDeviceIndex) :
     Modular::m_usModularCount++;
     this->m_usDeviceIndex = usDeviceIndex;
 
-    Compressor *pComp = nullptr;
-    for( uint8_t i = 0; i < COMP_NUM_IN_CHILLER; i++)
-    {
-        pComp = new Compressor(this);
-        if(pComp != nullptr)
-        {
-            connect(pComp, SIGNAL(stateChanged(bool)), this, SLOT(compStateChangedSlot(bool)));
-            m_Comps.append(pComp);
-        }
-    }
     initLabel();
     initButton();
+}
+
+Modular::~Modular()
+{
+    delete ui;
 }
 
 void Modular::initLabel()
@@ -85,7 +71,8 @@ void Modular::initLabel()
     m_Labels[4]->setText(tr("水流开关"), LABEL_FONT_SIZE);
     m_Labels[5]->setText(tr("总报警标志"), LABEL_FONT_SIZE);
     m_Labels[6]->setText(tr("总故障标志"), LABEL_FONT_SIZE);
-    m_Labels[7]->setText(tr("压缩机运行数"), LABEL_FONT_SIZE);
+    m_Labels[7]->setText(tr("压缩机1"), LABEL_FONT_SIZE);
+    m_Labels[8]->setText(tr("压缩机2"), LABEL_FONT_SIZE);
 
     ui->label->setText("模块 " + QString::number(this->m_usDeviceIndex));
     ui->label->setGeometry(128, 15, ui->label->width(), ui->label->height());
@@ -97,10 +84,10 @@ void Modular::initButton()
     m_pModularStateLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pModularStateLabel->setAlignment(Qt::AlignLeft);
     m_pModularStateLabel->setValueMap(0,tr("关机"));
-    m_pModularStateLabel->setValueMap(1,tr("制冷"));
-    m_pModularStateLabel->setValueMap(2,tr("制热"));
-    m_pModularStateLabel->setValueMap(3,tr("化霜"));
-    m_pModularStateLabel->setValueMap(4,tr("防冻"));
+    m_pModularStateLabel->setValueMap(1,tr("制冷"), QColor(COLOR_STATE_COOL));
+    m_pModularStateLabel->setValueMap(2,tr("制热"), QColor(COLOR_STATE_HEAT));
+    m_pModularStateLabel->setValueMap(3,tr("化霜"), QColor(COLOR_STATE_DEFROST));
+    m_pModularStateLabel->setValueMap(4,tr("防冻"), QColor(COLOR_STATE_ANTI_FREEZE));
     m_pModularStateLabel->setMonitorData(&m_eModularState, Monitor::Uint16t);
     m_Widgets.append(m_pModularStateLabel);
 
@@ -108,22 +95,22 @@ void Modular::initButton()
     //进水温度
     m_pInputWaterTempLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pInputWaterTempLabel->setAlignment(Qt::AlignLeft);
-    m_pInputWaterTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
+    m_pInputWaterTempLabel->setDataParameter("℃", 1, Monitor::Int16t);
     m_pInputWaterTempLabel->setMonitorData(&m_sInputWaterTemp, Monitor::Int16t);
     m_Widgets.append(m_pInputWaterTempLabel);
 
     //出水温度
     m_pOutputWaterTempLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pOutputWaterTempLabel->setAlignment(Qt::AlignLeft);
-    m_pOutputWaterTempLabel->setDataParameter("℃", 1, Monitor::Uint16t);
-    m_pOutputWaterTempLabel->setMonitorData(&m_sOutputWaterTemp, Monitor::Uint16t);
+    m_pOutputWaterTempLabel->setDataParameter("℃", 1, Monitor::Int16t);
+    m_pOutputWaterTempLabel->setMonitorData(&m_sOutputWaterTemp, Monitor::Int16t);
     m_Widgets.append(m_pOutputWaterTempLabel);
 
     //运行标志
     m_pRunningFlagLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pRunningFlagLabel->setAlignment(Qt::AlignLeft);
     m_pRunningFlagLabel->setValueMap(0,tr("关闭"));
-    m_pRunningFlagLabel->setValueMap(1,tr("运行"));
+    m_pRunningFlagLabel->setValueMap(1,tr("运行"), Qt::green);
     m_pRunningFlagLabel->setMonitorData(&m_xRunningFlag, Monitor::Boolean);
     m_Widgets.append(m_pRunningFlagLabel);
 
@@ -131,32 +118,41 @@ void Modular::initButton()
     m_pWaterValveLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pWaterValveLabel->setAlignment(Qt::AlignLeft);
     m_pWaterValveLabel->setValueMap(0,tr("关闭"));
-    m_pWaterValveLabel->setValueMap(1,tr("运行"));
+    m_pWaterValveLabel->setValueMap(1,tr("开启"), Qt::green);
     m_pWaterValveLabel->setMonitorData(&m_xWaterValve, Monitor::Boolean);
     m_Widgets.append(m_pWaterValveLabel);
 
     //总故障标志
     m_pErrorFlagLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pErrorFlagLabel->setAlignment(Qt::AlignLeft);
-    m_pErrorFlagLabel->setValueMap(0,tr("关闭"));
-    m_pErrorFlagLabel->setValueMap(1,tr("运行"));
+    m_pErrorFlagLabel->setValueMap(0,tr("正常"));
+    m_pErrorFlagLabel->setValueMap(1,tr("故障"), Qt::red);
     m_pErrorFlagLabel->setMonitorData(&m_xErrorFlag, Monitor::Boolean);
     m_Widgets.append(m_pErrorFlagLabel);
 
     //总报警标志
     m_pAlarmFlagLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pAlarmFlagLabel->setAlignment(Qt::AlignLeft);
-    m_pAlarmFlagLabel->setValueMap(0,tr("关闭"));
-    m_pAlarmFlagLabel->setValueMap(1,tr("运行"));
+    m_pAlarmFlagLabel->setValueMap(0,tr("正常"));
+    m_pAlarmFlagLabel->setValueMap(1,tr("报警"), Qt::red);
     m_pAlarmFlagLabel->setMonitorData(&m_xAlarmFlag, Monitor::Boolean);
     m_Widgets.append(m_pAlarmFlagLabel);
 
-    //运行压缩机数量
-    m_pRunnningCompCountLabel = new DataLabel(ui->frame, DataLabel::Data);
-    m_pRunnningCompCountLabel->setAlignment(Qt::AlignLeft);
-    m_pRunnningCompCountLabel->setDataParameter("个", 0, Monitor::Uint16t);
-    m_pRunnningCompCountLabel->setMonitorData(&m_RunnningCompCount, Monitor::Uint16t);
-    m_Widgets.append(m_pRunnningCompCountLabel);
+    //压缩机1
+    m_pCompRunnnig_1 = new DataLabel(ui->frame, DataLabel::Text);
+    m_pCompRunnnig_1->setAlignment(Qt::AlignLeft);
+    m_pCompRunnnig_1->setValueMap(0,tr("关闭"));
+    m_pCompRunnnig_1->setValueMap(1,tr("运行"), Qt::green);
+    m_pCompRunnnig_1->setMonitorData(&m_xCompRunnnig_1, Monitor::Boolean);
+    m_Widgets.append(m_pCompRunnnig_1);
+
+    //压缩机2
+    m_pCompRunnnig_2 = new DataLabel(ui->frame, DataLabel::Text);
+    m_pCompRunnnig_2->setAlignment(Qt::AlignLeft);
+    m_pCompRunnnig_2->setValueMap(0,tr("关闭"));
+    m_pCompRunnnig_2->setValueMap(1,tr("运行"), Qt::green);
+    m_pCompRunnnig_2->setMonitorData(&m_xCompRunnnig_2, Monitor::Boolean);
+    m_Widgets.append(m_pCompRunnnig_2);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
     {
@@ -166,21 +162,41 @@ void Modular::initButton()
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
+    connect(m_pErrorFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pAlarmFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pRunningFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
 }
 
-void Modular::compStateChangedSlot(bool xRunningFlag)
+void Modular::stateChangedSlot(int32_t)
 {
-    if(xRunningFlag)
+    if(m_sQFrameState.IsError != nullptr)
     {
-        m_RunnningCompCount++;
+        if(m_xErrorFlag || m_xAlarmFlag)
+        {
+            m_sQFrameState.IsError->show();
+        }
+        else
+        {
+            if(m_pBrotherModular != nullptr )
+            {
+                if(m_pBrotherModular->m_xAlarmFlag == false && m_pBrotherModular->m_xErrorFlag == false)
+                m_sQFrameState.IsError->hide();
+            }
+            else
+            {
+                m_sQFrameState.IsError->hide();
+            }
+        }
     }
-    else if(m_RunnningCompCount > 0)
+    if(m_sQFrameState.IsRunning != nullptr)
     {
-        m_RunnningCompCount--;
+        if(m_xRunningFlag)
+        {
+            m_sQFrameState.IsRunning->hide();
+        }
+        else if(m_pBrotherModular->m_xRunningFlag == false)
+        {
+            m_sQFrameState.IsRunning->show();
+        }
     }
-}
-
-Modular::~Modular()
-{
-    delete ui;
 }

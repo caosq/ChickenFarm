@@ -30,7 +30,7 @@ eMBMasterReqErrCode eMBMasterRegInMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSnd
 	{
 		return MB_MRE_ILL_ARG;
 	}
-    
+#if  MB_UCOSIII_ENABLED
     if(psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex == NULL || psMBRegInTable == NULL || psMBRegInTable->pvDataBuf == NULL)
     {
          return MB_MRE_EILLSTATE;
@@ -39,11 +39,26 @@ eMBMasterReqErrCode eMBMasterRegInMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSnd
     {
         *pvRegInValue = (sMasterRegInData*)(psMBRegInTable->pvDataBuf) + usIndex; //指针赋值，这里传递的是个地址，指向目标寄存器所在数组位置
     }
-	else
-	{
+    else
+    {
         return MB_MRE_NO_REG;
     }
-    return MB_MRE_NO_REG;
+#elif MB_LINUX_ENABLED
+
+    if(psMBSlaveDevCur->psDevCurData->pRegInIndex == NULL || psMBRegInTable == NULL || psMBRegInTable->pvDataBuf == NULL)
+    {
+         return MB_MRE_EILLSTATE;
+    }
+    if( *(psMBSlaveDevCur->psDevCurData->pRegInIndex + usCoilAddr) != 65535)  //映射值非法
+    {
+        *pvRegInValue = (sMasterRegInData*)(psMBRegInTable->pvDataBuf) + *(psMBSlaveDevCur->psDevCurData->pRegInIndex + usRegAddr);
+    }
+    else
+    {
+        return MB_MRE_NO_REG;
+    }
+#endif
+    return MB_MRE_NO_ERR;
 }
 #endif
 
@@ -60,13 +75,11 @@ eMBMasterReqErrCode eMBMasterRegInMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSnd
  * @date 2019.01.22
  *************************************************************************************/
 eMBMasterReqErrCode eMBMasterRegHoldingMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, 
-                                           USHORT usRegAddr, sMasterRegHoldData ** pvRegHoldValue)
+                                           USHORT usRegAddr, sMasterRegHoldData **pvRegHoldValue)
 {
-	USHORT usIndex;
-    
-	eMBMasterReqErrCode        eStatus  = MB_MRE_NO_ERR;
-    sMBSlaveDev*        psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;     //当前从设备
-    sMBDevDataTable*   psMBRegHoldTable = &psMBSlaveDevCur->psDevCurData->sMBRegHoldTable;
+    USHORT usIndex = 0;
+    sMBSlaveDev*     psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;     //当前从设备
+    sMBDevDataTable* psMBRegHoldTable = &psMBSlaveDevCur->psDevCurData->sMBRegHoldTable;
     
     if(psMBSlaveDevCur->ucDevAddr != ucSndAddr) //如果当前从设备地址与要轮询从设备地址不一致，则更新从设备
     {
@@ -78,19 +91,37 @@ eMBMasterReqErrCode eMBMasterRegHoldingMap(sMBMasterInfo* psMBMasterInfo, UCHAR 
 	{
 		return MB_MRE_ILL_ARG;
 	}
+#if  MB_UCOSIII_ENABLED
     if(psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex == NULL || psMBRegHoldTable == NULL || psMBRegHoldTable->pvDataBuf == NULL)
     {
          return MB_MRE_EILLSTATE;
     }
-	if( psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(RegHoldData, psMBSlaveDevCur->ucProtocolID, usRegAddr, &usIndex))  //字典映射函数
+    if( psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(RegHoldData, psMBSlaveDevCur->ucProtocolID, usRegAddr, &usIndex))  //字典映射函数
     {
         *pvRegHoldValue = (sMasterRegHoldData*)(psMBRegHoldTable->pvDataBuf) + usIndex;
     }
-	else
-	{
+    else
+    {
         return MB_MRE_NO_REG;
     }
-    return eStatus;		
+#elif  MB_LINUX_ENABLED
+
+    if(psMBSlaveDevCur->psDevCurData->pRegHoldIndex == NULL || psMBRegHoldTable == NULL || psMBRegHoldTable->pvDataBuf == NULL)
+    {
+         return MB_MRE_EILLSTATE;
+    }
+
+    usIndex = *(psMBSlaveDevCur->psDevCurData->pRegHoldIndex + usRegAddr);
+    if(usIndex > 0 && psMBRegHoldTable->usStartAddr <= usIndex-1 && usIndex-1 <= psMBRegHoldTable->usEndAddr)  //有效映射值
+    {
+        *pvRegHoldValue = (sMasterRegHoldData*)(psMBRegHoldTable->pvDataBuf) + usIndex - 1;
+    }
+    else
+    {
+        return MB_MRE_NO_REG;
+    }
+#endif
+    return MB_MRE_NO_ERR;
 } 
 #endif
 
@@ -121,19 +152,36 @@ eMBMasterReqErrCode eMBMasterCoilMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndA
 	if( (psMBCoilTable->pvDataBuf == NULL) || (psMBCoilTable->pvDataBuf == 0)) //非空且数据点不为0
 	{
 		return MB_MRE_ILL_ARG;
-	}
+	}  
+#if   MB_UCOSIII_ENABLED
     if(psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex == NULL || psMBCoilTable == NULL || psMBCoilTable->pvDataBuf == NULL)
     {
          return MB_MRE_EILLSTATE;
-    }    
-	if( psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(CoilData, psMBSlaveDevCur->ucProtocolID, usCoilAddr, &usIndex) )  //字典映射函数
-	{
+    }
+    if( psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(CoilData, psMBSlaveDevCur->ucProtocolID, usCoilAddr, &usIndex) )  //字典映射函数
+    {
         *pvCoilValue = (sMasterBitCoilData*)(psMBCoilTable->pvDataBuf) + usIndex;
     }
-	else
-	{
+    else
+    {
         return MB_MRE_NO_REG;
     }
+#elif MB_LINUX_ENABLED
+
+    if(psMBSlaveDevCur->psDevCurData->pBitCoilIndex == NULL || psMBCoilTable == NULL || psMBCoilTable->pvDataBuf == NULL)
+    {
+         return MB_MRE_EILLSTATE;
+    }
+    usIndex = *(psMBSlaveDevCur->psDevCurData->pBitCoilIndex + usCoilAddr);
+    if( usIndex > 0 && psMBCoilTable->usStartAddr <= usIndex - 1 && usIndex - 1 <= psMBCoilTable->usEndAddr)  //有效映射值
+    {
+        *pvCoilValue = (sMasterBitCoilData*)(psMBCoilTable->pvDataBuf) + usIndex - 1;
+    }
+    else
+    {
+        return MB_MRE_NO_REG;
+    }
+#endif
     return MB_MRE_NO_ERR;
 }    
 #endif
@@ -165,18 +213,35 @@ eMBMasterReqErrCode eMBMasterDiscreteMap(sMBMasterInfo* psMBMasterInfo, UCHAR uc
 	{
 		return MB_MRE_ILL_ARG;
 	}
+
+#if  MB_UCOSIII_ENABLED
     if(psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex == NULL || psMBDiscInTable == NULL || psMBDiscInTable->pvDataBuf == NULL)
     {
          return MB_MRE_EILLSTATE;
-    }    
-	if( psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(DiscInData, psMBSlaveDevCur->ucProtocolID, usDiscreteAddr, &usIndex))  //字典映射函数
+    }
+    if( psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(DiscInData, psMBSlaveDevCur->ucProtocolID, usDiscreteAddr, &usIndex))  //字典映射函数
     {
         *pvDiscreteValue = (sMasterBitDiscData*)(psMBDiscInTable->pvDataBuf) + usIndex;
     }
     else
-	{
+    {
         return MB_MRE_NO_REG;
     }
+#elif MB_LINUX_ENABLED
+
+    if(psMBSlaveDevCur->psDevCurData->pBitDiscIndex == NULL || psMBDiscInTable == NULL || psMBDiscInTable->pvDataBuf == NULL)
+    {
+         return MB_MRE_EILLSTATE;
+    }
+    if( *(psMBSlaveDevCur->psDevCurData->pBitDiscIndex + usDiscreteAddr) != 65535)  //映射值非法
+    {
+        *pvDiscreteValue = (sMasterBitDiscData*)(psMBDiscInTable->pvDataBuf) + *(psMBSlaveDevCur->psDevCurData->pBitDiscIndex + usDiscreteAddr);
+    }
+    else
+    {
+        return MB_MRE_NO_REG;
+    }
+#endif
     return MB_MRE_NO_ERR;
 }    
 

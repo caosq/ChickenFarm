@@ -22,7 +22,7 @@ class BumpPage : public QWidget
 public:
     QVector<ChilledBump*> m_ChilledBumps;
 
-    Meter         m_sMeter;   //电表
+    Meter         m_sBumpMeter;   //电表
 
 private:
     QVector<TextLabel*> m_Labels_1;
@@ -50,7 +50,7 @@ public:
     ~BumpPage();
 
 private slots:
-    void sysModeCmdChangedSlot();
+    void systemDataChangedSlot();
     void paramSetBtnValChanged(int32_t val);
 
 private:

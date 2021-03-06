@@ -1,8 +1,9 @@
 #include "modularchiller.h"
 #include "ui_modularchiller.h"
-#include <QMessageBox>
-#include "messagebox.h"
 #include "system.h"
+
+#define UB_PRE_PIX  ":UI/userFile/prepage.png"
+#define UB_NEXT_PIX ":UI/userFile/nextpage.png"
 
 #define AB_PRESS_PIX ":UI/baseFile/abPress.png"
 #define AB_RELEASE_PIX ":UI/baseFile/abRelease.png"
@@ -67,6 +68,21 @@ ModularChiller::ModularChiller(QWidget *parent) :
         psModular->setGeometry(MODULAR_LEFT_MARGIN +  m * psModular->width(), 0,
                                psModular->width(), psModular->height());
         m_Modulars.append(psModular);
+
+        connect(psModular->m_pRunningFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+        connect(psModular->m_pModularStateLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    }
+    if(m_usModularNum == 3)
+    {
+        m_Modulars[1]->m_pBrotherModular = m_Modulars[2];
+        m_Modulars[2]->m_pBrotherModular = m_Modulars[1];
+    }
+    else if(m_usModularNum == MODULAR_NUM_IN_CHILLER)
+    {
+        m_Modulars[0]->m_pBrotherModular = m_Modulars[1];
+        m_Modulars[1]->m_pBrotherModular = m_Modulars[0];
+        m_Modulars[2]->m_pBrotherModular = m_Modulars[3];
+        m_Modulars[3]->m_pBrotherModular = m_Modulars[2];
     }
     initLabel();
     initButton();
@@ -106,10 +122,15 @@ void ModularChiller::initLabel()
 
 void ModularChiller::initButton()
 {
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
     //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame_2);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
+    m_pSwitchCmdBtn->setValueMap(StateButton::State0, 0x0055);
+    m_pSwitchCmdBtn->setValueMap(StateButton::State1, 0x00AA);
+    m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
     m_pSwitchCmdBtn->setMonitorData(&m_eSwitchCmd, Monitor::Uint16t);
     m_Widgets.append(m_pSwitchCmdBtn);
@@ -119,6 +140,7 @@ void ModularChiller::initButton()
     m_pRunningModeCmdBtn->setItem(1,tr("制冷"));
     m_pRunningModeCmdBtn->setItem(2,tr("制热"));
     m_pRunningModeCmdBtn->setItem(3,tr("手动化霜"));
+    m_pRunningModeCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pRunningModeCmdBtn->setDefaultValue(1);
     m_pRunningModeCmdBtn->setMonitorData(&m_eRunningModeCmd, Monitor::Uint16t);
     m_Widgets.append(m_pRunningModeCmdBtn);
@@ -134,31 +156,35 @@ void ModularChiller::initButton()
     m_pCommErrLabel = new DataLabel(ui->frame_2, DataLabel::Text);
     m_pCommErrLabel->setAlignment(Qt::AlignLeft);
     m_pCommErrLabel->setValueMap(0,tr("正常"));
-    m_pCommErrLabel->setValueMap(1,tr("故障"));
+    m_pCommErrLabel->setValueMap(1,tr("故障"), Qt::red);
     m_pCommErrLabel->setMonitorData(&m_xCommErr, Monitor::Boolean);
     m_Widgets.append(m_pCommErrLabel);
 
     //机组制冷进水温度设定值
     m_pChillerCoolInTempBtn = new AnalogValButton(ui->frame_2);
     m_pChillerCoolInTempBtn->setDataParameter("℃", 1, 120, 250, 100, Monitor::Uint16t);
+    m_pChillerCoolInTempBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pChillerCoolInTempBtn->setMonitorData(&m_usChillerCoolInTemp, Monitor::Uint16t);
     m_Widgets.append(m_pChillerCoolInTempBtn);
 
     //机组制冷出水温度设定值
     m_pChillerCoolOutTempBtn = new AnalogValButton(ui->frame_2);
     m_pChillerCoolOutTempBtn->setDataParameter("℃", 1, 70, 200, 50, Monitor::Uint16t);
+    m_pChillerCoolOutTempBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pChillerCoolOutTempBtn->setMonitorData(&m_usChillerCoolOutTemp, Monitor::Uint16t);
     m_Widgets.append(m_pChillerCoolOutTempBtn);
 
     //机组制热进水温度设定值
     m_pChillerHeatInTempBtn = new AnalogValButton(ui->frame_2);
     m_pChillerHeatInTempBtn->setDataParameter("℃", 1, 450, 450, 300, Monitor::Uint16t);
+    m_pChillerHeatInTempBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pChillerHeatInTempBtn->setMonitorData(&m_usChillerHeatInTemp, Monitor::Uint16t);
     m_Widgets.append(m_pChillerHeatInTempBtn);
 
     //机组制热出水温度设定值
     m_pChillerHeatOutTempBtn = new AnalogValButton(ui->frame_2);
     m_pChillerHeatOutTempBtn->setDataParameter("℃", 1, 500, 500, 350, Monitor::Uint16t);
+    m_pChillerHeatOutTempBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pChillerHeatOutTempBtn->setMonitorData(&m_usChillerHeatOutTemp, Monitor::Uint16t);
     m_Widgets.append(m_pChillerHeatOutTempBtn);
 
@@ -170,11 +196,12 @@ void ModularChiller::initButton()
                                   DATA_LABEL_UP_MARGIN + n * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
-    connect(System::getInstance(), SIGNAL(sysModeCmdChanged()), this, SLOT(sysModeCmdChangedSlot()));
-    sysModeCmdChangedSlot();
+    connect(m_pCommErrLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(System::getInstance(), SIGNAL(systemDataChanged()), this, SLOT(systemDataChangedSlot()));
+    systemDataChangedSlot();
 }
 
-void ModularChiller::sysModeCmdChangedSlot()
+void ModularChiller::systemDataChangedSlot()
 {
     System *pSystem = System::getInstance();
     if(pSystem == nullptr){return;}
@@ -195,12 +222,68 @@ void ModularChiller::on_pushButton_clicked()
     if(ui->stackedWidget->currentIndex() == 0)
     {
         ui->stackedWidget->setCurrentIndex(1);
-        ui->pushButton->setText("上一页");
-
+        ui->pushButton->setStyleSheet(QString("border-image: url(").append(UB_PRE_PIX).append(")"));
     }
     else if(ui->stackedWidget->currentIndex() == 1)
     {
         ui->stackedWidget->setCurrentIndex(0);
-        ui->pushButton->setText("下一页");
+        ui->pushButton->setStyleSheet(QString("border-image: url(").append(UB_NEXT_PIX).append(")"));
+    }
+    System::getInstance()->m_uiOffLogCount = 0;
+}
+
+void ModularChiller::stateChangedSlot(int32_t)
+{
+    Modular *psModular = nullptr;
+    for(uint8_t i = 0; i < m_Modulars.count(); i++)
+    {
+        psModular = m_Modulars[i];
+        if(psModular->m_sQFrameState.IsError != nullptr)
+        {
+            if(m_xCommErr)
+            {
+                psModular->m_sQFrameState.IsError->show();
+            }
+            else if(psModular->m_xAlarmFlag == false && psModular->m_xErrorFlag == false)
+            {
+                if(psModular->m_pBrotherModular != nullptr)
+                {
+                    if(psModular->m_pBrotherModular->m_xAlarmFlag == false &&
+                       psModular->m_pBrotherModular->m_xErrorFlag == false)
+                    {
+                        psModular->m_sQFrameState.IsError->hide();
+                    }
+                }
+                else
+                {
+                    psModular->m_sQFrameState.IsError->hide();
+                }
+            }
+        }
+    }
+    for(uint8_t i = 0; i < m_Modulars.count(); i++)
+    {
+        psModular = m_Modulars[i];
+        if(psModular->m_eModularState == Modular::STATE_COOL && psModular->m_xRunningFlag)
+        {
+            m_eModularState = STATE_COOL;
+            return;
+        }
+        if(psModular->m_eModularState == Modular::STATE_HEAT && psModular->m_xRunningFlag)
+        {
+            m_eModularState = STATE_HEAT;
+            return;
+        }
+        if(psModular->m_eModularState == Modular::STATE_DEFROST && psModular->m_xRunningFlag)
+        {
+            m_eModularState = STATE_DEFROST;
+            return;
+        }
+        if(psModular->m_eModularState == Modular::STATE_ANTI_FREEZE && psModular->m_xRunningFlag)
+        {
+            m_eModularState = STATE_ANTI_FREEZE;
+            return;
+        }
+        m_eModularState = STATE_CLOSED;
     }
 }

@@ -13,7 +13,7 @@ CurrentEventTable::CurrentEventTable(int column, QString saveDir, QWidget *paren
 
     m_pEventMonitor = new EventMonitor(saveDir, this);
 
-    connect(m_pEventMonitor, SIGNAL(eventComing(sEventItem, Monitor*)), this, SLOT(eventComingSlot(sEventItem, Monitor*)));
+    connect(m_pEventMonitor, SIGNAL(eventComing(QMap<int32_t, EventMonitor::sEventItem>, Monitor*)), this, SLOT(eventComingSlot(QMap<int32_t, EventMonitor::sEventItem>, Monitor* )));
 
    // connect(_data,SIGNAL(clearTable()),this,SLOT(clearTableSlot()));
 }
@@ -68,7 +68,7 @@ void CurrentEventTable::checkMaxVisibleItem(void* pvVal)
     eventMap.insert(pvVal,eventNum);
     addrMap.insert(eventNum,pvVal);
 
-    eventNum++;
+    //eventNum++;
 }
 
 void CurrentEventTable::eventComingSlot(QMap<int32_t, EventMonitor::sEventItem> mEventMap, Monitor* pMonitor)
@@ -85,9 +85,10 @@ void CurrentEventTable::eventComingSlot(QMap<int32_t, EventMonitor::sEventItem> 
         }
         else
         {
-            furbishEvent(mItem, pMonitor);
+            furbishEvent(it.key(), mItem, pMonitor);
         }
     }
+   // qDebug("insertEvent getCurVal %d  iOccurredVal %d", pMonitor->getCurVal(), mItem.iOccurredVal);
 }
 
 void CurrentEventTable::clearTableSlot()
@@ -99,15 +100,18 @@ void CurrentEventTable::clearTableSlot()
 
 void CurrentEventTable::insertEvent(EventMonitor::sEventItem mItem, Monitor* pMonitor)
 {
-    checkMaxVisibleItem(pMonitor->getCurValAddr());
+    checkMaxVisibleItem(pMonitor->getValueAddr());
 
     QStringList list;
     QStringList ItemData;
     sEventItemData mEventItemData;
+    QMap<int32_t, sEventItemData> mEventMap;
 
     QString time = QDate::currentDate().toString("yyyy-MM-dd");
     time.append(" ");
     time.append(QTime::currentTime().toString("hh:mm:ss"));
+
+    eventNum++;
 
     ItemData.append(QString::number(eventNum));
     ItemData.append(time);
@@ -117,29 +121,18 @@ void CurrentEventTable::insertEvent(EventMonitor::sEventItem mItem, Monitor* pMo
     list.append("1");
     list.append(ItemData[1]);
     list.append(ItemData[3]);
-
     insertRow(ItemData, mItem.colorOccurred);
-    mEventItemData = {eventNum, ItemData};
 
-    m_eventItemMap.insert(pMonitor->getCurValAddr(), mEventItemData);
+    mEventItemData = {eventNum, ItemData};
+    mEventMap.insert(pMonitor->getCurVal(), mEventItemData);
+
+    m_eventItemMap.insert(pMonitor->getValueAddr(), mEventMap);
     m_pEventMonitor->writeData(list);
 }
 
-void CurrentEventTable::furbishEvent(EventMonitor::sEventItem mItem, Monitor* pMonitor)
+void CurrentEventTable::furbishEvent(int32_t iMapKey, EventMonitor::sEventItem mItem, Monitor* pMonitor)
 {
-    QStringList list;
-
-    QString time = QDate::currentDate().toString("yyyy-MM-dd");
-    time.append(" ");
-    time.append(QTime::currentTime().toString("hh:mm:ss"));
-
-    list.append("0");
-    list.append(time);
-    list.append(mItem.strContext);
-
-    m_pEventMonitor->writeData(list);
-
-    if( !eventMap.contains(pvVal) )
+    /*if( !eventMap.contains(pvVal) )
     {
         return;
     }
@@ -151,6 +144,35 @@ void CurrentEventTable::furbishEvent(EventMonitor::sEventItem mItem, Monitor* pM
 
     addrMap.remove(eventMap.value(pvVal));
     eventMap.remove(pvVal);
+    */
+
+    QStringList list;
+    QString time = QDate::currentDate().toString("yyyy-MM-dd");
+    sEventItemData mEventItemData;
+    void*  pvVal = pMonitor->getValueAddr();
+    int    row = 0;
+
+    if(m_eventItemMap.contains(pvVal))
+    {
+        if(m_eventItemMap[pvVal].contains(iMapKey))
+        {
+            time.append(" ");
+            time.append(QTime::currentTime().toString("hh:mm:ss"));
+
+            list.append("0");
+            list.append(time);
+            list.append(mItem.strContext);
+
+            mEventItemData = m_eventItemMap[pvVal][iMapKey];
+            row = eventNum - mEventItemData.iEventNum;
+
+            setRowColor(row, mItem.colorCompleted);
+            item(row, 2)->setText(time);
+            m_eventItemMap[pvVal].remove(iMapKey);
+
+            m_pEventMonitor->writeData(list);
+        }
+    }
 }
 
 

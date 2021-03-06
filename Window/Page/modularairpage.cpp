@@ -17,7 +17,7 @@
 #define LABEL_INTERVAL_V_1    40
 
 #define LABEL_UP_MARGIN_2     50
-#define LABEL_LEFT_MARGIN_2   30
+#define LABEL_LEFT_MARGIN_2   20
 #define LABEL_INTERVAL_H_2    300
 #define LABEL_INTERVAL_V_2    40
 
@@ -28,9 +28,9 @@
 #define DATA_LABEL_INTERVAL_H_1   300
 #define DATA_LABEL_INTERVAL_V_1   40
 
-#define DATA_LABEL_UP_MARGIN_2    50
-#define DATA_LABEL_LEFT_MARGIN_2  150
-#define DATA_LABEL_INTERVAL_H_2   300
+#define DATA_LABEL_UP_MARGIN_2    55
+#define DATA_LABEL_LEFT_MARGIN_2  130
+#define DATA_LABEL_INTERVAL_H_2   298
 #define DATA_LABEL_INTERVAL_V_2   40
 
 ModularAirPage::ModularAirPage(QWidget *parent) :
@@ -110,6 +110,9 @@ void ModularAirPage::initButton()
     m_pSwitchCmdBtn = new StateButton(ui->frame);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
+    m_pSwitchCmdBtn->setValueMap(StateButton::State0, 0x0055);
+    m_pSwitchCmdBtn->setValueMap(StateButton::State1, 0x00AA);
+    m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
     m_Widgets_1.append(m_pSwitchCmdBtn);
 
@@ -119,6 +122,7 @@ void ModularAirPage::initButton()
     m_pRunningModeCmdBtn->setItem(1,tr("通风"));
     m_pRunningModeCmdBtn->setItem(2,tr("供热"));
     m_pRunningModeCmdBtn->setItem(3,tr("负压通风"));
+    m_pRunningModeCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pRunningModeCmdBtn->setDefaultValue(0);
     m_Widgets_1.append(m_pRunningModeCmdBtn);
 
@@ -126,18 +130,21 @@ void ModularAirPage::initButton()
     m_pTempSetBtn = new AnalogValButton(ui->frame);
     m_pTempSetBtn->setDataParameter("℃", 1, 240, 350, 160, Monitor::Uint16t);
     m_pTempSetBtn->setMonitorData(&pSystem->m_usTempSet, Monitor::Uint16t);
+    m_pTempSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_Widgets_1.append(m_pTempSetBtn);
 
     //目标湿度设定
     m_pHumiSetBtn = new AnalogValButton(ui->frame);
-    m_pHumiSetBtn->setDataParameter("%", 1, 60, 100, 0, Monitor::Uint16t);
+    m_pHumiSetBtn->setDataParameter("%", 1, 600, 1000, 0, Monitor::Uint16t);
     m_pHumiSetBtn->setMonitorData(&pSystem->m_usHumiSet, Monitor::Uint16t);
+    m_pHumiSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_Widgets_1.append(m_pHumiSetBtn);
 
     //目标CO2设定
     m_pCO2SetBtn = new AnalogValButton(ui->frame);
-    m_pCO2SetBtn->setDataParameter("ppm", 0, 2000, 3000, 1000, Monitor::Uint16t);
+    m_pCO2SetBtn->setDataParameter("ppm", 1, 20000, 35000, 10000, Monitor::Uint16t);
     m_pCO2SetBtn->setMonitorData(&pSystem->m_usCO2PPMSet, Monitor::Uint16t);
+    m_pCO2SetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_Widgets_1.append(m_pCO2SetBtn);
 
 
@@ -176,7 +183,7 @@ void ModularAirPage::initButton()
     m_pCommErrLabel = new DataLabel(ui->frame_1, DataLabel::Text);
     m_pCommErrLabel->setAlignment(Qt::AlignLeft);
     m_pCommErrLabel->setValueMap(0,tr("正常"));
-    m_pCommErrLabel->setValueMap(1,tr("故障"));
+    m_pCommErrLabel->setValueMap(1,tr("故障"), Qt::red);
     m_pCommErrLabel->setMonitorData(&m_pCurModularAir->m_sMeter.m_xCommErr, Monitor::Boolean);
     m_Widgets_2.append(m_pCommErrLabel);
 
@@ -188,14 +195,23 @@ void ModularAirPage::initButton()
                                   DATA_LABEL_UP_MARGIN_2 + m * DATA_LABEL_INTERVAL_V_2,
                                   DATA_LABEL_SIZE);
     }
-    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    connect(m_pRunningModeCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    connect(m_pTempSetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    connect(m_pHumiSetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    connect(m_pCO2SetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
+    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)),
+            this, SLOT(paramSetBtnValChanged(int32_t)));
 
-    connect(System::getInstance(), SIGNAL(sysModeCmdChanged()), this, SLOT(sysModeCmdChangedSlot()));
-    sysModeCmdChangedSlot();
+    connect(m_pRunningModeCmdBtn, SIGNAL(valChanged(int32_t)),
+            this, SLOT(paramSetBtnValChanged(int32_t)));
+
+    connect(m_pTempSetBtn, SIGNAL(valChanged(int32_t)),
+            this, SLOT(paramSetBtnValChanged(int32_t)));
+
+    connect(m_pHumiSetBtn, SIGNAL(valChanged(int32_t)),
+            this, SLOT(paramSetBtnValChanged(int32_t)));
+
+    connect(m_pCO2SetBtn, SIGNAL(valChanged(int32_t)),
+            this, SLOT(paramSetBtnValChanged(int32_t)));
+
+    connect(System::getInstance(), SIGNAL(systemDataChanged()), this, SLOT(systemDataChangedSlot()));
+    systemDataChangedSlot();
 }
 
 void ModularAirPage::on_pushButton_clicked()
@@ -217,12 +233,13 @@ void ModularAirPage::on_pushButton_clicked()
     m_pCommErrLabel->setMonitorData(&m_pCurModularAir->m_sMeter.m_xCommErr, Monitor::Boolean);
 
     ui->label_2->setText(QString::number(ui->modularAirStackedWidget->currentIndex()+1) + "# 组合柜能耗");
+    System::getInstance()->m_uiOffLogCount = 0;
 }
 
-void ModularAirPage::paramSetBtnValChanged(int32_t val)
+void ModularAirPage::paramSetBtnValChanged(int32_t)
 {
     System *pSystem = System::getInstance();
-    ModularAir* pCurModularAir =nullptr;
+    ModularAir* pCurModularAir = nullptr;
     if(pSystem == nullptr){return;}
 
     if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
@@ -234,16 +251,17 @@ void ModularAirPage::paramSetBtnValChanged(int32_t val)
         for(uint8_t i = 0; i < m_ModularAirs.count(); i++)
         {
              pCurModularAir = m_ModularAirs[i];
-             pCurModularAir->m_eSwitchCmd = ModularAir::SwitchCmd(m_pSwitchCmdBtn->getCurrentValue());
-             pCurModularAir->m_eRunningModeCmd = ModularAir::RunningMode(m_pRunningModeCmdBtn->getCurrentValue());
-             pCurModularAir->m_usTempSet = pSystem->m_usTempSet;
-             pCurModularAir->m_usHumiSet = pSystem->m_usHumiSet;
-             pCurModularAir->m_usCO2Set = pSystem->m_usCO2PPMSet;
+             pCurModularAir->m_pSwitchCmdBtn->setValue( ModularAir::SwitchCmd(m_pSwitchCmdBtn->getCurrentValue()) );
+             pCurModularAir->m_pRunningModeCmdBtn->setValue( ModularAir::RunningMode(m_pRunningModeCmdBtn->getCurrentValue()) );
+             pCurModularAir->m_pTempSetBtn->setValue(pSystem->m_usTempSet);
+             pCurModularAir->m_pHumiSetBtn->setValue(pSystem->m_usHumiSet);
+             pCurModularAir->m_pCO2SetBtn->setValue(pSystem->m_usCO2PPMSet);
         }
     }
+    System::getInstance()->m_uiOffLogCount = 0;
 }
 
-void ModularAirPage::sysModeCmdChangedSlot()
+void ModularAirPage::systemDataChangedSlot()
 {
     System *pSystem = System::getInstance();
     if(pSystem == nullptr){return;}

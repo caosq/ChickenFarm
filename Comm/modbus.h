@@ -30,7 +30,7 @@ public:
 
     static Modbus* getInstance();
 
-    explicit Modbus(eMBType eMBType, QObject *parent = nullptr);
+    explicit Modbus(QObject *parent = nullptr);
 
 private:
     eMBType         m_MBType;

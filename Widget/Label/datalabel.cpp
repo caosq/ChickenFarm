@@ -123,7 +123,7 @@ void DataLabel::setValueMap(int val, QString str)
     else
     {
         temp.textStr = str;
-        temp.textColor = QColor(Qt::black);
+        temp.textColor = QColor(Qt::white);
         temp.backgroundColor = QColor(Qt::white);
         temp.pixmap = nullptr;
     }
@@ -242,7 +242,7 @@ void DataLabel::showText(int32_t val)
 {
     sTextMap temp;
     temp.textStr = "";
-    temp.textColor = QColor(Qt::white);
+    //temp.textColor = QColor(Qt::white);
 
     switch(m_eDataType)
     {
@@ -286,8 +286,7 @@ void DataLabel::showText(int32_t val)
     default:
         break;
     }
-
-    //setTextColor(temp.textColor);
+    setTextColor(temp.textColor);
     setText(temp.textStr);
 }
 
@@ -414,10 +413,11 @@ void DataLabel::setTextSize(textControl::textSize size)
 
 void DataLabel::flush()
 {
-    if(m_pMonitor)
+    /*if(m_pMonitor)
     {
         setValue(m_pMonitor->getCurVal());
     }
+    qDebug("DataLabel::flush() \n");*/
 }
 
 void DataLabel::setFatherFontSize(int size)
@@ -439,8 +439,9 @@ void DataLabel::setFatherFontSize(int size)
 
 void DataLabel::setTextColor(QColor color)
 {
-    if( !_textColorLock ){
-        QPalette    palette = this->palette();
+    if(!_textColorLock)
+    {
+        QPalette palette = this->palette();
         palette.setBrush(QPalette::Active,QPalette::WindowText,QBrush(color));
         palette.setBrush(QPalette::Inactive,QPalette::WindowText,QBrush(color));
         setPalette(palette);
@@ -465,9 +466,32 @@ void DataLabel::setValue(Monitor* pMonitor)
 {
     int32_t val = pMonitor->getCurVal();
 
-//    qDebug("DataLabel::setValue %d", val);
+    //qDebug("DataLabel::setValue %d", val);
 
-    setValue(val);
+    switch(m_eLabelType)
+    {
+    case eLabelType::Data:
+    {
+        showData(val);
+    }
+        break;
+    case eLabelType::Text:
+    {
+        showText(val);
+    }
+        break;
+    case eLabelType::Color:
+    {
+        showColor(val);
+    }
+        break;
+    case eLabelType::Image:
+    {
+        showImage(val);
+    }
+        break;
+    }
+    emit valChanged(val);
 }
 
 void DataLabel::setValue(int32_t val)
@@ -494,6 +518,14 @@ void DataLabel::setValue(int32_t val)
         showImage(val);
     }
         break;
+    }
+    if(m_pMonitor)
+    {
+        m_pMonitor->setValue(val);
+    }
+    else
+    {
+        emit valChanged(val);
     }
 }
 

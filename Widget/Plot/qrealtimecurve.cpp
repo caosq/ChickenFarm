@@ -137,17 +137,15 @@ void qrealTimeCurve::setCurve(int index, void *addr, QString curveName,
                               QColor color)
 {
 
-    if( index >= _maxCurveNum )
-        return;
-
-    if( addCurve(index,color) ){
+    if( index >= _maxCurveNum ){return;}
+    if( addCurve(index, color) )
+    {
         _curveParameter[index].dataAddr = (double *)addr;
-
-        if( curveName != "" ){
+        if( curveName != "" )
+        {
             _curveParameter[index].name = curveName;
         }
     }
-
 }
 
 void qrealTimeCurve::setCurve(int index, void *addr, QString curveName,

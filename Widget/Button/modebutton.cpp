@@ -174,7 +174,7 @@ ModeButton::ModeButton(QWidget *parent) :
     }
 
     connect(_menu,SIGNAL(valueChange(int)),this,SLOT(valueSlot(int)));
-    connect(this,SIGNAL(clicked()),this,SLOT(clickedSlot()));
+    //connect(this,SIGNAL(buttonClicked()),this,SLOT(clickedSlot()));
    // connect(ScreenSaver::instance(),SIGNAL(isTimeToBack()),this,SLOT(hideMenu()));
 }
 
@@ -274,14 +274,15 @@ void ModeButton::fontSlot()
     setFont(fatherFont);
 }
 
-void ModeButton::clickedSlot()
+/*void ModeButton::clickedSlot()
 {
     _menu->setCurrentItem(currentValue);
     showMenu();
-}
+}*/
 
 void ModeButton::valueSlot(int tempVal)
 {
+    clickedSlot();
     setValue(tempVal);
     update();
 }
@@ -318,8 +319,11 @@ void ModeButton::setValue(int32_t val)
     {
         m_pMonitor->setValue(val);
     }
+    else
+    {
+        emit valChanged(val);
+    }
     update();
-    emit valChanged(val);
 }
 
 void ModeButton::setDefaultValue(int defValue)
@@ -352,7 +356,6 @@ void ModeButton::setItem(int id, QString text)
 void ModeButton::removeItem(int id)
 {
     _menu->removeItem(id);
-
 }
 
 void ModeButton::setFont(const QFont & font)

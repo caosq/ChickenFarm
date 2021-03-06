@@ -14,7 +14,7 @@
 
 #define DATA_LABEL_SIZE  90, 25
 
-#define DATA_LABEL_UP_MARGIN    15
+#define DATA_LABEL_UP_MARGIN    10
 #define DATA_LABEL_LEFT_MARGIN  100
 #define DATA_LABEL_INTERVAL_H   220
 #define DATA_LABEL_INTERVAL_V   35
@@ -62,4 +62,22 @@ void PressureSensor::initButton()
                                   DATA_LABEL_SIZE);
     }
     ui->frame_2->hide();
+
+    m_pErrMonitor = DataMonitor::monitorRegist(&m_xError, Monitor::DataType::Boolean);
+    connect(m_pErrMonitor, SIGNAL(valChanged(Monitor*)),this,SLOT(valChangedSlot(Monitor*)));
+}
+
+void PressureSensor::valChangedSlot(Monitor* pMonitor)
+{
+    int32_t val = pMonitor->getCurVal();
+    if(val==0)
+    {
+        m_pPressureLabel->show();
+        ui->frame_2->hide();
+    }
+    else
+    {
+        m_pPressureLabel->hide();
+        ui->frame_2->show();
+    }
 }

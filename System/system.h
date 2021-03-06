@@ -63,56 +63,63 @@ public:
         STATE_OPENNING     = 7,    //开机中
     }SystemState;
 
-    uint16_t     m_usUnitID = 0x302A;            //机型ID
-    uint16_t     m_usProtocolVer = 10;           //协议版本
+    uint16_t     m_usUnitID = 0x302A;             //机型ID
+    uint16_t     m_usProtocolVer = 10;            //协议版本
     SystemMode   m_eSystemModeCmd = MODE_MANUAL;  //系统模式设定
-    SystemState  m_eSystemState = STATE_CLOSED;  //系统状态
+    SystemState  m_eSystemState = STATE_CLOSED;   //系统状态
 
-    int16_t   m_sChickenGrowDay = -2;          //鸡生长周期天数
-    uint16_t  m_usCO2PPMSet = 2000;            //目标CO2浓度设定
-    uint16_t  m_usTempSet = 240;               //目标温度设定
-    uint16_t  m_usHumiSet = 60;                //目标湿度设定
+    int16_t   m_sChickenGrowDay = 0;          //鸡生长周期天数
+    uint16_t  m_usCO2PPMSet = 20000;          //目标CO2浓度设定
+    uint16_t  m_usTempSet = 240;              //目标温度设定
+    uint16_t  m_usHumiSet = 500;              //目标湿度设定
+
     uint32_t  m_ulFreAirSet = 0;               //目标新风风量设定
 
     uint16_t  m_usEnergyTemp = 250;             //节能温度
     uint16_t  m_usTempDeviat = 5;               //温度偏差
-    uint16_t  m_usSupAirMax_T = 450;            //送风最大温度
+    uint16_t  m_usSupAirMaxTemp = 450;          //送风最大温度
 
-    uint16_t  m_usCoolWaterDamperMinAng_1 = 35;    //水阀制冷最小开度1
-    uint16_t  m_usCoolWaterDamperMinAng_2 = 5;    //水阀制冷最小开度2
+    uint16_t  m_usCoolWaterDamperMinAng_1 = 350;   //水阀制冷最小开度1
+    uint16_t  m_usCoolWaterDamperMinAng_2 = 50;    //水阀制冷最小开度2
     uint16_t  m_usHeatWaterDamperMinAng = 0;      //水阀制热最小开度
-    uint16_t  m_usExAirDamperMinAng = 10;          //排风阀最小开度
+    uint16_t  m_usExAirDamperMinAng = 100;         //排风阀最小开度
 
-    uint16_t  m_usCO2AdjustDeviat_Up =500;     //CO2浓度调节上偏差
-    uint16_t  m_usCO2AdjustDeviat_Down = 500;   //CO2浓度调节下偏差
-    uint16_t  m_usCO2ExAirDeviat_1 = 200;       //CO2浓度排风控制偏差1
-    uint16_t  m_usCO2ExAirDeviat_2 = 200;       //CO2浓度排风控制偏差2
-    uint16_t  m_usCO2AdjustThr = 2700;           //CO2浓度调节阈值
-    uint16_t  m_usCO2PPMAlarm = 3000;            //CO2浓度报警值
+    uint16_t  m_usCO2AdjustDeviat_Up =5000;      //CO2浓度调节上偏差
+    uint16_t  m_usCO2AdjustDeviat_Down = 5000;   //CO2浓度调节下偏差
+    uint16_t  m_usCO2ExAirDeviat_1 = 2000;       //CO2浓度排风控制偏差1
+    uint16_t  m_usCO2ExAirDeviat_2 = 2000;       //CO2浓度排风控制偏差2
+    uint16_t  m_usCO2AdjustThr = 27000;          //CO2浓度调节阈值
+    uint16_t  m_usCO2PPMAlarm = 30000;           //CO2浓度报警值
 
     uint16_t  m_usExAirFanMinFreq = 350;        //排风机最小频率
     uint16_t  m_usExAirFanMaxFreq = 500;        //排风机最大频率
-    uint16_t  m_usExAirFanAdjustFreq = 10;     //排风机频率调节值
+    uint16_t  m_usExAirFanAdjustFreq = 10;      //排风机频率调节值
+    uint16_t  m_usExAirFanRatedVol_H = 0;       //排风机额定风量
+    uint16_t  m_usExAirFanRatedVol_L = 30000;   //排风机额定风量
 
-    uint16_t  m_usExAirFanFreqRunPeriod = 1200;  //排风机运行周期
-    uint16_t  m_usExAirFanIntervalMin = 60;    //排风机最小启停间隔
+
+    uint16_t  m_usExAirFanFreqRunPeriod = 1200; //排风机运行周期
+    uint16_t  m_usExAirFanIntervalMin = 60;     //排风机最小启停间隔
     uint16_t  m_usExAirFanRunTimeMin = 300;     //排风机最小运行时间
     uint16_t  m_usExAirFanPlusTime = 180;       //排风机加机时间
     uint16_t  m_usExAirFanSubTime = 180;        //排风机减机时间
-    uint16_t  m_usExAirFanFreqAdjustTime = 30; //排风机频率调节时间
+    uint16_t  m_usExAirFanFreqAdjustTime = 30;  //排风机频率调节时间
 
-    uint16_t  m_usExAirFanPlusFreq_1 = 350;     //排风机加机频率1
-    uint16_t  m_usExAirFanPlusFreq_2 = 380;     //排风机加机频率2
-    uint16_t  m_usExAirFanSubFreq_1 = 350;      //排风机减机频率1
-    uint16_t  m_usExAirFanSubFreq_2 = 380;      //排风机减机频率2
+    uint16_t  m_usExAirFanPlusFreq_1 = 350;    //排风机加机频率1
+    uint16_t  m_usExAirFanPlusFreq_2 = 380;    //排风机加机频率2
+    uint16_t  m_usExAirFanSubFreq_1 = 350;     //排风机减机频率1
+    uint16_t  m_usExAirFanSubFreq_2 = 380;     //排风机减机频率2
     uint16_t  m_usExAirFanTempDeviat = 10;     //排风机调节温度偏差
     uint16_t  m_usExAirFanRatio = 90;          //排风机排风百分比
 
-    uint16_t  m_usCHWBumpMinFreq = 350;         //冷冻泵最小频率
-    uint16_t  m_usCHWBumpMaxFreq = 500;         //冷冻泵最大频率
+    uint16_t  m_usCHWBumpMinFreq = 350;        //冷冻泵最小频率
+    uint16_t  m_usCHWBumpMaxFreq = 500;        //冷冻泵最大频率
     uint16_t  m_usCHWBumpCloseDelay = 10;      //冷冻泵延迟关闭时间
-    uint16_t  m_usCHWBumpAdjustPeriod = 10;    //冷冻泵频率调节间隔
-    uint16_t  m_usCHWBumpAdjustFreq = 10;      //冷冻泵频率调节值
+    uint16_t  m_usCHWBumpAdjustPeriod = 300;   //冷冻泵频率调节间隔
+    uint16_t  m_usCHWBumpAdjustFreq_1 = 10;    //冷冻泵频率调节值_1
+    uint16_t  m_usCHWBumpAdjustFreq_2 = 5;     //冷冻泵频率调节值_2
+    uint16_t  m_usCHWBumpAdjustFreq_3 = 10;    //冷冻泵频率调节值_3
+    uint16_t  m_usCHWBumpAdjustFreq_4 = 5;     //冷冻泵频率调节值_4
 
     uint16_t  m_usChilledDevsOpenDelay = 10;   //冷冻设备延迟开启时间
     uint16_t  m_usChilledDevsCloseDelay = 10;  //冷冻设备延迟关闭时间
@@ -140,22 +147,20 @@ public:
     uint16_t  m_usModeAdjustTemp_6 = 10;       //模式调节温度T6
 
     uint16_t  m_usCHWOutletCoolTemp = 70;      //冷冻总管制冷供水温度设定值
-    uint16_t  m_usCHWOutletHeatTemp = 500;      //冷冻总管制热供水温度设定值
+    uint16_t  m_usCHWOutletHeatTemp = 500;     //冷冻总管制热供水温度设定值
     uint16_t  m_usCHWTempDiff = 50;            //冷冻总管供回水温差设定值
-    uint16_t  m_usCHWPressureDiff = 240;        //冷冻总管压差设定
-    uint16_t  m_usCHWPressureDeviat = 5;      //冷冻压差偏差百分比设定
+    uint16_t  m_usCHWPressureDiff = 240;       //冷冻总管压差设定
+    uint16_t  m_usCHWPressureDeviat = 5;       //冷冻压差偏差百分比设定
 
     uint16_t  m_usCHWBypassRange = 5;         //冷冻旁通阀调节范围设定
-    uint16_t  m_usCHWBypassMaxAng = 100;        //冷冻旁通阀最大开度设定
+    uint16_t  m_usCHWBypassMaxAng = 100;      //冷冻旁通阀最大开度设定
     uint16_t  m_usCHWBypassMinAng = 0;        //冷冻旁通阀最小开度设定
-    uint16_t  m_usCHWBypassAdjustTime = 10;    //冷冻旁通阀调节时间设定
-    uint16_t  m_usCHWBypassAngSet = 0;        //冷冻旁通阀开度设定
-    uint16_t  m_usCHWBypassAng = 0;           //冷冻旁通阀开度反馈
+    uint16_t  m_usCHWBypassAdjustTime = 10;   //冷冻旁通阀调节时间设定
 
-    uint16_t  m_usChillerCoolInTemp = 120;      //机组制冷进水温度设定值
+    uint16_t  m_usChillerCoolInTemp = 120;     //机组制冷进水温度设定值
     uint16_t  m_usChillerCoolOutTemp = 70;     //机组制冷出水温度设定值
-    uint16_t  m_usChillerHeatInTemp = 450;      //机组制热进水温度设定值
-    uint16_t  m_usChillerHeatOutTemp = 500;     //机组制热出水温度设定值
+    uint16_t  m_usChillerHeatInTemp = 450;     //机组制热进水温度设定值
+    uint16_t  m_usChillerHeatOutTemp = 500;    //机组制热出水温度设定值
 
     uint16_t  m_usCHCoolPlusSupTempDeviat = 25;  //制冷加机供水温度偏差设定值
     uint16_t  m_usCHCoolPlusTempDiff = 21;       //制冷加机供回水温差偏差设定值
@@ -167,55 +172,70 @@ public:
     uint16_t  m_usCHHeatSubSupTempDeviat = 20;   //制热减机供水温度偏差设定值
     uint16_t  m_usCHHeatSubTempDiff = 21;        //制热减机供回水温差偏差设定值
 
-    uint16_t  m_usCHWBCoolPlusFreqTempDeviat = 25;  //制冷水泵升频供水温度偏差设定值
-    uint16_t  m_usCHWBCoolPlusFreqTempDiff = 2;    //制冷水泵升频供回水温差偏差设定值
-    uint16_t  m_usCHWBHeatPlusFreqTempDeviat = 25;  //制热水泵升频供水温度偏差设定值
-    uint16_t  m_usCHWBHeatPlusFreqTempDiff = 2;    //制热水泵升频供回水温差偏差设定值
+    uint16_t  m_usCHWBCoolPlusFreqTempDeviat = 50; //制冷水泵升频供水温度偏差设定值
+    uint16_t  m_usCHWBCoolPlusFreqTempDiff_1 = 10;    //制冷水泵升频供回水温差偏差设定值_1
+    uint16_t  m_usCHWBCoolPlusFreqTempDiff_2 = 5;    //制冷水泵升频供回水温差偏差设定值_2
+    uint16_t  m_usCHWBHeatPlusFreqTempDeviat = 50; //制热水泵升频供水温度偏差设定值
+    uint16_t  m_usCHWBHeatPlusFreqTempDiff_1 = 10;    //制热水泵升频供回水温差偏差设定值_1
+    uint16_t  m_usCHWBHeatPlusFreqTempDiff_2 = 5;    //制热水泵升频供回水温差偏差设定值_2
 
-    uint16_t  m_usCHWBCoolSubFreqTempDeviat = 10;  //制冷水泵降频供水温度偏差设定值
-    uint16_t  m_usCHWBCoolSubFreqTempDiff = 2;    //制冷水泵降频供回水温差偏差设定值
-    uint16_t  m_usCHWBHeatSubFreqTempDeviat = 10;  //制热水泵降频供水温度偏差设定值
-    uint16_t  m_usCHWBHeatSubFreqTempDiff = 2;    //制热水泵降频供回水温差偏差设定值
+    uint16_t  m_usCHWBCoolSubFreqTempDeviat = 10;   //制冷水泵降频供水温度偏差设定值
+    uint16_t  m_usCHWBCoolSubFreqTempDiff_1 = 10;    //制冷水泵降频供回水温差偏差设定值_1
+    uint16_t  m_usCHWBCoolSubFreqTempDiff_2 = 5;    //制冷水泵降频供回水温差偏差设定值_2
+    uint16_t  m_usCHWBHeatSubFreqTempDeviat = 10;   //制热水泵降频供水温度偏差设定值
+    uint16_t  m_usCHWBHeatSubFreqTempDiff_1 = 10;    //制热水泵降频供回水温差偏差设定值_1
+    uint16_t  m_usCHWBHeatSubFreqTempDiff_2 = 5;    //制热水泵降频供回水温差偏差设定值_2
 
     int16_t   m_sAmbientIn_T = 0;             //室内环境干球温度
     int16_t   m_sAmbientOut_T = 0;            //室外环境干球温度
     uint16_t  m_usAmbientIn_H = 0;            //室内环境湿度
     uint16_t  m_usAmbientOut_H = 0;           //室外环境湿度
     uint16_t  m_usCO2PPM = 0;                 //室内CO2浓度
-    uint32_t  m_ulTotalFreAir = 0;            //室内新风风量
+    uint16_t  m_usTotalFreAir_H = 0;          //室内新风风量
+    uint16_t  m_usTotalFreAir_L = 0;          //室内新风风量
 
-    uint16_t  m_usCHWOutletTemp = 0;          //冷冻总管出水温度
-    uint16_t  m_usCHWInletTemp = 0;           //冷冻总管回水温度
-    uint16_t  m_usCHWOutletPressure = 0;      //冷冻总管出水压力
-    uint16_t  m_usCHWInletPressure = 0;       //冷冻总管回水压力
+    uint16_t  m_usSysYear = 1970;             //系统时间年
+    uint16_t  m_usSysMon = 1;                 //系统时间月
+    uint16_t  m_usSysDay = 1;                 //系统时间日
+    uint16_t  m_usSysHour = 0;                //系统时间时
+    uint16_t  m_usSysMin = 0;                 //系统时间分
+    uint16_t  m_usSysSec = 0;                 //系统时间秒
 
-    uint16_t  m_usSysYear = 2021;             //系统时间年
-    uint16_t  m_usSysMon = 2;                 //系统时间月
-    uint16_t  m_usSysDay = 14;               //系统时间日
-    uint16_t  m_usSysHour = 6;              //系统时间时
-    uint16_t  m_usSysMin = 6;               //系统时间分
-    uint16_t  m_usSysSec = 6;               //系统时间秒
+    uint32_t  m_ulExAirFanRatedVol = 30000;  //排风机额定风量
+    uint32_t  m_ulTotalFreAir = 0;           //室内新风风量
+    uint32_t  m_uiOffLogCount = 0;           //系统没进行任何操作计时
 
-    uint32_t  m_ulExAirFanRatedVol = 30000;     //排风机额定风量
+    bool      m_xAlarmEnable = 0;             //声光报警使能
+    bool      m_xAlarmClean = 0;              //声光报警清除
+    bool      m_xIsLogIn = true;              //系统是否登录
+    bool      m_xIsInDebug = false;           //系统是否处于调试模式
 
-    bool      xAlarmEnable = 0;             //声光报警使能
-    bool      xAlarmClean = 0;              //声光报警清除
-
-    QVector<ModularAir*>     m_pModularAirs;      //组空
-    QVector<ModularChiller*> m_pModularChillers;  //机组
-    QVector<ChilledBump*>    m_pChilledBumps;     //冷冻泵
-    QVector<AxialFan*>       m_pAxialFans;        //畜牧风机
-    QVector<WindowFan*>      m_pWindowFans;       //小窗电机
-    QVector<ButterflyValve*> m_pButterflyValves;  //蝶阀
+    QVector<ModularAir*>     m_pModularAirs;        //组空
+    QVector<ModularChiller*> m_pModularChillers;    //机组
+    QVector<ChilledBump*>    m_pChilledBumps;       //冷冻泵
+    QVector<AxialFan*>       m_pAxialFans;          //畜牧风机
+    QVector<WindowFan*>      m_pWindowFans;         //小窗电机
+    QVector<ButterflyValve*> m_pButterflyValves;    //蝶阀
     QVector<TempSensor*>     m_pCHWTempSensors;     //冷冻总管温度传感器
     QVector<PressureSensor*> m_pCHWPressureSensors; //冷冻总管压力传感器
+
     BypassValve    *m_pBypassValve;                 //旁通阀
-    Controller     *m_pController;                  //控制器
-    Modbus         *pModbus;
+    Meter          *m_pChillerMeter;                //机组电表
+    Meter          *m_pBumpMeter;                   //水泵电表
 
-    Monitor        *m_pSysModeCmdMonitor;      //系统模式监控；
+    Modbus         m_Modbus;                        //协议栈
+    Controller     m_Controller;                    //控制器
 
+    Monitor        *m_pSysModeCmdMonitor;          //系统模式监控
+    Monitor        *m_pExAirFanRatedVolMonitor_H;  //系统排风机额定风量监控
+    Monitor        *m_pExAirFanRatedVolMonitor_L;  //系统排风机额定风量监控
+
+    Monitor        *m_pTotalFreAirMonitor_H;       //系统室内新风风量监控
+    Monitor        *m_pTotalFreAirMonitor_L;       //系统室内新风风量监控
+
+public:
     void initController();
+    bool checkSystemLogIn();
     static System* getInstance();
 
 private:
@@ -225,11 +245,11 @@ private:
 
 signals:
     void systemTimeChanged();
-    void sysModeCmdChanged();
+    void systemDataChanged();
 
 private slots:
     void systemTimeOut();
-    void sysModeCmdChangedSlot(Monitor* pMonitor);
+    void systemDataChanged(Monitor* pMonitor);
 };
 
 #endif // SYSTEM_H

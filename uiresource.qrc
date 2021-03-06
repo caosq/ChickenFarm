@@ -138,5 +138,8 @@
         <file>UI/Frame/mode.png</file>
         <file>UI/Frame/alarm.png</file>
         <file>UI/Frame/combobox.png</file>
+        <file>UI/Frame/logBtn.png</file>
+        <file>UI/userFile/nextpage.png</file>
+        <file>UI/userFile/prepage.png</file>
     </qresource>
 </RCC>

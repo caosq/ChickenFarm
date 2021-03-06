@@ -8,9 +8,9 @@ HistoryEventTable::HistoryEventTable(int column, QString saveDir, QWidget *paren
 {
    setItemExpandShow(column,true);
 
-    onColor = Qt::red;
-//    offColor = Qt::green;
-    offColor = QColor("#0bd80b");
+    onColor = QColor("#0bd80b");
+    offColor = Qt::gray;
+
     fileNum = 0;
     userDir = saveDir;
     eventFile  = new QFile();
@@ -142,7 +142,8 @@ bool HistoryEventTable::readFile()
     bool ret = false;
     ret = prepareFile();
 
-    if( ret ){
+    if( ret )
+    {
         clearTabel();
         eventFile->seek(0);
 
@@ -156,14 +157,18 @@ bool HistoryEventTable::readFile()
         int state;
         int i = 0;
         QString splitStr = EventDataBase::splitText();
-        while(!curveData.atEnd()){
+        while(!curveData.atEnd())
+        {
             i++;
             lines = curveData.readLine().split(splitStr);
             state = lines[0].toInt();
             lines.replace(0,QString::number(i));
-            if( state == 0 ){
+            if(state == 0)
+            {
                 insertRow(lines,offColor);
-            }else{
+            }
+            else
+            {
                 insertRow(lines,onColor);
             }
         }

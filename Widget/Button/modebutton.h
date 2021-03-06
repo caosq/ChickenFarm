@@ -143,7 +143,7 @@ public slots:
 
 private slots:
     void fontSlot();
-    void clickedSlot();
+    //void clickedSlot();
     void valueSlot(int tempVal);
     void hideMenu();
 

@@ -12,12 +12,14 @@
 
 #define TITLE "#3d3d3d"
 #define BG_COLOR "#0d74bc"
-#define UB_RELEAS_PIX ":images/baseFile/abRelease.png"
-#define UB_PRESS_PIX ":images/baseFile/abPress.png"
+#define UB_RELEAS_PIX ":UI/baseFile/abRelease.png"
+#define UB_PRESS_PIX ":UI/baseFile/abPress.png"
 
 QColor messageBox::_backgroundColor(BG_COLOR);
 QColor messageBox::_frameLessColor(TITLE);
 QMap<messageBox::msgType,QPixmap *> messageBox::iconMap;
+
+messageBox* messageBox::g_pUniversalMsg = nullptr;
 
 messageBox::messageBox(msgType type, QWidget *parent) :
     QMessageBox(parent),_type(type)
@@ -47,7 +49,18 @@ messageBox::messageBox(msgType type, QWidget *parent) :
     layout()->setContentsMargins(0,10,10,10);
 
     setAlwaysStay(false);
+}
 
+
+messageBox *messageBox::instance()
+{
+    if( g_pUniversalMsg == nullptr)
+    {
+        g_pUniversalMsg = new messageBox;
+        g_pUniversalMsg->setButtonText(messageBox::Yes,tr("关闭"));
+        g_pUniversalMsg->setInformativeText("");
+    }
+    return g_pUniversalMsg;
 }
 
 void messageBox::setBackGroundColor(QColor color)
@@ -116,6 +129,9 @@ void messageBox::showButton(messageBox::btRole role)
 
 void messageBox::initButton()
 {
+    QPalette pe;
+    pe.setColor(QPalette::ButtonText,Qt::black);
+
 
     switch(_type){
     case Information:
@@ -124,6 +140,7 @@ void messageBox::initButton()
         yes->setMaximumSize(100,35);
         yes->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
         yes->setText("Yes");
+        yes->setPalette(pe);
         addButton(yes,QMessageBox::YesRole);
         no = NULL;
     }
@@ -133,12 +150,14 @@ void messageBox::initButton()
         no->setMaximumSize(100,35);
         no->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
         no->setText("No");
+        no->setPalette(pe);
         addButton(no,QMessageBox::NoRole);
 
         yes = new ubuttonBK(this);
         yes->setMaximumSize(100,35);
         yes->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
         yes->setText("Yes");
+        yes->setPalette(pe);
         addButton(yes,QMessageBox::YesRole);
     }
         break;

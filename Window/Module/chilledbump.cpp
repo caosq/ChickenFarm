@@ -68,18 +68,25 @@ void ChilledBump::initLabel()
 
 void ChilledBump::initButton()
 {
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
+
     //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
+    m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
-    m_pSwitchCmdBtn->setMonitorData(&m_eSwitchCmd, Monitor::Boolean);
+    m_pSwitchCmdBtn->setMonitorData(&m_xSwitchCmd, Monitor::Boolean);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //频率设置
     m_pFreqSetBtn = new AnalogValButton(ui->frame);
-    m_pFreqSetBtn->setDataParameter("Hz", 1, 350, 500, 0, Monitor::Uint16t);
+    m_pFreqSetBtn->setDataParameter("Hz", 1, 0, 500, 0, Monitor::Uint16t);
+    m_pFreqSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pFreqSetBtn->setMonitorData(&m_usFreqSet, Monitor::Uint16t);
+    m_pFreqSetBtn->setMaxValMonitor(&pSystem->m_usCHWBumpMaxFreq, Monitor::Uint16t);
+    m_pFreqSetBtn->setMinValMonitor(&pSystem->m_usCHWBumpMinFreq, Monitor::Uint16t);
     m_Widgets.append(m_pFreqSetBtn);
 
     //频率反馈
@@ -93,7 +100,7 @@ void ChilledBump::initButton()
     m_pRemoteLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pRemoteLabel->setAlignment(Qt::AlignLeft);
     m_pRemoteLabel->setValueMap(0,tr("本地"));
-    m_pRemoteLabel->setValueMap(1,tr("远程"));
+    m_pRemoteLabel->setValueMap(1,tr("远程"), Qt::green);
     m_pRemoteLabel->setMonitorData(&m_xRemote, Monitor::Boolean);
     m_Widgets.append(m_pRemoteLabel);
 
@@ -101,7 +108,7 @@ void ChilledBump::initButton()
     m_pRunningFlagLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pRunningFlagLabel->setAlignment(Qt::AlignLeft);
     m_pRunningFlagLabel->setValueMap(0,tr("停止"));
-    m_pRunningFlagLabel->setValueMap(1,tr("运行"));
+    m_pRunningFlagLabel->setValueMap(1,tr("运行"), Qt::green);
     m_pRunningFlagLabel->setMonitorData(&m_xRunningFlag, Monitor::Boolean);
     m_Widgets.append(m_pRunningFlagLabel);
 
@@ -109,7 +116,7 @@ void ChilledBump::initButton()
     m_pErrorFlagLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pErrorFlagLabel->setAlignment(Qt::AlignLeft);
     m_pErrorFlagLabel->setValueMap(0,tr("正常"));
-    m_pErrorFlagLabel->setValueMap(1,tr("故障"));
+    m_pErrorFlagLabel->setValueMap(1,tr("故障"), Qt::red);
     m_pErrorFlagLabel->setMonitorData(&m_xErrorFlag, Monitor::Boolean);
     m_Widgets.append(m_pErrorFlagLabel);
 
@@ -117,7 +124,7 @@ void ChilledBump::initButton()
     m_pControlFlagLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pControlFlagLabel->setAlignment(Qt::AlignLeft);
     m_pControlFlagLabel->setValueMap(0,tr("正常"));
-    m_pControlFlagLabel->setValueMap(1,tr("故障"));
+    m_pControlFlagLabel->setValueMap(1,tr("故障"), Qt::red);
     m_pControlFlagLabel->setMonitorData(&m_xControlFlag, Monitor::Boolean);
     m_Widgets.append(m_pControlFlagLabel);
 
@@ -129,5 +136,33 @@ void ChilledBump::initButton()
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
+    connect(m_pErrorFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pControlFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pRunningFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
 }
 
+void ChilledBump::stateChangedSlot(int32_t)
+{
+    if(m_sQFrameState.IsError != nullptr)
+    {
+        if(m_xErrorFlag || m_xControlFlag)
+        {
+            m_sQFrameState.IsError->show();
+        }
+        else
+        {
+            m_sQFrameState.IsError->hide();
+        }
+    }
+    if(m_sQFrameState.IsRunning != nullptr)
+    {
+        if(m_xRunningFlag)
+        {
+            m_sQFrameState.IsRunning->hide();
+        }
+        else
+        {
+            m_sQFrameState.IsRunning->show();
+        }
+    }
+}

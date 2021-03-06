@@ -19,9 +19,7 @@ class ModularChillerPage : public QWidget
     Q_OBJECT
 
 public:
-    Meter         m_sMeter;   //电表
-    //ModularChiller m_ModularChillers[2];
-
+    Meter    m_sChillerMeter;   //电表
     QVector<ModularChiller*>   m_ModularChillers;
 
 private:
@@ -57,7 +55,7 @@ public:
     ~ModularChillerPage();
 
 private slots:
-    void sysModeCmdChangedSlot();
+    void systemDataChangedSlot();
     void paramSetBtnValChanged(int32_t val);
     void on_pushButton_clicked();
 

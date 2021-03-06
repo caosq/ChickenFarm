@@ -2,27 +2,41 @@
 #define CONTROLLER_H
 
 #include "modbus.h"
+#include "datamonitor.h"
 
-#define REG_HOLD_BUF_NUM  10
-#define BIT_COIL_BUF_NUM  10
+#define REG_HOLD_BUF_NUM  400
+#define BIT_COIL_BUF_NUM  300
 
-class Controller
+#define REG_HOLD_MAX_ADDR  420
+#define BIT_COIL_MAX_ADDR  300
+
+class Controller : public QObject
 {
+    Q_OBJECT
 public:
-    explicit Controller();
+    explicit Controller(QObject *parent = nullptr);
     void initComm(sMBMasterInfo* psMBMasterInfo, uint8_t ucDevAddr);
 
+    bool m_xCommErr = 0;   //通讯故障
+    sMBSlaveDev          m_sMBSlaveDev;      //本通讯设备
 private:
 
+    Monitor *m_xCommErrMonitor;   //通讯故障
     sMBMasterInfo*       m_psMBMasterInfo;   //所属通讯主栈
     sMBSlaveDevCommData  m_sDevCommData;     //本设备通讯数据表
-    sMBSlaveDev          m_sMBSlaveDev;      //本通讯设备
 
     sMasterRegHoldData  m_psRegHoldBuf[REG_HOLD_BUF_NUM];     //保持寄存器数据域
     sMasterBitCoilData  m_psBitCoilBuf[BIT_COIL_BUF_NUM];     //线圈数据域
 
+    uint16_t  m_usRegHoldIndex[REG_HOLD_MAX_ADDR] = {0};     //保持寄存器数据域映射
+    uint16_t  m_usBitCoilIndex[BIT_COIL_MAX_ADDR] = {0};     //线圈数据域映射
+
     void registDevCommData();
     static uint8_t devDataMapIndex(eDataType eDataType, uint8_t ucProtocolID, uint16_t usAddr, uint16_t* psIndex);
+
+private slots:
+    void dataChanged(Monitor* pMonitor);
+
 };
 
 #endif // CONTROLLER_H

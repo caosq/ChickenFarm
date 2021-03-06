@@ -26,9 +26,10 @@ public:
 
 private:
     QVector<QWidget*>   m_Widgets;
-
     DataLabel     *m_pTempLabel;    //温度
     DataLabel     *m_pHumiLabel;    //湿度
+    Monitor       *m_pTempErrMonitor;  //故障监控；
+    Monitor       *m_pHumiErrMonitor;  //故障监控；
 
 private:
     void initLabel();
@@ -37,6 +38,10 @@ private:
 public:
     explicit TempHumiSensor(const QString strSensorType, uint8_t ucIndex, QWidget *parent = nullptr);
     ~TempHumiSensor();
+
+private slots:
+    void tempValChangedSlot(Monitor* pMonitor);
+    void humiValChangedSlot(Monitor* pMonitor);
 
 private:
     Ui::TempHumiSensor *ui;

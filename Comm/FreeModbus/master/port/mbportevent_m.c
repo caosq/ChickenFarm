@@ -202,7 +202,7 @@ BOOL xMBMasterRunResTake(sMBMasterPort* psMBPort, ULONG lTimeOutMs)
 
     pthread_mutex_lock(&psMBPort->mutex);//加锁 若有线程获得锁，则会阻塞
 
-   // tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
+    //tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
 
 
    // debug(" xMBMasterRunResTake %d\n", psMBPort->psMBMasterInfo->usRcvBufferPos);
@@ -468,6 +468,7 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(sMBMasterPort* psMBPort)
             debug(" EV_MASTER_ERROR_RESPOND_TIMEOUT \n");
         	eErrStatus = MB_MRE_TIMEDOUT;
 
+            tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
            // read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
         	break;
         }
@@ -475,13 +476,15 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish(sMBMasterPort* psMBPort)
         {
             debug(" EV_MASTER_ERROR_RECEIVE_DATA \n");
         	eErrStatus = MB_MRE_REV_DATA;
+
+            tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
         	break;
         }
         case EV_MASTER_ERROR_EXECUTE_FUNCTION:
         {
             debug(" EV_MASTER_ERROR_EXECUTE_FUNCTION \n");
         	eErrStatus = MB_MRE_EXE_FUN;
-
+            tcflush(psMBPort->psMBMasterUart->fd, TCIOFLUSH);
 
            // read(psMBPort->psMBMasterUart->fd, psMBPort->psMBMasterInfo->ucRTURcvBuf, 255);
 

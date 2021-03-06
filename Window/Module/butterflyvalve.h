@@ -19,18 +19,12 @@ class ButterflyValve : public Device
     Q_OBJECT
 public:
 
-    typedef enum
-    {
-        CMD_CLOSE = 0,
-        CMD_OPEN  = 1,
-    }SwitchCmd;
-
-    SwitchCmd     m_eSwitchCmd = CMD_CLOSE;   //启停命令
-    bool          m_xRemote = 0;              //远程/本地
-    bool          m_xOpened = 0;              //开到位
-    bool          m_xClosed = 0;              //关到位
-    bool          m_xErrorFlag = 0;           //设备故障
-    bool          m_xErrClean = 0;            //故障清除
+    bool   m_xSwitchCmd = 0;   //启停命令
+    bool   m_xRemote = 0;      //远程/本地
+    bool   m_xOpened = 0;      //开到位
+    bool   m_xClosed = 0;      //关到位
+    bool   m_xErrorFlag = 0;   //设备故障
+    bool   m_xErrClean = 0;    //故障清除
 
     static uint8_t  m_usButterflyValveCount;   //蝶阀数量
 
@@ -47,6 +41,9 @@ public:
 private:
     void initLabel();
     void initButton();
+
+private slots:
+    void stateChangedSlot(int32_t);
 
 public:
     explicit ButterflyValve(QWidget *parent = nullptr);

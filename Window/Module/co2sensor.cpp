@@ -62,4 +62,22 @@ void CO2Sensor::initButton()
                                   DATA_LABEL_SIZE);
     }
     ui->frame_2->hide();
+
+    m_pErrMonitor = DataMonitor::monitorRegist(&m_xError, Monitor::DataType::Boolean);
+    connect(m_pErrMonitor, SIGNAL(valChanged(Monitor*)),this,SLOT(valChangedSlot(Monitor*)));
+}
+
+void CO2Sensor::valChangedSlot(Monitor* pMonitor)
+{
+    int32_t val = pMonitor->getCurVal();
+    if(val==0)
+    {
+        m_pCO2Label->show();
+        ui->frame_2->hide();
+    }
+    else
+    {
+        m_pCO2Label->hide();
+        ui->frame_2->show();
+    }
 }

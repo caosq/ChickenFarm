@@ -3,10 +3,9 @@
 
 #include <QMessageBox>
 #include "ubuttonbk.h"
+#include "ubutton.h"
 
 //#include "universalSet/screensaver.h"
-
-
 
 class messageBox : public QMessageBox
 {
@@ -17,8 +16,6 @@ public:
         Warning = 1,
         Question = 2
     };
-
-
 
     enum btRole{
         Yes,
@@ -61,6 +58,8 @@ public:
     void setInformativeFormatStr(QString format){_informativeFormatStr = format;}
     //获取弹框信息原型字符
     QString getInformativeFormatStr()const{return _informativeFormatStr;}
+
+    static messageBox *instance();
 private:
     void initButton();
     void initIcon();
@@ -82,6 +81,8 @@ private:
     bool moveState;
     bool pressed;
     QPoint mousePosition;
+
+    static messageBox *g_pUniversalMsg;
 
     static QColor _frameLessColor;
     static QColor _backgroundColor;

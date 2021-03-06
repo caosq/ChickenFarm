@@ -92,11 +92,13 @@ eMBErrorCode eMBMasterUtilSetBits(sMBMasterInfo* psMBMasterInfo, UCHAR* ucByteBu
                 case CoilData:                  
 #if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0 
                 
+                    pucBitCoilData = NULL;
                     (void)eMBMasterCoilMap(psMBMasterInfo, ucMBDestAddr, usAddress, &pucBitCoilData);   //扫描，找到对应点位   
                     if( (pucBitCoilData != NULL) && (pucBitCoilData->pvValue != NULL) && (pucBitCoilData->ucAccessMode != WO))
                     {
                          ucBit = (UCHAR)( ((*(UCHAR*)ucByteBuf) & (1 << i) ) >> i );
-                        if((pucBitCoilData->ucAccessMode == RW) && (*(UCHAR*)pucBitCoilData->pvValue != (UCHAR)pucBitCoilData->ucPreVal))
+                        if( (pucBitCoilData->ucAccessMode == RW) && (*(UCHAR*)pucBitCoilData->pvValue != (UCHAR)pucBitCoilData->ucPreVal) &&
+                            (psMBMasterInfo->eMBRunMode == STATE_SCAN_DEV) )
                         {
                             pucBitCoilData->ucPreVal = (UCHAR)ucBit;
                             usAddress++;
@@ -110,7 +112,7 @@ eMBErrorCode eMBMasterUtilSetBits(sMBMasterInfo* psMBMasterInfo, UCHAR* ucByteBu
                     
                 case DiscInData:             
 #if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0  
-                
+                    pucBitDiscreteData = NULL;
                     (void)eMBMasterDiscreteMap(psMBMasterInfo, ucMBDestAddr, usAddress, &pucBitDiscreteData);
                     if( (pucBitDiscreteData != NULL) && (pucBitDiscreteData->pvValue != NULL) && (pucBitDiscreteData->ucAccessMode != WO))
                     {

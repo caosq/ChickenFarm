@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>630</width>
-    <height>593</height>
+    <height>595</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,8 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">#frame{border-image: url(:/UI/Widget/System_Air_1.png);}
+    <string notr="true">#frame{
+border-image: url(:/UI/Widget/System_Air_1.png);}
 </string>
    </property>
    <property name="frameShape">
@@ -207,26 +208,29 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
     <property name="geometry">
      <rect>
       <x>300</x>
-      <y>550</y>
-      <width>31</width>
-      <height>31</height>
+      <y>555</y>
+      <width>28</width>
+      <height>28</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border-image: url(:/UI/userFile/nextpage.png);</string>
+    </property>
     <property name="text">
-     <string>PushButton</string>
+     <string/>
     </property>
    </widget>
    <widget class="QFrame" name="frame_3">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>200</y>
+      <y>180</y>
       <width>611</width>
-      <height>351</height>
+      <height>380</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">#frame_3{border-image: url(:/UI/Widget/System_Air_1.png);}</string>
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -240,7 +244,7 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
        <x>0</x>
        <y>0</y>
        <width>611</width>
-       <height>351</height>
+       <height>380</height>
       </rect>
      </property>
     </widget>

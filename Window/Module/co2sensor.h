@@ -21,7 +21,8 @@ public:
 
 private:
     QVector<QWidget*>   m_Widgets;
-    DataLabel        *m_pCO2Label;    //CO2浓度
+    DataLabel  *m_pCO2Label;    //CO2浓度
+    Monitor    *m_pErrMonitor;  //故障监控；
 
 private:
     void initLabel();
@@ -30,6 +31,9 @@ private:
 public:
     explicit CO2Sensor(QWidget *parent = nullptr);
     ~CO2Sensor();
+
+private slots:
+    void valChangedSlot(Monitor* pMonitor);
 
 private:
     Ui::CO2Sensor *ui;

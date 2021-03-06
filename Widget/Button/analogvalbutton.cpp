@@ -45,7 +45,7 @@ AnalogValButton::AnalogValButton(QWidget *parent) :
     {
         connect(father,SIGNAL(fontChange()),this,SLOT(fontSlot()));
     }
-    connect(this,SIGNAL(clicked()),this,SLOT(clickedSlot()));
+    connect(this,SIGNAL(buttonClicked()),this,SLOT(clickedSlot()));
 }
 
 AnalogValButton *AnalogValButton::forefather()
@@ -248,9 +248,9 @@ void AnalogValButton::setValue(Monitor* pMonitor)
         break;
     }
     setText(m_strCurrentText);
-    update();
 
-    emit valChanged(val);
+    emit valChanged(m_iCurrentVal);
+    update();
 }
 
 void AnalogValButton::setValue(int32_t val)
@@ -302,10 +302,12 @@ void AnalogValButton::setValue(int32_t val)
     {
         m_pMonitor->setValue(val);
     }
+    else
+    {
+        emit valChanged(m_iCurrentVal);
+    }
     setText(m_strCurrentText);
     update();
-
-    emit valChanged(val);
 }
 
 void AnalogValButton::setMaxValue(Monitor* pMonitor)
@@ -356,25 +358,25 @@ void AnalogValButton::setMinValue(Monitor* pMonitor)
     case Monitor::Uint16t:
     case Monitor::Uint32t:
     {
-        m_iMaxVal = int32_t(val);
+        m_iMinVal = int32_t(val);
     }
         break;
     case Monitor::Int8t:
     {
         int8_t tempval = int8_t(val);
-        m_iMaxVal = tempval;
+        m_iMinVal = tempval;
     }
         break;
     case Monitor::Int16t:
     {
         int16_t tempval = int16_t(val);
-        m_iMaxVal = tempval;
+        m_iMinVal = tempval;
     }
         break;
     case Monitor::Int32t:
     {
         int32_t tempval = int32_t(val);
-        m_iMaxVal = tempval;
+        m_iMinVal = tempval;
     }
         break;
     default:
@@ -442,12 +444,20 @@ void AnalogValButton::fontSlot()
 
 void AnalogValButton::setClicked()
 {
-    clickedSlot();
+//    clickedSlot();
 }
 
 void AnalogValButton::clickedSlot()
 {
     int tempVal = aKeyBoard::getValue(m_iCurrentVal, m_iMaxVal, m_iMinVal, m_ucDecPoint);
+    if(tempVal > m_iMaxVal)
+    {
+        tempVal = m_iMaxVal;
+    }
+    if(tempVal < m_iMinVal)
+    {
+        tempVal = m_iMinVal;
+    }
     setValue(tempVal);
 }
 

@@ -535,7 +535,7 @@ void QwtCurveCore::InitMember()
 
     my_legend = new LegendItem();
     my_legend->setMaxColumns(1);
-    my_legend->setAlignment(Qt::AlignRight);
+    my_legend->setAlignment(Qt::AlignLeft);
     my_legend->setBackgroundMode( QwtPlotLegendItem::ItemBackground );
 
     my_legend->setBorderRadius(4);
@@ -724,7 +724,7 @@ QwtScrollBar::QwtScrollBar(QWidget *parent) :
 
     setStyleSheet("QScrollBar:horizontal"
                       "{"
-                      "border-image:url(:/images/baseFile/sc_slot_background.png);"
+                      "border-image:url(:/UI/baseFile/sc_slot_background.png);"
                       "margin:0px 33px 0px 33px;"
                       "}"
                       "QScrollBar::handle:horizontal"
@@ -739,7 +739,7 @@ QwtScrollBar::QwtScrollBar(QWidget *parent) :
                       "}"
                       "QScrollBar::add-line:horizontal"
                       "{"
-                      "border-image:url(:/images/baseFile/sc_bar_right.png);"
+                      "border-image:url(:/UI/baseFile/sc_bar_right.png);"
                       "height:26px;"
                       "width:32px;"
                       "subcontrol-position:right;"
@@ -747,7 +747,7 @@ QwtScrollBar::QwtScrollBar(QWidget *parent) :
                       "}"
                       "QScrollBar::sub-line:horizontal"
                       "{"
-                      "border-image:url(:/images/baseFile/sc_bar_left.png);"
+                      "border-image:url(:/UI/baseFile/sc_bar_left.png);"
                       "height:26px;"
                       "width:33px;"
                       "subcontrol-position:left;"

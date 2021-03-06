@@ -18,9 +18,9 @@
 
 #define TOP_LEFT_GEOMETRY   20,10,150,25
 
-#define DEF_ITEM_SPACE 5
-#define DEF_ITEM_TOP_SPACE 10
-#define DEF_ITEM_RIGHT_SPACE 35
+#define DEF_ITEM_SPACE        5
+#define DEF_ITEM_TOP_SPACE    10
+#define DEF_ITEM_RIGHT_SPACE  60
 
 #define DEF_XSCALE_MIN 0
 #define DEF_XSCALE_MAX 1200
@@ -55,9 +55,7 @@ void plotWidget::updateTimeScale(unsigned int sampleStep)
             gPlot->setAxisScale(QwtPlot::xBottom,_currentXScaleMin,
                          _currentXScaleMax,_xScaleStepVal);
         }
-
         scBar->setMaximumVal(scBar->maximum() + 1);
-
     }
     _currentXScaleVal += sampleStep;
 }
@@ -210,12 +208,15 @@ void plotWidget::setLegendItemRightSpace(int space)
 
 bool plotWidget::addCurve(int index, QColor color)
 {
-    if( gPlot->addCurve(index,color) ){
+    if( gPlot->addCurve(index,color) )
+    {
         gQwtLegendItem *temp = new gQwtLegendItem(this);
         _item.insert(index,temp);
         gPlot->connectLegendItem(index,temp);
         return true;
-    }else{
+    }
+    else
+    {
         return false;
     }
 }
@@ -223,13 +224,17 @@ bool plotWidget::addCurve(int index, QColor color)
 bool plotWidget::addCurve(int index, gQwtLegendItem *legendItem,
                           QColor color)
 {
-    if( gPlot->addCurve(index,color) ){
-        if( legendItem ){
+    if( gPlot->addCurve(index,color) )
+    {
+        if( legendItem )
+        {
             _item.insert(index,legendItem);
             gPlot->connectLegendItem(index,legendItem);
         }
         return true;
-    }else{
+    }
+    else
+    {
         return false;
     }
 }
@@ -275,18 +280,18 @@ void plotWidget::scrollBarValSlot(int val)
 void plotWidget::setLegendGeometry()
 {
     QList<gQwtLegendItem *> list = _item.values();
-
     QSize size = gQwtLegendItem::legendSizeHint();
 
     int startX = this->width() - DEF_ITEM_RIGHT_SPACE - size.width();
     int startY = DEF_ITEM_TOP_SPACE;
 
-    for(int i = 0; i < list.size(); i++){
-        list[i]->setGeometry(startX,startY + i * (size.height() + DEF_ITEM_SPACE),
-                                              size.width(),size.height());
+    for(int i = 0; i < list.size(); i++)
+    {
+        list[i]->setGeometry(startX, startY + i * (size.height() + DEF_ITEM_SPACE),
+                                              size.width() + 25, size.height());
     }
-
-    for(int i = 0; i < _zoomItem.size(); i++){
+    for(int i = 0; i < _zoomItem.size(); i++)
+    {
         _zoomItem[i]->move(this->width() - DEF_ZM_RS,
                            this->height() - (DEF_ZM_BS + i * _zoomItem[i]->size().height()));
     }

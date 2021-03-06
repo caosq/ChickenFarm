@@ -19,11 +19,14 @@ void EventMonitor::registMonitorItem(void* pvVal, Monitor::DataType emDataType, 
                                      int32_t iOccurredVal, QColor colorOccurred, QColor colorCompleted)
 {
     sEventItem tempEvent = {strContext, colorOccurred, colorCompleted, iOccurredVal};
-    Monitor* pMonitor = DataMonitor::getInstance()->monitorRegist(pvVal, emDataType);
 
-    if(pMonitor)
+    if(!m_eventItemMap.contains(pvVal))
     {
-        connect(pMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(valChangedSlot(Monitor*)));
+        Monitor* pMonitor = DataMonitor::getInstance()->monitorRegist(pvVal, emDataType);
+        if(pMonitor)
+        {
+            connect(pMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(valChangedSlot(Monitor*)));
+        }
     }
     if(m_eventItemMap.contains(pvVal))
     {
@@ -120,17 +123,13 @@ void EventMonitor::emitEvent(QMap<int32_t, sEventItem> mEventMap, Monitor* pMoni
 
 void EventMonitor::valChangedSlot(Monitor* pMonitor)
 {
-    if( !m_eventItemMap.contains(pMonitor->getCurValAddr()) )
+    if( !m_eventItemMap.contains(pMonitor->getValueAddr()) )
     {
         return;
     }
     else
     {
-        if(!m_eventItemMap[pMonitor->getCurValAddr()].contains(pMonitor->getCurVal()))
-        {
-            return;
-        }
-        QMap<int32_t, sEventItem> mEventMap = m_eventItemMap[pMonitor->getCurValAddr()];
+        QMap<int32_t, sEventItem> mEventMap = m_eventItemMap[pMonitor->getValueAddr()];
         if(autoWork)
         {
             autoWrite(mEventMap, pMonitor);

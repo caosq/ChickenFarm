@@ -180,9 +180,9 @@ background:transparent;</string>
    <property name="geometry">
     <rect>
      <x>808</x>
-     <y>596</y>
+     <y>600</y>
      <width>89</width>
-     <height>33</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="palette">
@@ -562,9 +562,9 @@ background:transparent;}</string>
    <property name="geometry">
     <rect>
      <x>300</x>
-     <y>15</y>
+     <y>10</y>
      <width>601</width>
-     <height>580</height>
+     <height>600</height>
     </rect>
    </property>
    <property name="styleSheet">

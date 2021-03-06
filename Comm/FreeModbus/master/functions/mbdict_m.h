@@ -100,15 +100,53 @@ typedef BOOL (*pxMBDevDataMapIndex)(eDataType eDataType, UCHAR ucProtocolID, USH
 
 typedef struct sMBSlaveDevCommData   /* 从设备通讯字典数据结构 */  
 {
+#if MB_FUNC_READ_INPUT_ENABLED > 0
 	sMBDevDataTable      sMBRegInTable;       //输入寄存器数据表
+#endif
+
+#if MB_FUNC_WRITE_HOLDING_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0 \
+    || MB_FUNC_READ_HOLDING_ENABLED > 0 || MB_FUNC_READWRITE_HOLDING_ENABLED > 0
+
 	sMBDevDataTable      sMBRegHoldTable;     //保持寄存器数据表
+#endif
+
+#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
 	sMBDevDataTable      sMBCoilTable;        //线圈数据表
+#endif
+
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
 	sMBDevDataTable      sMBDiscInTable;      //离散量数据表
+#endif
+
     sMBTestDevCmd        sMBDevCmdTable;      //用于测试从设备状态命令表
-       
-    UCHAR                ucProtocolID;        //协议ID
+
+#if  MB_UCOSIII_ENABLED
     pxMBDevDataMapIndex  pxDevDataMapIndex;   //字典映射函数
-    
+
+#elif MB_LINUX_ENABLED
+
+#if MB_FUNC_READ_INPUT_ENABLED > 0
+    uint16_t  *pRegInIndex;       //输入寄存器数据域映射
+#endif
+
+#if MB_FUNC_WRITE_HOLDING_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0 \
+    || MB_FUNC_READ_HOLDING_ENABLED > 0 || MB_FUNC_READWRITE_HOLDING_ENABLED > 0
+
+    uint16_t  *pRegHoldIndex;     //保持寄存器数据域映射
+#endif
+
+#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
+    uint16_t  *pBitCoilIndex;     //线圈数据域映射
+#endif
+
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
+     uint16_t  *pBitDiscIndex;     //离散量数据表数据域映射
+#endif
+
+#endif
+
+    pxMBDevDataMapIndex  pxDevDataMapIndex;   //字典映射函数
+    UCHAR ucProtocolID;        //协议ID
     struct sMBSlaveDevCommData*   pNext;      //下一个数据表
 
 #if MB_MASTER_HEART_BEAT_ENABLED
@@ -121,12 +159,12 @@ typedef struct sMBSlaveDev   /* 从设备信息列表 */
 {
     UCHAR     ucProtocolID;          //协议ID
     UCHAR     ucDevAddr;             //设备通讯地址
-	UCHAR     ucOfflineTimes;        //掉线次数
-	BOOL      xOnLine;               //是否在线
-	BOOL      xDataReady;            //数据是否准备好
-	BOOL      xSynchronized;         //是否同步
+    UCHAR     ucOfflineTimes;        //掉线次数
+    BOOL      xDataReady;            //数据是否准备好
+    BOOL      xSynchronized;         //是否同步
     BOOL      xStateTestRequest;     //是否需要状态检测
     BOOL      xDevOnTimeout;         //是否处于延时
+    BOOL      xOnLine;               //是否在线
     
 //    eScanMode eScanMode;             //当前轮询模式
     

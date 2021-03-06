@@ -5,7 +5,9 @@
 #include <QTextCodec>
 #include <QBrush>
 #include <QLocale>
-
+#include "password.h"
+#include "pwdkeyboard.h"
+#include "messagebox.h"
 
 #define AB_PRESS_PIX ":UI/baseFile/abPress.png"
 //#define AB_RELEASE_PIX ":UI/baseFile/abRelease.png"
@@ -50,19 +52,9 @@ void MainForm::initLabel()
     QPalette pe;
     QFont font;
 
-    m_pLogLabel = new QLabel (ui->frame);
-    m_pLogLabel->setGeometry(740,10, 400, 30);
-    m_pLogLabel->setText("触摸屏与控制器通讯故障");
-
-    pe.setColor(QPalette::WindowText,Qt::red);
-    font.setPointSize(12);//字体大小
-    m_pLogLabel->setPalette(pe);
-    m_pLogLabel->setFont(font);
-
-
     m_pTitleLabel = new QLabel (ui->frame);
     m_pTitleLabel->setGeometry(600,25, 300, 30);
-    m_pTitleLabel->setText("系统监控");
+    m_pTitleLabel->setText("");
 
     pe.setColor(QPalette::WindowText,Qt::white);
     font.setPointSize(14);//字体大小
@@ -115,6 +107,14 @@ void MainForm::initForm()
     ui->eventButton->setEnabled(true);
     ui->systemButton->setEnabled(true);
 
+    m_pLogLabel = new DataLabel(ui->frame, DataLabel::Text);
+    m_pLogLabel->setGeometry(500,10, 400, 30);
+    m_pLogLabel->setValueMap(0,tr(""));
+    m_pLogLabel->setValueMap(1,tr("触摸屏与控制器通讯故障"), Qt::red);
+    m_pLogLabel->setMonitorData(&System::getInstance()->m_Controller.m_xCommErr, Monitor::Boolean);
+    m_pLogLabel->setTextSize(14);
+    //m_pLogLabel->setText("触摸屏与控制器通讯故障");
+
     connect(System::getInstance(), SIGNAL(systemTimeChanged()), this, SLOT(systemTimeChangedSlot()));
 }
 
@@ -125,30 +125,92 @@ void MainForm::systemTimeChangedSlot()
     QString str2 = datatime.toString("hh:mm:ss");
     ui->label_6->setText(str1);
     ui->label_7->setText(str2);
-}
 
+    if(System::getInstance()->m_xIsLogIn)
+    {
+        ui->pushButton->setText("用户注销");
+    }
+    else
+    {
+        //ui->mainStackedWidget->setCurrentWidget(&m_Home);
+        ui->pushButton->setText("用户登录");
+    }
+}
 
 void MainForm::on_systemButton_clicked()
 {
+    System::getInstance()->m_uiOffLogCount = 0;
     ui->mainStackedWidget->setCurrentWidget(&m_SystemMonitor);
+    m_pTitleLabel->setText("系统监控");
 }
 
 void MainForm::on_curveButton_clicked()
 {
+    System::getInstance()->m_uiOffLogCount = 0;
     ui->mainStackedWidget->setCurrentWidget(&m_Curve);
+    m_pTitleLabel->setText("趋势曲线");
 }
 
 void MainForm::on_paraButton_clicked()
 {
-    ui->mainStackedWidget->setCurrentWidget(&m_Setting);
+    //if(System::getInstance()->checkSystemLogIn())
+    //{
+        System::getInstance()->m_uiOffLogCount = 0;
+        ui->mainStackedWidget->setCurrentWidget(&m_Setting);
+        m_pTitleLabel->setText("参数设置");
+    //}
+
 }
 
 void MainForm::on_backButton_clicked()
 {
+    System::getInstance()->m_uiOffLogCount = 0;
     ui->mainStackedWidget->setCurrentWidget(&m_Home);
+    m_pTitleLabel->setText("");
 }
 
 void MainForm::on_eventButton_clicked()
 {
+    System::getInstance()->m_uiOffLogCount = 0;
     ui->mainStackedWidget->setCurrentWidget(&m_Event);
+    m_pTitleLabel->setText("事件记录");
+}
+
+void MainForm::on_pushButton_clicked()
+{
+    int passwd = pwdKeyBoard::getWrongValue();
+    bool exitState = false;
+    bool passwdState = false;
+
+    if(System::getInstance()->m_xIsLogIn == false)
+    {
+        while( !passwdState && !exitState )//获取成功且密码正确就退出
+        {
+            passwd = pwdKeyBoard::getValue(passwd,&exitState);
+            if(exitState){return;}
+            if( (password::instance()->judgementPwd(password::GR_FACTORY,passwd)) ||
+                ( password::instance()->judgementPwd(password::GR_USER,passwd)) )
+            {
+                passwdState = true;
+                System::getInstance()->m_xIsLogIn = true;
+                ui->pushButton->setText("用户注销");
+            }
+            else
+            {
+                passwdState = false;
+                System::getInstance()->m_xIsLogIn = false;
+
+                pwdKeyBoard::instance()->show();
+                messageBox::instance()->setInformativeText("hha");
+                messageBox::instance()->show();
+                ui->pushButton->setText("用户登录");
+            }
+        }
+    }
+    else
+    {
+        System::getInstance()->m_xIsLogIn = false;
+        ui->pushButton->setText("用户登录");
+    }
+
 }

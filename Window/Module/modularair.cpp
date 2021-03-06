@@ -20,8 +20,15 @@
 #define DATA_LABEL_INTERVAL_H   320
 #define DATA_LABEL_INTERVAL_V   35
 
-uint8_t ModularAir::m_usModularAirCount = 0;
+#define COLOR_STATE_COOL         "#00BBFF"
+#define COLOR_STATE_HEAT         "#FF5511"
+#define COLOR_STATE_FAN          "#00FF00"
+#define COLOR_STATE_NEGATICE_FAN "#40E0D0"
+#define COLOR_STATE_EX_FAN       "#EE82EE"
+#define COLOR_STATE_DEFROST      "#87CEFA"
+#define COLOR_STATE_ANTI_FREEZE  "#FFFF00"
 
+uint8_t ModularAir::m_usModularAirCount = 0;
 ModularAir::ModularAir(QWidget *parent) :
     Device(parent),
     ui(new Ui::ModularAir)
@@ -89,20 +96,26 @@ void ModularAir::initLabel()
 
 void ModularAir::initButton()
 {
+    System *pSystem = System::getInstance();
+    if(pSystem == nullptr){return;}
      //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
+    m_pSwitchCmdBtn->setValueMap(StateButton::State0, 0x0055);
+    m_pSwitchCmdBtn->setValueMap(StateButton::State1, 0x00AA);
+    m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
     m_pSwitchCmdBtn->setMonitorData(&m_eSwitchCmd, Monitor::Uint16t);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //机组运行工作模式设定
     m_pRunningModeCmdBtn = new ModeButton(ui->frame);
-    m_pRunningModeCmdBtn->setItem(0,tr("供冷 "));
+    m_pRunningModeCmdBtn->setItem(0,tr("供冷"));
     m_pRunningModeCmdBtn->setItem(1,tr("通风"));
     m_pRunningModeCmdBtn->setItem(2,tr("供热"));
     m_pRunningModeCmdBtn->setItem(3,tr("负压通风"));
+    m_pRunningModeCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pRunningModeCmdBtn->setDefaultValue(0);
     m_pRunningModeCmdBtn->setMonitorData(&m_eRunningModeCmd, Monitor::Uint16t);
     m_Widgets.append(m_pRunningModeCmdBtn);
@@ -110,18 +123,21 @@ void ModularAir::initButton()
     //目标温度设定
     m_pTempSetBtn = new AnalogValButton(ui->frame);
     m_pTempSetBtn->setDataParameter("℃", 1, 240, 350, 160, Monitor::Uint16t);
+    m_pTempSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pTempSetBtn->setMonitorData(&m_usTempSet, Monitor::Uint16t);
     m_Widgets.append(m_pTempSetBtn);
 
     //目标湿度设定
     m_pHumiSetBtn = new AnalogValButton(ui->frame);
-    m_pHumiSetBtn->setDataParameter("%", 1, 60, 100, 0, Monitor::Uint16t);
+    m_pHumiSetBtn->setDataParameter("%", 1, 600, 1000, 0, Monitor::Uint16t);
+    m_pHumiSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pHumiSetBtn->setMonitorData(&m_usHumiSet, Monitor::Uint16t);
     m_Widgets.append(m_pHumiSetBtn);
 
     //目标CO2设定
     m_pCO2SetBtn = new AnalogValButton(ui->frame);
-    m_pCO2SetBtn->setDataParameter("ppm", 0, 2000, 3000, 1000, Monitor::Uint16t);
+    m_pCO2SetBtn->setDataParameter("ppm", 1, 20000, 35000, 10000, Monitor::Uint16t);
+    m_pCO2SetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pCO2SetBtn->setMonitorData(&m_usCO2Set, Monitor::Uint16t);
     m_Widgets.append(m_pCO2SetBtn);
 
@@ -131,17 +147,17 @@ void ModularAir::initButton()
     m_pModularStateLabel->setValueMap(0,tr("已关闭"));
     m_pModularStateLabel->setValueMap(1,tr("开机中"));
     m_pModularStateLabel->setValueMap(2,tr("关机中"));
-    m_pModularStateLabel->setValueMap(3,tr("运行中"));
+    m_pModularStateLabel->setValueMap(3,tr("运行中"), Qt::green);
     m_pModularStateLabel->setMonitorData(&m_eModularState, Monitor::Uint16t);
     m_Widgets.append(m_pModularStateLabel);
 
     //机组运行模式
     m_pRunningModeLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pRunningModeLabel->setAlignment(Qt::AlignLeft);
-    m_pRunningModeLabel->setValueMap(0,tr("供冷"));
-    m_pRunningModeLabel->setValueMap(1,tr("通风"));
-    m_pRunningModeLabel->setValueMap(2,tr("供热"));
-    m_pRunningModeLabel->setValueMap(3,tr("负压通风"));
+    m_pRunningModeLabel->setValueMap(0,tr("供冷"), QColor(COLOR_STATE_COOL));
+    m_pRunningModeLabel->setValueMap(1,tr("通风"), QColor(COLOR_STATE_FAN));
+    m_pRunningModeLabel->setValueMap(2,tr("供热"), QColor(COLOR_STATE_HEAT));
+    m_pRunningModeLabel->setValueMap(3,tr("负压通风"), QColor(COLOR_STATE_NEGATICE_FAN));
     m_pRunningModeLabel->setMonitorData(&m_eRunningMode, Monitor::Uint16t);
     m_Widgets.append(m_pRunningModeLabel);
 
@@ -149,7 +165,7 @@ void ModularAir::initButton()
     m_pControlModeLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pControlModeLabel->setAlignment(Qt::AlignLeft);
     m_pControlModeLabel->setValueMap(0,tr("本地"));
-    m_pControlModeLabel->setValueMap(1,tr("远程"));
+    m_pControlModeLabel->setValueMap(1,tr("远程"), Qt::green);
     m_pControlModeLabel->setMonitorData(&m_eControlMode, Monitor::Uint16t);
     m_Widgets.append(m_pControlModeLabel);
 
@@ -234,7 +250,7 @@ void ModularAir::initButton()
     m_pRecycleModeLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pRecycleModeLabel->setAlignment(Qt::AlignLeft);
     m_pRecycleModeLabel->setValueMap(0,tr("关闭"));
-    m_pRecycleModeLabel->setValueMap(1,tr("开启"));
+    m_pRecycleModeLabel->setValueMap(1,tr("开启"), Qt::green);
     m_pRecycleModeLabel->setMonitorData(&m_xRecycleMode, Monitor::Boolean);
     m_Widgets.append(m_pRecycleModeLabel);
 
@@ -242,7 +258,7 @@ void ModularAir::initButton()
     m_pWetModeLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pWetModeLabel->setAlignment(Qt::AlignLeft);
     m_pWetModeLabel->setValueMap(0,tr("关闭"));
-    m_pWetModeLabel->setValueMap(1,tr("开启"));
+    m_pWetModeLabel->setValueMap(1,tr("开启"), Qt::green);
     m_pWetModeLabel->setMonitorData(&m_xWetMode, Monitor::Boolean);
     m_Widgets.append(m_pWetModeLabel);
 
@@ -250,7 +266,7 @@ void ModularAir::initButton()
     m_pSupAirFanLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pSupAirFanLabel->setAlignment(Qt::AlignLeft);
     m_pSupAirFanLabel->setValueMap(0,tr("关闭"));
-    m_pSupAirFanLabel->setValueMap(1,tr("开启"));
+    m_pSupAirFanLabel->setValueMap(1,tr("开启"), Qt::green);
     m_pSupAirFanLabel->setMonitorData(&m_xSupAirFan, Monitor::Boolean);
     m_Widgets.append(m_pSupAirFanLabel);
 
@@ -258,7 +274,7 @@ void ModularAir::initButton()
     m_pExitAirFanLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pExitAirFanLabel->setAlignment(Qt::AlignLeft);
     m_pExitAirFanLabel->setValueMap(0,tr("关闭"));
-    m_pExitAirFanLabel->setValueMap(1,tr("开启"));
+    m_pExitAirFanLabel->setValueMap(1,tr("开启"), Qt::green);
     m_pExitAirFanLabel->setMonitorData(&m_xExitAirFan, Monitor::Boolean);
     m_Widgets.append(m_pExitAirFanLabel);
 
@@ -266,7 +282,7 @@ void ModularAir::initButton()
     m_pCommErrLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pCommErrLabel->setAlignment(Qt::AlignLeft);
     m_pCommErrLabel->setValueMap(0,tr("正常"));
-    m_pCommErrLabel->setValueMap(1,tr("故障"));
+    m_pCommErrLabel->setValueMap(1,tr("故障"), Qt::red);
     m_pCommErrLabel->setMonitorData(&m_xCommErr, Monitor::Boolean);
     m_Widgets.append(m_pCommErrLabel);
 
@@ -274,7 +290,7 @@ void ModularAir::initButton()
     m_pAlarmFlagLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pAlarmFlagLabel->setAlignment(Qt::AlignLeft);
     m_pAlarmFlagLabel->setValueMap(0,tr("正常"));
-    m_pAlarmFlagLabel->setValueMap(1,tr("故障"));
+    m_pAlarmFlagLabel->setValueMap(1,tr("故障"), Qt::red);
     m_pAlarmFlagLabel->setMonitorData(&m_xAlarmFlag, Monitor::Boolean);
     m_Widgets.append(m_pAlarmFlagLabel);
 
@@ -282,7 +298,7 @@ void ModularAir::initButton()
     m_pExitAirSenErrLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pExitAirSenErrLabel->setAlignment(Qt::AlignLeft);
     m_pExitAirSenErrLabel->setValueMap(0,tr("正常"));
-    m_pExitAirSenErrLabel->setValueMap(1,tr("故障"));
+    m_pExitAirSenErrLabel->setValueMap(1,tr("故障"), Qt::red);
     m_pExitAirSenErrLabel->setMonitorData(&m_xExitAirSenErr, Monitor::Boolean);
     m_Widgets.append(m_pExitAirSenErrLabel);
 
@@ -290,7 +306,7 @@ void ModularAir::initButton()
     m_pFreAirSenErrLabel = new DataLabel(ui->frame, DataLabel::Text);
     m_pFreAirSenErrLabel->setAlignment(Qt::AlignLeft);
     m_pFreAirSenErrLabel->setValueMap(0,tr("正常"));
-    m_pFreAirSenErrLabel->setValueMap(1,tr("故障"));
+    m_pFreAirSenErrLabel->setValueMap(1,tr("故障"), Qt::red);
     m_pFreAirSenErrLabel->setMonitorData(&m_xFreAirSenErr, Monitor::Boolean);
     m_Widgets.append(m_pFreAirSenErrLabel);
 
@@ -304,5 +320,57 @@ void ModularAir::initButton()
         m_Widgets[i]->setGeometry(DATA_LABEL_LEFT_MARGIN + m * DATA_LABEL_INTERVAL_H,
                                   DATA_LABEL_UP_MARGIN + n * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
+    }
+    connect(m_pExitAirSenErrLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pFreAirSenErrLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pCommErrLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pAlarmFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pModularStateLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pControlModeLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pRunningModeLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+
+
+}
+
+void ModularAir::stateChangedSlot(int32_t)
+{
+    if(m_sQFrameState.IsError != nullptr)
+    {
+        if(m_xCommErr || m_xAlarmFlag || m_xFreAirSenErr || m_xExitAirSenErr)
+        {
+            m_sQFrameState.IsError->show();
+        }
+        else
+        {
+            m_sQFrameState.IsError->hide();
+        }
+    }
+    if(m_sQFrameState.IsRunning != nullptr)
+    {
+        if(m_eModularState == STATE_CLOSED)
+        {
+            m_sQFrameState.IsRunning->show();
+            m_eRunningState = AIR_RUN_MODE_CLOSED;
+        }
+        else
+        {
+            if(m_eRunningMode == RUN_MODE_COOL)
+            {
+                m_eRunningState = AIR_RUN_MODE_COOL;
+            }
+            else if (m_eRunningMode == RUN_MODE_FAN)
+            {
+                m_eRunningState = AIR_RUN_MODE_FAN;
+            }
+            else if (m_eRunningMode == RUN_MODE_HEAT)
+            {
+                m_eRunningState = AIR_RUN_MODE_HEAT;
+            }
+            else if (m_eRunningMode == RUN_MODE_NEGATICE_FAN)
+            {
+                m_eRunningState = AIR_RUN_MODE_NEGATICE_FAN;
+            }
+            m_sQFrameState.IsRunning->hide();
+        }
     }
 }

@@ -36,10 +36,13 @@ void qHistoryCurve::setSamplingTime(unsigned int sec)
 
 void qHistoryCurve::nextDay()
 {
-    if( _cFileNum >= qMax(_fileList.size() - 1,0) ){
+    if( _cFileNum >= qMax(_fileList.size() - 1,0) )
+    {
      //   msgManage::instance()->showUniversalMsg(43);
         return;
-    }else{
+    }
+    else
+    {
         _cFileNum++;
         showDate();
     }
@@ -47,10 +50,13 @@ void qHistoryCurve::nextDay()
 
 void qHistoryCurve::previousDay()
 {
-    if( _cFileNum <= 0 ){
+    if( _cFileNum <= 0 )
+    {
       //  msgManage::instance()->showUniversalMsg(42);
         return;
-    }else{
+    }
+    else
+    {
         _cFileNum--;
         showDate();
     }
@@ -73,12 +79,15 @@ void qHistoryCurve::clearAll()
 bool qHistoryCurve::setHistoryDir(QString name)
 {
     bool ret = false;
-    if( name != "" ){
+    if( name != "" )
+    {
         QString path = qrealTimeCurve::rootDir();
         path += name;
         _dirPath->setPath(path);
         ret = _dirPath->exists();
-    }else{
+    }
+    else
+    {
         ret = false;
     }
     return ret;
@@ -172,10 +181,12 @@ void qHistoryCurve::analyseScale()
         QString last = _historyPoint.at(_historyPoint.size() - 1);
         QStringList lastDetail = last.split(_textSplitChar);
 
-        if( !firstDetail.isEmpty() && !lastDetail.isEmpty()){
+        if( !firstDetail.isEmpty() && !lastDetail.isEmpty())
+        {
             QTime firstTime = QTime::fromString(firstDetail.at(0),_timeLegendFormat);
 
-            if( !firstTime.isNull() ){
+            if( !firstTime.isNull() )
+            {
                 reloadXScale(firstTime);
 
                 QTime lastTime = QTime::fromString(lastDetail.at(0),_timeLegendFormat);
@@ -184,13 +195,14 @@ void qHistoryCurve::analyseScale()
                 int tempVal = lastNum - baseXScaleMaximum();
                 int maxBarVal = tempVal / xScaleJumpStep();
 
-                if( tempVal % xScaleJumpStep() != 0 &&
-                        tempVal > 0){
+                if( tempVal % xScaleJumpStep() != 0 && tempVal > 0)
+                {
                     maxBarVal++;
                 }
                 maxBarVal = qMax(0,maxBarVal);
 
-                if( maxBarVal == 0 ){
+                if( maxBarVal == 0 )
+                {
                     int tempMin = baseXScaleMinimum();
                     loadSamples(tempMin);
                 }
@@ -268,15 +280,18 @@ void qHistoryCurve::updateFileList()
         list2.clear();
         list1.clear();
 
-        for(int i = 0; i < _fileList.size(); i++ ){
+        for(int i = 0; i < _fileList.size(); i++ )
+        {
             //不是副本的时候，“_”只有两个
-            if( 2 == _fileList[i].count(_fileNameSplitChar) ){
+            if( 2 == _fileList[i].count(_fileNameSplitChar) )
+            {
                 list1<<list2;
                 list2.clear();
             }
             list2.prepend(_fileList[i]);
         }
-        if( !list2.isEmpty() ){
+        if( !list2.isEmpty() )
+        {
             list1<<list2;
             list2.clear();
         }
@@ -288,12 +303,18 @@ void qHistoryCurve::updateFileList()
 
 void qHistoryCurve::showDate()
 {
-    if( _fileList.isEmpty() ){
+    if( _fileList.isEmpty() )
+    {
         showEmpty();
-    }else{
-        if( readFile(_fileList.at(_cFileNum)) ){
+    }
+    else
+    {
+        if( readFile(_fileList.at(_cFileNum)) )
+        {
             analyseScale();
-        }else{
+        }
+        else
+        {
             showEmpty();
             qDebug("2\n");
         }
@@ -317,26 +338,30 @@ bool qHistoryCurve::readFile(QString fileName)
 {
     bool ret = false;
 
-    if( fileName != "" ){
-        if( _curveFile->isOpen() ){
+    if( fileName != "" )
+    {
+        if( _curveFile->isOpen() )
+        {
             _curveFile->close();
         }
         QString filePath = _dirPath->path();
-        if( !filePath.endsWith("/") ){
+        if( !filePath.endsWith("/") )
+        {
             filePath.append("/");
         }
-
         _curveFile->setFileName(filePath.append(fileName));
         _historyPoint.clear();
 
-        if( _curveFile->open(QIODevice::ReadOnly)){
+        if( _curveFile->open(QIODevice::ReadOnly))
+        {
             QTextStream curveDate(_curveFile);
             QString line;
 
             curveDate.setCodec(_textCodec);
             line = curveDate.readLine();
 
-            while(!curveDate.atEnd()){
+            while(!curveDate.atEnd())
+            {
                 _historyPoint<<curveDate.readLine();
             }
 
@@ -344,15 +369,18 @@ bool qHistoryCurve::readFile(QString fileName)
             setTopLeftLegendShow(dateLabelText.replace(_fileNameSplitChar,_dateMarkSplitChar));
 
             ret = true;
-        }else{
+        }
+        else
+        {
             _curveFile->setFileName("");
             ret = false;
         }
 
-    }else{
+    }
+    else
+    {
         ret = false;
     }
-
     return ret;
 }
 

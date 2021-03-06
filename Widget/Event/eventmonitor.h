@@ -35,7 +35,7 @@ public:
 
     //绑定要监视的数据地址以及相应要显示的文字
     void registMonitorItem(void* pvVal, Monitor::DataType emDataType, QString strContext, int32_t iOccurredVal,
-                           QColor colorOccurred = QColor(Qt::red), QColor colorCompleted = QColor("#0bd80b") );
+                           QColor colorOccurred = QColor("#0bd80b"), QColor colorCompleted = Qt::gray );
     //移除监视地址
     void removeMonitorItem(void* pvVal);
 
@@ -77,9 +77,9 @@ signals:
     void clearTable();
 
     //当有任何事件发生会触发该信号
-    void eventComing(QMap<int32_t, sEventItem> mEventMap, Monitor* pMonitor);
+    void eventComing(QMap<int32_t, EventMonitor::sEventItem>, Monitor*);
 
-    void eventStringEmpty(QMap<int32_t, sEventItem> mEventMap, Monitor* pMonitor);
+    void eventStringEmpty(QMap<int32_t, sEventItem>, Monitor*);
 
 private:
     uint32_t m_DataIndex = 0;
@@ -87,7 +87,7 @@ private:
 
     clearAction _clearAction;
     bool autoWork;
-    QMap<void*, QMap<int32_t, sEventItem>> m_eventItemMap;
+    QMap<void*, QMap<int32_t, EventMonitor::sEventItem>> m_eventItemMap;
 };
 
 #endif // EVENTMONITOR_H
