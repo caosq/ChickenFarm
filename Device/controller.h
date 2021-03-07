@@ -3,6 +3,7 @@
 
 #include "modbus.h"
 #include "datamonitor.h"
+#include <QTimer>
 
 #define REG_HOLD_BUF_NUM  400
 #define BIT_COIL_BUF_NUM  300
@@ -13,15 +14,21 @@
 class Controller : public QObject
 {
     Q_OBJECT
+
+public:
+    sMBSlaveDev  m_sMBSlaveDev;   //本通讯设备
+    bool m_xCommErr = false;      //通讯故障
+    bool m_xOffline = false;      //设备掉线
+
 public:
     explicit Controller(QObject *parent = nullptr);
-    void initComm(sMBMasterInfo* psMBMasterInfo, uint8_t ucDevAddr);
+    void initComm(uint8_t ucDevAddr);
 
-    bool m_xCommErr = 0;   //通讯故障
-    sMBSlaveDev          m_sMBSlaveDev;      //本通讯设备
 private:
+    QTimer   m_DelayTimer;        //通讯故障判断延时
+    Monitor *m_pCommErrMonitor;   //通讯故障监控
+    Monitor *m_pSyncMonitor;      //数据同步
 
-    Monitor *m_xCommErrMonitor;   //通讯故障
     sMBMasterInfo*       m_psMBMasterInfo;   //所属通讯主栈
     sMBSlaveDevCommData  m_sDevCommData;     //本设备通讯数据表
 
@@ -34,9 +41,14 @@ private:
     void registDevCommData();
     static uint8_t devDataMapIndex(eDataType eDataType, uint8_t ucProtocolID, uint16_t usAddr, uint16_t* psIndex);
 
-private slots:
-    void dataChanged(Monitor* pMonitor);
+signals:
+    void offlineChanged(bool);
+    void syncChanged(bool);
 
+public slots:
+    void delayTimeOutSlot();
+    void dataChanged(Monitor*);
+    void syncChangedSlot(Monitor*);
 };
 
 #endif // CONTROLLER_H

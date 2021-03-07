@@ -212,7 +212,7 @@ void* DataMonitor::monitorPollTask(void *pvArg)
                 pMonitor->m_iDataVal = iDataVal;
                 emit pMonitor->valChanged(pMonitor);
 
-                qDebug("pMonitor->valChanged %d %d", iDataVal, pMonitorMap);
+                qDebug("pMonitor->valChanged %d %d \n", iDataVal, pMonitorMap);
             }
         }
         //pthread_mutex_unlock(mutex);//解锁

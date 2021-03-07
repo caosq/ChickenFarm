@@ -1,32 +1,61 @@
 #include "controller.h"
 #include "system.h"
 #include "mbmap_m.h"
+#include "messagebox.h"
 
-#define PROTOCOL_TYPE_ID   0
+#define PROTOCOL_TYPE_ID   0x302A+10
+#define COMM_ERR_DELAY_S   30
+#define OFFLINE_CONTAIN_S  60
 
 Controller::Controller(QObject *parent) :
      QObject(parent)
 {
-    m_sMBSlaveDev.ucProtocolID = 0;
+    m_sMBSlaveDev.usProtocolID = 0;
     m_sMBSlaveDev.xDevOnTimeout = 0;
     m_sMBSlaveDev.xSynchronized = 0;
     m_sMBSlaveDev.ucOfflineTimes = 0;
     m_sMBSlaveDev.xStateTestRequest = 0;
     m_sMBSlaveDev.xDataReady = 0;
-    m_sMBSlaveDev.xOnLine = 0; 
+    m_sMBSlaveDev.xOnLine = 0;
+    m_sMBSlaveDev.psMBMasterInfo = nullptr;
+    m_sMBSlaveDev.psDevDataInfo = nullptr;
+    m_sMBSlaveDev.psDevCurData = nullptr;
+    m_sMBSlaveDev.pLast = nullptr;
+    m_sMBSlaveDev.pNext = nullptr;
+
+    m_DelayTimer.setSingleShot(true);
+    connect(&m_DelayTimer, SIGNAL(timeout()), this, SLOT(delayTimeOutSlot()));
 }
 
-void Controller::initComm(sMBMasterInfo* psMBMasterInfo, uint8_t ucDevAddr)
+void Controller::delayTimeOutSlot()
 {
-    if(psMBMasterInfo != nullptr)
+    if(m_xOffline && m_xCommErr)
     {
-        m_psMBMasterInfo = psMBMasterInfo;
-        registDevCommData();
+        emit offlineChanged(m_xOffline);
     }
-    m_sMBSlaveDev.ucDevAddr = ucDevAddr;
-    m_xCommErrMonitor = DataMonitor::monitorRegist(&m_sMBSlaveDev.xOnLine, Monitor::DataType::Boolean);
+    if(m_sMBSlaveDev.xOnLine)
+    {
+        m_xCommErr = false;
+        m_xOffline = false;
+    }
+    else
+    {
+        m_xCommErr = true;
+        m_xOffline = true;
+        m_DelayTimer.start(OFFLINE_CONTAIN_S*1000);
+    }
+}
 
-    connect(m_xCommErrMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(dataChanged(Monitor*)));
+void Controller::initComm(uint8_t ucDevAddr)
+{
+    registDevCommData();
+
+    m_sMBSlaveDev.ucDevAddr = ucDevAddr;
+    m_pCommErrMonitor = DataMonitor::monitorRegist(&m_sMBSlaveDev.xOnLine, Monitor::DataType::Boolean);
+    m_pSyncMonitor = DataMonitor::monitorRegist(&m_sMBSlaveDev.xSynchronized, Monitor::DataType::Boolean);
+
+    connect(m_pCommErrMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(dataChanged(Monitor*)));
+    connect(m_pSyncMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(syncChangedSlot(Monitor*)));
 }
 
 void Controller::dataChanged(Monitor*)
@@ -34,10 +63,20 @@ void Controller::dataChanged(Monitor*)
      if(m_sMBSlaveDev.xOnLine)
      {
          m_xCommErr = false;
+         m_xOffline = false;
+         emit syncChanged(false);
      }
-     else {
+     else
+     {
          m_xCommErr = true;
+         m_xOffline = true;
+         m_DelayTimer.start(OFFLINE_CONTAIN_S*1000);
      }
+}
+
+void Controller::syncChangedSlot(Monitor*)
+{
+     emit syncChanged(m_sMBSlaveDev.xSynchronized);
 }
 
 void Controller::registDevCommData()
@@ -55,7 +94,6 @@ void Controller::registDevCommData()
     WindowFan      *psWindowFan  = nullptr;
 
 MASTER_PBUF_INDEX_ALLOC
-
 
 MASTER_TEST_CMD_INIT(m_sDevCommData.sMBDevCmdTable, 0, READ_REG_HOLD, 0x302A, FALSE)
 
@@ -427,13 +465,14 @@ MASTER_BEGIN_DATA_BUF(m_psBitCoilBuf, m_sDevCommData.sMBCoilTable, m_usBitCoilIn
 
 MASTER_END_DATA_BUF(0, 279)
 
-    m_sDevCommData.ucProtocolID = PROTOCOL_TYPE_ID;
+    m_sDevCommData.pNext = nullptr;
+    m_sDevCommData.usProtocolID = PROTOCOL_TYPE_ID;
     m_sDevCommData.pRegHoldIndex = m_usRegHoldIndex;  //绑定映射
     m_sDevCommData.pBitCoilIndex = m_usBitCoilIndex;  //绑定映射
-
     m_sDevCommData.pxDevDataMapIndex = devDataMapIndex;  //绑定映射函数
     m_sMBSlaveDev.psDevDataInfo = &m_sDevCommData;
-    (void)xMBMasterRegistDev(m_psMBMasterInfo, &m_sMBSlaveDev);
+
+    m_DelayTimer.start(COMM_ERR_DELAY_S*1000);
 }
 
 uint8_t Controller::devDataMapIndex(eDataType eDataType, uint8_t ucProtocolID, uint16_t usAddr, uint16_t* psIndex)

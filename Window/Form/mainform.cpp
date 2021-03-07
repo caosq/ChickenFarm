@@ -112,7 +112,7 @@ void MainForm::initForm()
     m_pLogLabel->setValueMap(0,tr(""));
     m_pLogLabel->setValueMap(1,tr("触摸屏与控制器通讯故障"), Qt::red);
     m_pLogLabel->setMonitorData(&System::getInstance()->m_Controller.m_xCommErr, Monitor::Boolean);
-    m_pLogLabel->setTextSize(14);
+    m_pLogLabel->setTextSize(12);
     //m_pLogLabel->setText("触摸屏与控制器通讯故障");
 
     connect(System::getInstance(), SIGNAL(systemTimeChanged()), this, SLOT(systemTimeChangedSlot()));
@@ -153,13 +153,13 @@ void MainForm::on_curveButton_clicked()
 
 void MainForm::on_paraButton_clicked()
 {
-    //if(System::getInstance()->checkSystemLogIn())
-    //{
+    if(System::getInstance()->checkSystemLogIn())
+    {
         System::getInstance()->m_uiOffLogCount = 0;
         ui->mainStackedWidget->setCurrentWidget(&m_Setting);
         m_pTitleLabel->setText("参数设置");
-    //}
-
+        emit System::getInstance()->systemStackChanged(ui->mainStackedWidget->currentIndex());
+    }
 }
 
 void MainForm::on_backButton_clicked()
@@ -188,8 +188,14 @@ void MainForm::on_pushButton_clicked()
         {
             passwd = pwdKeyBoard::getValue(passwd,&exitState);
             if(exitState){return;}
-            if( (password::instance()->judgementPwd(password::GR_FACTORY,passwd)) ||
-                ( password::instance()->judgementPwd(password::GR_USER,passwd)) )
+            if(password::instance()->judgementPwd(password::GR_FACTORY,passwd))
+            {
+                passwdState = true;
+                System::getInstance()->m_xIsLogIn = true;
+                System::getInstance()->m_xIsFactoryLogIn = true;
+                ui->pushButton->setText("用户注销");
+            }
+            else if(password::instance()->judgementPwd(password::GR_USER,passwd))
             {
                 passwdState = true;
                 System::getInstance()->m_xIsLogIn = true;
@@ -201,7 +207,7 @@ void MainForm::on_pushButton_clicked()
                 System::getInstance()->m_xIsLogIn = false;
 
                 pwdKeyBoard::instance()->show();
-                messageBox::instance()->setInformativeText("hha");
+                messageBox::instance()->setInformativeText("请输入正确的用户密码");
                 messageBox::instance()->show();
                 ui->pushButton->setText("用户登录");
             }
@@ -210,6 +216,7 @@ void MainForm::on_pushButton_clicked()
     else
     {
         System::getInstance()->m_xIsLogIn = false;
+        System::getInstance()->m_xIsFactoryLogIn = false;
         ui->pushButton->setText("用户登录");
     }
 

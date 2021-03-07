@@ -57,7 +57,7 @@ messageBox *messageBox::instance()
     if( g_pUniversalMsg == nullptr)
     {
         g_pUniversalMsg = new messageBox;
-        g_pUniversalMsg->setButtonText(messageBox::Yes,tr("关闭"));
+        g_pUniversalMsg->setButtonText(messageBox::Yes,tr("确认"));
         g_pUniversalMsg->setInformativeText("");
     }
     return g_pUniversalMsg;
@@ -159,6 +159,17 @@ void messageBox::initButton()
         yes->setText("Yes");
         yes->setPalette(pe);
         addButton(yes,QMessageBox::YesRole);
+    }
+        break;
+    case Message:{
+        yes = new ubuttonBK(this);
+        yes->setMaximumSize(100,35);
+        yes->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+        yes->setText("Yes");
+        yes->setPalette(pe);
+        addButton(yes,QMessageBox::YesRole);
+        yes->hide();
+
     }
         break;
     default:

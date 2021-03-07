@@ -14,12 +14,13 @@ public:
     enum msgType{
         Information = 0,
         Warning = 1,
-        Question = 2
+        Question = 2,
+        Message = 3
     };
 
     enum btRole{
-        Yes,
-        No
+        No,
+        Yes
     };
 
     //消息提示框类，有警告，一般信息，询问模式

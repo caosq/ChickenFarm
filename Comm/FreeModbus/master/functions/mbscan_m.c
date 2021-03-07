@@ -824,7 +824,7 @@ void* vMBMasterScanSlaveDevTask(void *p_arg)
                 {
                     vMBMasterScanSlaveDev(psMBMasterInfo, psMBSlaveDev);
                 }
-//                debug("vMBMasterScanSlaveDevTask  %d  psMBSlaveDev->xOnLine %d\n", psMBSlaveDev->ucDevAddr, psMBSlaveDev->xOnLine);
+                debug("vMBMasterScanSlaveDevTask  %d  psMBSlaveDev->xOnLine %d\n", psMBSlaveDev->ucDevAddr, psMBSlaveDev->xOnLine);
             }
         }
     }

@@ -5,12 +5,13 @@
 #include <QTimerEvent>
 #include <QTimer>
 #include "datamonitor.h"
+//#include "messagebox.h"
 
 //#include "permissionControl/permissionset.h"
 //#include "universalSet/buzzercontrol.h"
 #include "textcontrol.h"
 
-class messageBox;
+//class messageBox;
 class Button : public QPushButton
 {
     Q_OBJECT
@@ -29,23 +30,25 @@ public:
     //设置操作权限
     //void setPermission(permissionSet::permissionLevel level){_level = level;}
 
+    //延时自动回弹模式
      void setDelayMode(int32_t iDelayTimeMs, int32_t iInitValue);
 
+     //取消延时自动回弹按钮
      void disableDelayMode();
 
+     //设置按键确认
      void setCheckMode(void* pCheckValAddr, int32_t iCheckVal, const QString &text, Monitor::DataType emDataType = Monitor::Uint16t);
 
 public:
     QTimer   m_DelayTimer;
     Monitor::DataType m_CheckDataType;
-    messageBox *confirmationBox;
 
     int32_t  m_iDelayTimeMs;
     int32_t  m_iInitValue;
 
     int32_t  m_iCheckVal;
+    QString  m_sChecktext;
     void*    m_pCheckValAddr;
-
     bool     m_xDelayMode = false;
     bool     m_xCheckMode = false;
 

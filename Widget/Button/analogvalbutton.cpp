@@ -32,8 +32,6 @@ AnalogValButton::AnalogValButton(QWidget *parent) :
     m_iCurrentVal = 0;
     m_strCurrentText = "0";
 
-    defVal = 0;
-
     m_pPressImg = nullptr;
     m_pPressImg = nullptr;
 
@@ -210,10 +208,10 @@ void AnalogValButton::setValue(Monitor* pMonitor)
     case Monitor::Uint16t:
     case Monitor::Uint32t:
     {
-        int32_t tempval = static_cast<int32_t>(defVal);
+        int32_t tempval = static_cast<int32_t>(val);
         m_iCurrentVal = static_cast<int32_t>(val);
 
-        defValState = (tempval == val) ? true:false;
+        defValState = (tempval == m_iDefaultVal) ? true:false;
         m_strCurrentText = QString::number( val/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
         break;
@@ -222,7 +220,7 @@ void AnalogValButton::setValue(Monitor* pMonitor)
         int8_t tempval = static_cast<int8_t>(val);
         m_iCurrentVal = static_cast<int32_t>(val);
 
-        defValState = (defVal == tempval) ? true:false;
+        defValState = (m_iDefaultVal == tempval) ? true:false;
         m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
         break;
@@ -230,7 +228,7 @@ void AnalogValButton::setValue(Monitor* pMonitor)
     {
         int16_t tempval = static_cast<int16_t>(val);
         m_iCurrentVal = static_cast<int32_t>(val);
-        defValState = (defVal == tempval) ? true:false;
+        defValState = (m_iDefaultVal == tempval) ? true:false;
 
         m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
@@ -240,7 +238,7 @@ void AnalogValButton::setValue(Monitor* pMonitor)
         int32_t tempval = static_cast<int32_t>(val);
         m_iCurrentVal = static_cast<int32_t>(val);
 
-        defValState = (defVal == tempval) ? true:false;
+        defValState = (m_iDefaultVal == tempval) ? true:false;
         m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
         break;
@@ -261,7 +259,7 @@ void AnalogValButton::setValue(int32_t val)
     case Monitor::Uint16t:
     case Monitor::Uint32t:
     {
-        int32_t tempval = static_cast<int32_t>(defVal);
+        int32_t tempval = static_cast<int32_t>(val);
         m_iCurrentVal = static_cast<int32_t>(val);
 
         defValState = (tempval == val) ? true:false;
@@ -273,7 +271,7 @@ void AnalogValButton::setValue(int32_t val)
         int8_t tempval = static_cast<int8_t>(val);
         m_iCurrentVal = static_cast<int32_t>(val);
 
-        defValState = (defVal == tempval) ? true:false;
+        defValState = (m_iDefaultVal == tempval) ? true:false;
         m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
         break;
@@ -281,7 +279,7 @@ void AnalogValButton::setValue(int32_t val)
     {
         int16_t tempval = static_cast<int16_t>(val);
         m_iCurrentVal = static_cast<int32_t>(val);
-        defValState = (defVal == tempval) ? true:false;
+        defValState = (m_iDefaultVal == tempval) ? true:false;
 
         m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
@@ -291,7 +289,7 @@ void AnalogValButton::setValue(int32_t val)
         int32_t tempval = static_cast<int32_t>(val);
         m_iCurrentVal = static_cast<int32_t>(val);
 
-        defValState = (defVal == tempval) ? true:false;
+        defValState = (m_iDefaultVal == tempval) ? true:false;
         m_strCurrentText = QString::number( tempval/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
         break;
@@ -564,7 +562,7 @@ void AnalogValButton::setValueRange(int max, int min)
 
 void AnalogValButton::setDefaultValue(int defValue)
 {
-    defVal = defValue;
-    defValState = (m_iCurrentVal == defVal) ? true:false;
+    m_iDefaultVal = defValue;
+    defValState = (m_iCurrentVal == m_iDefaultVal) ? true:false;
     update();
 }

@@ -13,10 +13,10 @@
 #define VX4 630
 
 #define VX5 700
-#define VX6 770
+#define VX6 800
 
 #define SIZE 100,30
-#define LABELSIZE 150,22
+#define LABELSIZE 160,22
 
 
 Curve::Curve(QWidget *parent) :

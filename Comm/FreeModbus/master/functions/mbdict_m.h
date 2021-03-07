@@ -90,10 +90,10 @@ typedef struct   /* 从设备心跳帧数据结构 */
 
 typedef struct   /* 主栈字典数据列表结构 */
 {
-    void*    pvDataBuf;             //协议数据域
-	USHORT   usStartAddr;           //起始地址
-	USHORT   usEndAddr;             //末尾地址
-    USHORT   usDataCount;           //协议点位总数
+    void*    pvDataBuf;     //协议数据域
+    USHORT   usStartAddr;   //起始地址
+    USHORT   usEndAddr;     //末尾地址
+    USHORT   usDataCount;   //协议点位总数
 }sMBDevDataTable;
 
 typedef BOOL (*pxMBDevDataMapIndex)(eDataType eDataType, UCHAR ucProtocolID, USHORT usAddr, USHORT* psIndex); //字典映射函数
@@ -107,18 +107,17 @@ typedef struct sMBSlaveDevCommData   /* 从设备通讯字典数据结构 */
 #if MB_FUNC_WRITE_HOLDING_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0 \
     || MB_FUNC_READ_HOLDING_ENABLED > 0 || MB_FUNC_READWRITE_HOLDING_ENABLED > 0
 
-	sMBDevDataTable      sMBRegHoldTable;     //保持寄存器数据表
+    sMBDevDataTable sMBRegHoldTable;     //保持寄存器数据表
 #endif
 
 #if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
-	sMBDevDataTable      sMBCoilTable;        //线圈数据表
+    sMBDevDataTable sMBCoilTable;        //线圈数据表
 #endif
 
 #if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
 	sMBDevDataTable      sMBDiscInTable;      //离散量数据表
 #endif
-
-    sMBTestDevCmd        sMBDevCmdTable;      //用于测试从设备状态命令表
+    sMBTestDevCmd sMBDevCmdTable;      //用于测试从设备状态命令表
 
 #if  MB_UCOSIII_ENABLED
     pxMBDevDataMapIndex  pxDevDataMapIndex;   //字典映射函数
@@ -146,7 +145,7 @@ typedef struct sMBSlaveDevCommData   /* 从设备通讯字典数据结构 */
 #endif
 
     pxMBDevDataMapIndex  pxDevDataMapIndex;   //字典映射函数
-    UCHAR ucProtocolID;        //协议ID
+    USHORT usProtocolID;        //协议ID
     struct sMBSlaveDevCommData*   pNext;      //下一个数据表
 
 #if MB_MASTER_HEART_BEAT_ENABLED
@@ -157,7 +156,7 @@ typedef struct sMBSlaveDevCommData   /* 从设备通讯字典数据结构 */
 
 typedef struct sMBSlaveDev   /* 从设备信息列表 */   
 {
-    UCHAR     ucProtocolID;          //协议ID
+    USHORT    usProtocolID;          //协议ID
     UCHAR     ucDevAddr;             //设备通讯地址
     UCHAR     ucOfflineTimes;        //掉线次数
     BOOL      xDataReady;            //数据是否准备好
@@ -181,7 +180,7 @@ typedef struct sMBSlaveDev   /* 从设备信息列表 */
 #endif
 
     sMBSlaveDevCommData* psDevDataInfo;     //从设备数据域
-    sMBSlaveDevCommData* psDevCurData;      //从设备当前数据域   
+    sMBSlaveDevCommData* psDevCurData;      //从设备当前数据域
     
     struct sMBSlaveDev*  pNext;             //下一个设备节点
     struct sMBSlaveDev*  pLast;             //尾设备节点
@@ -191,11 +190,11 @@ typedef struct sMBSlaveDev   /* 从设备信息列表 */
 
 typedef struct    /* 主栈从设备状态结构  */
 {
-    UCHAR         ucSlaveDevCount;    //从设备总数量        
+    UCHAR         ucSlaveDevCount;    //从设备总数量
     UCHAR         ucSlaveDevMinAddr;  //从设备最小通讯地址
-	UCHAR         ucSlaveDevMaxAddr;  //从设备最大通讯地址
+    UCHAR         ucSlaveDevMaxAddr;  //从设备最大通讯地址
    
-	sMBSlaveDev*  psMBSlaveDevsList;  //当前在线从设备列表
+    sMBSlaveDev*  psMBSlaveDevsList;  //当前在线从设备列表
     sMBSlaveDev*  psMBSlaveDevCur;    //当前活动的设备
        
 }sMBMasterDevsInfo; 

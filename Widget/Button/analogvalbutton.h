@@ -152,8 +152,6 @@ private:
     bool enableValMarker;
     bool save;
     bool automaticAttack;
-
-    int defVal;
 };
 
 #endif // ANALOGVALBUTTON_H

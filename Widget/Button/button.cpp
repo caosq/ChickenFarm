@@ -151,37 +151,36 @@ void Button::clickedSlot()
     }
     if(xShowMsgBox)
     {
-        confirmationBox->show();
+        messageBox *pConfirmationBox = new messageBox(messageBox::Information);
+        pConfirmationBox->setButtonText(messageBox::Yes,"确认");
+        pConfirmationBox->setInformativeText(m_sChecktext);
+        pConfirmationBox->show();
+        return;
     }
     else
     {
+        if(m_xDelayMode)
+        {
+            m_DelayTimer.start(m_iDelayTimeMs);
+        }
         emit buttonClicked();
-    }
-    if(m_xDelayMode)
-    {
-        m_DelayTimer.start(m_iDelayTimeMs);
     }
 }
 
 void Button::initMessage()
 {
-    confirmationBox = new messageBox(messageBox::Question);
+    /*confirmationBox = new messageBox(messageBox::Question);
     confirmationBox->setButtonText(messageBox::Yes,"重置");
     confirmationBox->setButtonText(messageBox::No,"取消");
     confirmationBox->setInformativeText(tr("请确认：是否重置运行时间？"));
-    confirmationBox->hide();
+    confirmationBox->hide();*/
 }
 
 void Button::setCheckMode(void* pCheckValAddr, int32_t iCheckVal, const QString &text, Monitor::DataType emDataType)
 {
     m_pCheckValAddr = pCheckValAddr;
-    m_iCheckVal    = iCheckVal;
+    m_iCheckVal     = iCheckVal;
+    m_sChecktext    = text;
     m_xCheckMode    = true;
     m_CheckDataType = emDataType;
-
-    confirmationBox = new messageBox(messageBox::Question);
-    confirmationBox->setButtonText(messageBox::Yes,"确认");
-    confirmationBox->setButtonText(messageBox::No,"取消");
-    confirmationBox->setInformativeText(text);
-    confirmationBox->hide();
 }

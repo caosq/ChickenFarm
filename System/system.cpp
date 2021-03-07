@@ -1,11 +1,14 @@
 #include "system.h"
 #include "messagebox.h"
+#include <QDebug>
 
-#define PORT_NAME "/dev/ttyS0"
+//#define PORT_NAME "/dev/ttyS0"
+#define PORT_NAME "/dev/ttyUSB0"
+
 #define SYS_OFF_LOG_TIME_COUNT  300
+#define CONTROLLER_DEV_ADDR     1
 
 System* System::g_pSystem = nullptr;
-
 System::System(QObject *parent) :
     QObject(parent)
 {
@@ -19,7 +22,7 @@ System* System::getInstance()
     {
         g_pSystem = new System();
         g_pSystem->m_Modbus.uartConfig(9600, 8, 1, Modbus::eParityType::None);
-        g_pSystem->m_Modbus.masterInit(eMBMode::MB_RTU, PORT_NAME, 1, 1, false);
+        g_pSystem->m_Modbus.initMasterPort(eMBMode::MB_RTU, PORT_NAME, 1, 1, false);
 
         g_pSystem->m_pSysModeCmdMonitor = DataMonitor::monitorRegist(&g_pSystem->m_eSystemModeCmd, Monitor::DataType::Uint16t);
         g_pSystem->m_pExAirFanRatedVolMonitor_H = DataMonitor::monitorRegist(&g_pSystem->m_usExAirFanRatedVol_H,
@@ -30,30 +33,23 @@ System* System::getInstance()
                                                                         Monitor::DataType::Uint16t);
         g_pSystem->m_pTotalFreAirMonitor_L = DataMonitor::monitorRegist(&g_pSystem->m_usTotalFreAir_L,
                                                                         Monitor::DataType::Uint16t);
-
-
         connect(g_pSystem->m_pSysModeCmdMonitor, SIGNAL(valChanged(Monitor*)), g_pSystem, SLOT(systemDataChanged(Monitor*)));
         connect(g_pSystem->m_pExAirFanRatedVolMonitor_H, SIGNAL(valChanged(Monitor*)), g_pSystem, SLOT(systemDataChanged(Monitor*)));
         connect(g_pSystem->m_pExAirFanRatedVolMonitor_L, SIGNAL(valChanged(Monitor*)), g_pSystem, SLOT(systemDataChanged(Monitor*)));
         connect(g_pSystem->m_pTotalFreAirMonitor_H, SIGNAL(valChanged(Monitor*)), g_pSystem, SLOT(systemDataChanged(Monitor*)));
         connect(g_pSystem->m_pTotalFreAirMonitor_L, SIGNAL(valChanged(Monitor*)), g_pSystem, SLOT(systemDataChanged(Monitor*)));
-
     }
     return g_pSystem;
 }
 
 void System::initController()
 {
-   // pModbus = new Modbus();
+    m_Controller.initComm(CONTROLLER_DEV_ADDR);
+    g_pSystem->m_Modbus.masterRegistSlaveDev(&m_Controller.m_sMBSlaveDev);
+    g_pSystem->m_Modbus.registMasterMode();
 
-
-    //m_pController = new  Controller();
-
-    //if(pModbus.masterInit(eMBMode::MB_RTU, PORT_NAME, 1, 1, false))
-    //{
-        //m_pController = new  Controller();
-        m_Controller.initComm(m_Modbus.getMBMasterInfo(), 1);
-    //}
+    connect(&m_Controller, SIGNAL(offlineChanged(bool)), this, SLOT(devOfflineChangedSlot(bool)));
+    connect(&m_Controller, SIGNAL(syncChanged(bool)), this, SLOT(syncChangedSlot(bool)));
 }
 
 void System::systemTimeOut()
@@ -82,16 +78,49 @@ void System::systemTimeOut()
              pCurModularAir->m_usCO2Set = m_usCO2PPMSet;
         }
     }
-    if(m_xIsLogIn == true && m_xIsInDebug == false)
+    if((m_xIsLogIn || m_xIsFactoryLogIn) && m_xIsInDebug == false)
     {
         m_uiOffLogCount++;
     }
     if(m_uiOffLogCount == SYS_OFF_LOG_TIME_COUNT)
     {
         m_xIsLogIn = false;
+        m_xIsFactoryLogIn = false;
         m_uiOffLogCount = 0;
     }
     emit systemTimeChanged();
+}
+
+void System::devOfflineChangedSlot(bool xVal)
+{
+    if(!m_xIsInDebug && xVal)
+    {
+       /* messageBox *pConfirmationBox = new messageBox(messageBox::Question);
+        pConfirmationBox->setButtonText(messageBox::Yes,"确认");
+        pConfirmationBox->setButtonText(messageBox::No,"取消");
+        pConfirmationBox->setInformativeText("控制器通讯故障，请检查设备联接，并重启设备，是否重启设备？");
+        if(pConfirmationBox->exec() == messageBox::Yes)
+        {
+            qDebug("init 6 \n");
+        }*/
+    }
+}
+
+void System::syncChangedSlot(bool xVal)
+{
+    if(!xVal)
+    {
+        if(pConfirmationBox == nullptr)
+        {
+            pConfirmationBox = new messageBox(messageBox::Message);
+        }
+        pConfirmationBox->setInformativeText("正在同步控制器数据，请稍等...");
+        pConfirmationBox->show();
+    }
+    else
+    {
+        pConfirmationBox->hide();
+    }
 }
 
 bool System::checkSystemLogIn()

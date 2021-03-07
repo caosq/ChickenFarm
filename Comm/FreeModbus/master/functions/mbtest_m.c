@@ -199,7 +199,7 @@ void vMBDevTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev)
     	    errorCode = eMBDevCmdTest(psMBMasterInfo, psMBSlaveDev, psMBCmd);
             if(errorCode != MB_MRE_TIMEDOUT){break;}
 
-            debug("eMBDevCmdTest ucDevAddr %d errorCode %d pucMasterPDUCur %d\n", psMBSlaveDev->ucDevAddr, errorCode, psMBMasterInfo->pucMasterPDUCur);
+            //debug("eMBDevCmdTest ucDevAddr %d errorCode %d pucMasterPDUCur %d\n", psMBSlaveDev->ucDevAddr, errorCode, psMBMasterInfo->pucMasterPDUCur);
         }
         if(errorCode != MB_MRE_TIMEDOUT)
         {
@@ -220,7 +220,7 @@ void vMBDevTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev)
                 {
                     psMBSlaveDev->xOnLine           = TRUE;                       //从设备反馈正确，则设备在线
                     psMBSlaveDev->psDevCurData      = psMBDevData;                //从设备当前数据域
-                    psMBSlaveDev->ucProtocolID      = psMBDevData->ucProtocolID;  //从设备协议ID
+                    psMBSlaveDev->usProtocolID      = psMBDevData->usProtocolID;  //从设备协议ID
                     psMBSlaveDev->xDataReady        = TRUE;                       //从设备数据准备好
                     psMBSlaveDev->xStateTestRequest = FALSE;                      //状态测试请求
                 }
@@ -233,7 +233,7 @@ void vMBDevTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev)
             {
                 psMBSlaveDev->xOnLine           = TRUE;                       //从设备反馈正确，则设备在线
                 psMBSlaveDev->psDevCurData      = psMBDevData;                //从设备当前数据域
-                psMBSlaveDev->ucProtocolID      = psMBDevData->ucProtocolID;  //从设备协议ID
+                psMBSlaveDev->usProtocolID      = psMBDevData->usProtocolID;  //从设备协议ID
                 psMBSlaveDev->xDataReady        = TRUE;                       //从设备数据准备好
                 psMBSlaveDev->xStateTestRequest = FALSE;                      //状态测试请求
             }

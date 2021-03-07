@@ -138,8 +138,8 @@ private:
     //virtual bool canPress();
 
 public slots:
-
     void setValue(Monitor* pMonitor);
+    bool clickedSlot();
 
 private slots:
     void fontSlot();

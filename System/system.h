@@ -17,6 +17,7 @@
 #include "windowfan.h"
 #include "meter.h"
 #include "controller.h"
+#include "messagebox.h"
 
 #define MODULAR_AIR_NUM          2
 #define MODULAR_CHILLER_NUM      2
@@ -207,7 +208,8 @@ public:
 
     bool      m_xAlarmEnable = 0;             //声光报警使能
     bool      m_xAlarmClean = 0;              //声光报警清除
-    bool      m_xIsLogIn = true;              //系统是否登录
+    bool      m_xIsLogIn = false;             //系统是否登录
+    bool      m_xIsFactoryLogIn = false;      //是否厂家登录
     bool      m_xIsInDebug = false;           //系统是否处于调试模式
 
     QVector<ModularAir*>     m_pModularAirs;        //组空
@@ -219,19 +221,20 @@ public:
     QVector<TempSensor*>     m_pCHWTempSensors;     //冷冻总管温度传感器
     QVector<PressureSensor*> m_pCHWPressureSensors; //冷冻总管压力传感器
 
-    BypassValve    *m_pBypassValve;                 //旁通阀
-    Meter          *m_pChillerMeter;                //机组电表
-    Meter          *m_pBumpMeter;                   //水泵电表
+    BypassValve *m_pBypassValve;                 //旁通阀
+    Meter       *m_pChillerMeter;                //机组电表
+    Meter       *m_pBumpMeter;                   //水泵电表
 
-    Modbus         m_Modbus;                        //协议栈
-    Controller     m_Controller;                    //控制器
+    Modbus      m_Modbus;                        //协议栈
+    Controller  m_Controller;                    //控制器
 
-    Monitor        *m_pSysModeCmdMonitor;          //系统模式监控
-    Monitor        *m_pExAirFanRatedVolMonitor_H;  //系统排风机额定风量监控
-    Monitor        *m_pExAirFanRatedVolMonitor_L;  //系统排风机额定风量监控
+    Monitor     *m_pSysModeCmdMonitor;          //系统模式监控
+    Monitor     *m_pExAirFanRatedVolMonitor_H;  //系统排风机额定风量监控
+    Monitor     *m_pExAirFanRatedVolMonitor_L;  //系统排风机额定风量监控
+    Monitor     *m_pTotalFreAirMonitor_H;       //系统室内新风风量监控
+    Monitor     *m_pTotalFreAirMonitor_L;       //系统室内新风风量监控
 
-    Monitor        *m_pTotalFreAirMonitor_H;       //系统室内新风风量监控
-    Monitor        *m_pTotalFreAirMonitor_L;       //系统室内新风风量监控
+    messageBox  *pConfirmationBox;
 
 public:
     void initController();
@@ -246,8 +249,11 @@ private:
 signals:
     void systemTimeChanged();
     void systemDataChanged();
+    void systemStackChanged(int32_t);
 
 private slots:
+    void devOfflineChangedSlot(bool xVal);
+    void syncChangedSlot(bool xVal);
     void systemTimeOut();
     void systemDataChanged(Monitor* pMonitor);
 };
