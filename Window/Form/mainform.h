@@ -33,19 +33,14 @@ public:
     static void initButton();
 
 private slots:
-
     void systemTimeChangedSlot();
+    void systemLogChangedSlot(bool);
 
     void on_systemButton_clicked();
-
     void on_curveButton_clicked();
-
     void on_paraButton_clicked();
-
     void on_backButton_clicked();
-
     void on_eventButton_clicked();
-
     void on_pushButton_clicked();
 
 private:

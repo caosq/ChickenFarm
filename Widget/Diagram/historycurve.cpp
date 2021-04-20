@@ -219,7 +219,7 @@ void HistoryCurve::updateFileList()
         return;
     if( !configFile->exists() || configFile->size() == 0 )
         return;
-    dataSave settings(configFilePath,QSettings::IniFormat);
+    DataSave settings(configFilePath,QSettings::IniFormat);
 
     QStringList key;
     QList<int> intKey;

@@ -14,7 +14,7 @@ QPixmap *StateButton::pixmap1 = nullptr;
 StateButton::StateButton(QWidget *parent) :
     Button(parent),m_pMonitor(nullptr)
 {
-    defValState = true;
+    defValState = false;
     enableValMarker = true;
 
     save = true;
@@ -171,7 +171,7 @@ void StateButton::setValue(Monitor* pMonitor)
         defValState = (m_DefaultState == state) ? true:false;
     }
     update();
-    emit valChanged(val);
+    emit valChanged(this);
 }
 
 void StateButton::setValue(int32_t val)
@@ -189,7 +189,7 @@ void StateButton::setValue(int32_t val)
     }
     else
     {
-        emit valChanged(val);
+        emit valChanged(this);
     }
     update();
 
@@ -257,14 +257,15 @@ void StateButton::paintEvent(QPaintEvent *e)
             if(State0 == m_CurrentState)
             {
                 painter.drawPixmap(1,1,this->width(),this->height(),*(m_StateStyleVector[State0].pImage));
-                if(isEnabled())
+                painter.setPen(m_StateStyleVector[State0].activeColor);
+                /*if(isEnabled())
                 {
                     painter.setPen(m_StateStyleVector[State0].activeColor);
                 }
                 else
                 {
                     painter.setPen(m_StateStyleVector[State0].inactiveColor);
-                }
+                }*/
                 painter.drawText(1,1,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State0].strText);
                 painter.setPen(m_StateStyleVector[State1].inactiveColor);
                 painter.drawText(this->width() / 2,1,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State1].strText);
@@ -274,14 +275,16 @@ void StateButton::paintEvent(QPaintEvent *e)
                 painter.drawPixmap(1,1,this->width(),this->height(),*(m_StateStyleVector[State1].pImage));
                 painter.setPen(m_StateStyleVector[State0].inactiveColor);
                 painter.drawText(1,1,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State0].strText);
-                if(isEnabled())
+
+                painter.setPen(m_StateStyleVector[State1].activeColor);
+                /*if(isEnabled())
                 {
                     painter.setPen(m_StateStyleVector[State1].activeColor);
                 }
                 else
                 {
                     painter.setPen(m_StateStyleVector[State1].inactiveColor);
-                }
+                }*/
                 painter.drawText(this->width() / 2,1,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State1].strText);
             }
         }
@@ -290,14 +293,16 @@ void StateButton::paintEvent(QPaintEvent *e)
             if(State0 == m_CurrentState)
             {
                 painter.drawPixmap(0,0,this->width(),this->height(),*(m_StateStyleVector[State0].pImage));
-                if(isEnabled())
+
+                painter.setPen(m_StateStyleVector[State0].activeColor);
+                /*if(isEnabled())
                 {
                     painter.setPen(m_StateStyleVector[State0].activeColor);
                 }
                 else
                 {
                     painter.setPen(m_StateStyleVector[State0].inactiveColor);
-                }
+                }*/
                 painter.drawText(0,0,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State0].strText);
                 painter.setPen(m_StateStyleVector[State1].inactiveColor);
                 painter.drawText(this->width() / 2,0,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State1].strText);
@@ -307,14 +312,16 @@ void StateButton::paintEvent(QPaintEvent *e)
                 painter.drawPixmap(0,0,this->width(),this->height(),*(m_StateStyleVector[State1].pImage));
                 painter.setPen(m_StateStyleVector[State0].inactiveColor);
                 painter.drawText(0,0,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State0].strText);
-                if(isEnabled())
+
+                painter.setPen(m_StateStyleVector[State1].activeColor);
+                /*if(isEnabled())
                 {
                     painter.setPen(m_StateStyleVector[State1].activeColor);
                 }
                 else
                 {
                     painter.setPen(m_StateStyleVector[State1].inactiveColor);
-                }
+                }*/
                 painter.drawText(this->width() / 2,0,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State1].strText);
             }
         }
@@ -325,14 +332,15 @@ void StateButton::paintEvent(QPaintEvent *e)
         QPainter painter(this);
         if(State0 == m_CurrentState)
         {
-            if(isEnabled())
+            painter.setPen(m_StateStyleVector[State0].activeColor);
+            /*if(isEnabled())
             {
                 painter.setPen(m_StateStyleVector[State0].activeColor);
             }
             else
             {
                 painter.setPen(m_StateStyleVector[State0].inactiveColor);
-            }
+            }*/
             painter.drawText(0,0,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State0].strText);
             painter.setPen(m_StateStyleVector[State1].inactiveColor);
             painter.drawText(this->width() / 2,0,this->width() / 2,this->width(),Qt::AlignCenter,m_StateStyleVector[State1].strText);
@@ -341,14 +349,16 @@ void StateButton::paintEvent(QPaintEvent *e)
         {
             painter.setPen(m_StateStyleVector[State0].inactiveColor);
             painter.drawText(0,0,this->width() / 2,this->height(),Qt::AlignCenter,m_StateStyleVector[State0].strText);
-            if(isEnabled())
+
+            painter.setPen(m_StateStyleVector[State1].activeColor);
+            /*if(isEnabled())
             {
                 painter.setPen(m_StateStyleVector[State1].activeColor);
             }
             else
             {
                 painter.setPen(m_StateStyleVector[State1].inactiveColor);
-            }
+            }*/
             painter.drawText(this->width() / 2,0,this->width() / 2,this->width(),Qt::AlignCenter,m_StateStyleVector[State1].strText);
         }
     }

@@ -215,7 +215,7 @@ void RealTimeCurve::updateConfigFile(QString str,int target,bool removeOld)
 
     intKey = getSettingsKey(listName);
 
-    dataSave settings(listName,QSettings::IniFormat);
+    DataSave settings(listName,QSettings::IniFormat);
 
     if( intKey.size() != 0 )
     {
@@ -313,7 +313,7 @@ void RealTimeCurve::checkHistoryList()
         QString keyNum;
 
         intKey = getSettingsKey(configFileName);
-        dataSave settings(configFileName,QSettings::IniFormat);
+        DataSave settings(configFileName,QSettings::IniFormat);
 
         //检索配置文件中的文件名，如果配置文件中的文件不存在则删除该记录
         //insertOneNode把文件名更新到链表
@@ -367,7 +367,7 @@ void RealTimeCurve::checkHistoryList()
             }
         }
 
-        dataSave settings(configFileName,QSettings::IniFormat);
+        DataSave settings(configFileName,QSettings::IniFormat);
         //创建配置文件,insertOneNode把文件名更新到链表
         fileNameList.clear();
         for( int i = 0; i < resultList.size(); i++ )
@@ -519,7 +519,7 @@ QList<int> RealTimeCurve::getSettingsKey(QString name)
     QStringList sourceList;
     QList<int>  intList;
 
-    dataSave settings(name,QSettings::IniFormat);
+    DataSave settings(name,QSettings::IniFormat);
 
     sourceList = settings.allKeys();
     for(int i = 0; i < sourceList.size();i++ )

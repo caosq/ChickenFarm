@@ -38,7 +38,7 @@ border-image: url(:/UI/Widget/System_Sensor_5.png);}</string>
      <rect>
       <x>8</x>
       <y>16</y>
-      <width>65</width>
+      <width>70</width>
       <height>17</height>
      </rect>
     </property>
@@ -81,7 +81,7 @@ border-image: url(:/UI/Widget/System_Sensor_5.png);}</string>
     </property>
     <property name="font">
      <font>
-      <pointsize>14</pointsize>
+      <pointsize>16</pointsize>
      </font>
     </property>
     <property name="text">

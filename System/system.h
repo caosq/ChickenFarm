@@ -18,6 +18,7 @@
 #include "meter.h"
 #include "controller.h"
 #include "messagebox.h"
+#include "dtu.h"
 
 #define MODULAR_AIR_NUM          2
 #define MODULAR_CHILLER_NUM      2
@@ -73,6 +74,8 @@ public:
     uint16_t  m_usCO2PPMSet = 20000;          //目标CO2浓度设定
     uint16_t  m_usTempSet = 240;              //目标温度设定
     uint16_t  m_usHumiSet = 500;              //目标湿度设定
+    uint16_t  m_usHumiSet_1 = 650;            //-2天到28天目标湿度
+    uint16_t  m_usHumiSet_2 = 550;            //29天到462天目标湿度
 
     uint32_t  m_ulFreAirSet = 0;               //目标新风风量设定
 
@@ -160,8 +163,8 @@ public:
 
     uint16_t  m_usChillerCoolInTemp = 120;     //机组制冷进水温度设定值
     uint16_t  m_usChillerCoolOutTemp = 70;     //机组制冷出水温度设定值
-    uint16_t  m_usChillerHeatInTemp = 450;     //机组制热进水温度设定值
-    uint16_t  m_usChillerHeatOutTemp = 500;    //机组制热出水温度设定值
+    uint16_t  m_usChillerHeatInTemp = 400;     //机组制热进水温度设定值
+    uint16_t  m_usChillerHeatOutTemp = 450;    //机组制热出水温度设定值
 
     uint16_t  m_usCHCoolPlusSupTempDeviat = 25;  //制冷加机供水温度偏差设定值
     uint16_t  m_usCHCoolPlusTempDiff = 21;       //制冷加机供回水温差偏差设定值
@@ -226,7 +229,9 @@ public:
     Meter       *m_pBumpMeter;                   //水泵电表
 
     Modbus      m_Modbus;                        //协议栈
+    Modbus      m_ModbusDTU;                     //协议栈
     Controller  m_Controller;                    //控制器
+    DTU         m_DTU;                           //GPRS模块
 
     Monitor     *m_pSysModeCmdMonitor;          //系统模式监控
     Monitor     *m_pExAirFanRatedVolMonitor_H;  //系统排风机额定风量监控
@@ -234,11 +239,12 @@ public:
     Monitor     *m_pTotalFreAirMonitor_H;       //系统室内新风风量监控
     Monitor     *m_pTotalFreAirMonitor_L;       //系统室内新风风量监控
 
-    messageBox  *pConfirmationBox;
+    messageBox  *pConfirmationBox = nullptr;
 
 public:
     void initController();
     bool checkSystemLogIn();
+    void systemStackChanged(int32_t iVal);
     static System* getInstance();
 
 private:
@@ -249,7 +255,8 @@ private:
 signals:
     void systemTimeChanged();
     void systemDataChanged();
-    void systemStackChanged(int32_t);
+    void stackChanged(int32_t);
+    void systemLogChanged(bool);
 
 private slots:
     void devOfflineChangedSlot(bool xVal);

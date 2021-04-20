@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">#frame{
+background:transparent;}</string>
+  </property>
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
@@ -87,7 +91,7 @@
    <property name="font">
     <font>
      <family>Ubuntu</family>
-     <pointsize>16</pointsize>
+     <pointsize>18</pointsize>
      <weight>50</weight>
      <italic>false</italic>
      <bold>false</bold>

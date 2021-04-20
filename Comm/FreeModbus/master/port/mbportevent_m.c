@@ -186,9 +186,9 @@ BOOL xMBMasterRunResTake(sMBMasterPort* psMBPort, ULONG lTimeOutMs)
 //    clock_gettime(&time, NULL);
  //   time_add_ms(&time, 200);
 
-//    psMBPort->sMasterWaitFinishTv.tv_sec = time.tv_sec;
-//    psMBPort->sMasterWaitFinishTv.tv_usec = time.tv_usec;
-
+    uint32_t i  = lTimeOutMs * 1000;    //主栈等待从栈响应定时器
+    psMBPort->sRespondTimeoutTv.tv_sec = i / ( 1000*1000 );
+    psMBPort->sRespondTimeoutTv.tv_usec = i % (1000*1000 );
 
 #if  MB_UCOSIII_ENABLED
     OS_ERR err = OS_ERR_NONE;

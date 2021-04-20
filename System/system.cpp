@@ -2,11 +2,14 @@
 #include "messagebox.h"
 #include <QDebug>
 
+#define PORT_NAME "/dev/ttyO3"
+//#define PORT_NAME "/dev/ttyUSB0"
 //#define PORT_NAME "/dev/ttyS0"
-#define PORT_NAME "/dev/ttyUSB0"
+//#define PORT_NAME_DTU "/dev/ttyUSB0"
+#define PORT_NAME_DTU "/dev/ttyO2"
 
 #define SYS_OFF_LOG_TIME_COUNT  300
-#define CONTROLLER_DEV_ADDR     1
+#define CONTROLLER_DEV_ADDR       1
 
 System* System::g_pSystem = nullptr;
 System::System(QObject *parent) :
@@ -24,15 +27,15 @@ System* System::getInstance()
         g_pSystem->m_Modbus.uartConfig(9600, 8, 1, Modbus::eParityType::None);
         g_pSystem->m_Modbus.initMasterPort(eMBMode::MB_RTU, PORT_NAME, 1, 1, false);
 
+        g_pSystem->m_ModbusDTU.uartConfig(9600, 8, 1, Modbus::eParityType::None);
+        g_pSystem->m_ModbusDTU.initMasterPort(eMBMode::MB_RTU, PORT_NAME_DTU, 200, 247, true);
+
         g_pSystem->m_pSysModeCmdMonitor = DataMonitor::monitorRegist(&g_pSystem->m_eSystemModeCmd, Monitor::DataType::Uint16t);
-        g_pSystem->m_pExAirFanRatedVolMonitor_H = DataMonitor::monitorRegist(&g_pSystem->m_usExAirFanRatedVol_H,
-                                                                             Monitor::DataType::Uint16t);
-        g_pSystem->m_pExAirFanRatedVolMonitor_L = DataMonitor::monitorRegist(&g_pSystem->m_usExAirFanRatedVol_L,
-                                                                             Monitor::DataType::Uint16t);
-        g_pSystem->m_pTotalFreAirMonitor_H = DataMonitor::monitorRegist(&g_pSystem->m_usTotalFreAir_H,
-                                                                        Monitor::DataType::Uint16t);
-        g_pSystem->m_pTotalFreAirMonitor_L = DataMonitor::monitorRegist(&g_pSystem->m_usTotalFreAir_L,
-                                                                        Monitor::DataType::Uint16t);
+        g_pSystem->m_pExAirFanRatedVolMonitor_H = DataMonitor::monitorRegist(&g_pSystem->m_usExAirFanRatedVol_H, Monitor::DataType::Uint16t);
+        g_pSystem->m_pExAirFanRatedVolMonitor_L = DataMonitor::monitorRegist(&g_pSystem->m_usExAirFanRatedVol_L, Monitor::DataType::Uint16t);
+        g_pSystem->m_pTotalFreAirMonitor_H = DataMonitor::monitorRegist(&g_pSystem->m_usTotalFreAir_H, Monitor::DataType::Uint16t);
+        g_pSystem->m_pTotalFreAirMonitor_L = DataMonitor::monitorRegist(&g_pSystem->m_usTotalFreAir_L, Monitor::DataType::Uint16t);
+
         connect(g_pSystem->m_pSysModeCmdMonitor, SIGNAL(valChanged(Monitor*)), g_pSystem, SLOT(systemDataChanged(Monitor*)));
         connect(g_pSystem->m_pExAirFanRatedVolMonitor_H, SIGNAL(valChanged(Monitor*)), g_pSystem, SLOT(systemDataChanged(Monitor*)));
         connect(g_pSystem->m_pExAirFanRatedVolMonitor_L, SIGNAL(valChanged(Monitor*)), g_pSystem, SLOT(systemDataChanged(Monitor*)));
@@ -45,9 +48,20 @@ System* System::getInstance()
 void System::initController()
 {
     m_Controller.initComm(CONTROLLER_DEV_ADDR);
-    g_pSystem->m_Modbus.masterRegistSlaveDev(&m_Controller.m_sMBSlaveDev);
-    g_pSystem->m_Modbus.registMasterMode();
+    m_DTU.initComm();
 
+    g_pSystem->m_Modbus.masterRegistSlaveDev(&m_Controller.m_sMBSlaveDev);
+
+    g_pSystem->m_ModbusDTU.masterRegistDTUDev(&m_DTU.m_sMBDTUDev247, &m_DTU.m_sMBDTUDev200);
+
+    if(g_pSystem->m_Modbus.registMasterMode())
+    {
+        qDebug("modbus success \n");
+    }
+    if(g_pSystem->m_ModbusDTU.registMasterMode())
+    {
+        qDebug("modbusDTU success \n");
+    }
     connect(&m_Controller, SIGNAL(offlineChanged(bool)), this, SLOT(devOfflineChangedSlot(bool)));
     connect(&m_Controller, SIGNAL(syncChanged(bool)), this, SLOT(syncChangedSlot(bool)));
 }
@@ -56,6 +70,7 @@ void System::systemTimeOut()
 {
     QDateTime datatime = QDateTime::currentDateTime();
     ModularAir* pCurModularAir =nullptr;
+    ModularChiller* pModularChiller = nullptr;
 
     if(datatime.time().hour() == 0 && datatime.time().minute() == 0 && datatime.time().second() == 0)
     {
@@ -77,6 +92,14 @@ void System::systemTimeOut()
              pCurModularAir->m_usHumiSet = m_usHumiSet;
              pCurModularAir->m_usCO2Set = m_usCO2PPMSet;
         }
+        for(uint8_t i = 0; i < m_pModularChillers.count(); i++)
+        {
+             pModularChiller = m_pModularChillers[i];
+             pModularChiller->m_usChillerCoolInTemp  = m_usChillerCoolInTemp;
+             pModularChiller->m_usChillerCoolOutTemp = m_usChillerCoolOutTemp;
+             pModularChiller->m_usChillerHeatInTemp  = m_usChillerHeatInTemp;
+             pModularChiller->m_usChillerHeatOutTemp = m_usChillerHeatOutTemp;
+        }
     }
     if((m_xIsLogIn || m_xIsFactoryLogIn) && m_xIsInDebug == false)
     {
@@ -87,6 +110,8 @@ void System::systemTimeOut()
         m_xIsLogIn = false;
         m_xIsFactoryLogIn = false;
         m_uiOffLogCount = 0;
+
+        emit systemLogChanged(m_xIsLogIn);
     }
     emit systemTimeChanged();
 }
@@ -106,14 +131,14 @@ void System::devOfflineChangedSlot(bool xVal)
     }
 }
 
-void System::syncChangedSlot(bool xVal)
+void System::syncChangedSlot(bool)
 {
-    if(!xVal)
+    if(pConfirmationBox == nullptr)
     {
-        if(pConfirmationBox == nullptr)
-        {
-            pConfirmationBox = new messageBox(messageBox::Message);
-        }
+        pConfirmationBox = new messageBox(messageBox::Message);
+    }
+    if(!m_Controller.m_xOffline && m_Controller.m_xSynchronizing)
+    {
         pConfirmationBox->setInformativeText("正在同步控制器数据，请稍等...");
         pConfirmationBox->show();
     }
@@ -133,8 +158,8 @@ bool System::checkSystemLogIn()
     else
     {
         messageBox::instance()->setInformativeText("请先登录后再操作");
-        messageBox::instance()->show();
-        //return false;
+        messageBox::instance()->exec();
+        return false;
     }
 }
 
@@ -144,4 +169,9 @@ void System::systemDataChanged(Monitor*)
     this->m_ulTotalFreAir = m_usTotalFreAir_H * 65536 + m_usTotalFreAir_L;
 
     emit systemDataChanged();
+}
+
+void System::systemStackChanged(int32_t iVal)
+{
+    emit stackChanged(iVal);
 }

@@ -113,27 +113,30 @@ void BumpPage::initButton()
     System *pSystem = System::getInstance();
     if(pSystem == nullptr){return;}
 
+    Button::BtnCheckData mBtnCheckData0 = {&pSystem->m_eSystemModeCmd, System::MODE_MANUAL,
+                                           Monitor::Boolean, "系统正在自动运行，请先切换成手动模式"};
+    Button::BtnCheckData mBtnCheckData1 = {&pSystem->m_xIsLogIn, 1, Monitor::Boolean, "请先登录后再操作"};
     //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
-    m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
+    m_pSwitchCmdBtn->setCheckMode(2, &mBtnCheckData0, &mBtnCheckData1);
     m_Widgets_1.append(m_pSwitchCmdBtn);
 
     //频率设置
     m_pFreqSetBtn = new AnalogValButton(ui->frame);
     m_pFreqSetBtn->setDataParameter("Hz", 1, 0, 500, 0, Monitor::Uint16t);
-    m_pFreqSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pFreqSetBtn->setMaxValMonitor(&pSystem->m_usCHWBumpMaxFreq, Monitor::Uint16t);
     m_pFreqSetBtn->setMinValMonitor(&pSystem->m_usCHWBumpMinFreq, Monitor::Uint16t);
+    m_pFreqSetBtn->setCheckMode(2, &mBtnCheckData0, &mBtnCheckData1);
     m_Widgets_1.append(m_pFreqSetBtn);
 
     //故障清除
     m_pErrorCleanCmdBtn = new StateButton(ui->frame);
     m_pErrorCleanCmdBtn->setStateText(StateButton::State0,tr("否"));
     m_pErrorCleanCmdBtn->setStateText(StateButton::State1,tr("是"));
-    m_pErrorCleanCmdBtn->setDelayMode(8000, 0);
+    m_pErrorCleanCmdBtn->setDelayMode(20000, 0);
     m_pErrorCleanCmdBtn->setDeafultState(StateButton::State0);
     m_Widgets_1.append(m_pErrorCleanCmdBtn);
 
@@ -174,27 +177,29 @@ void BumpPage::initButton()
                                   DATA_LABEL_UP_MARGIN_2 + m * DATA_LABEL_INTERVAL_V_2,
                                   200, 28);
     }
-    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    connect(m_pFreqSetBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    connect(m_pErrorCleanCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    connect(System::getInstance(), SIGNAL(systemDataChanged()), this, SLOT(systemDataChangedSlot()));
-    systemDataChangedSlot();
+    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(void*)), this, SLOT(paramSetBtnValChanged(void*)));
+    connect(m_pFreqSetBtn, SIGNAL(valChanged(void*)), this, SLOT(paramSetBtnValChanged(void*)));
+    connect(m_pErrorCleanCmdBtn, SIGNAL(valChanged(void*)), this, SLOT(paramSetBtnValChanged(void*)));
 }
 
-void BumpPage::paramSetBtnValChanged(int32_t)
+void BumpPage::paramSetBtnValChanged(void*)
 {
     System *pSystem = System::getInstance();
     ChilledBump* pChilledBump = nullptr;
 
     if(pSystem == nullptr){return;}
-    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL || pSystem->m_xIsInDebug == true)
     {
         for(uint8_t i = 0; i < m_ChilledBumps.count(); i++)
         {
              pChilledBump = m_ChilledBumps[i];
-             pChilledBump->m_pSwitchCmdBtn->setValue( m_pSwitchCmdBtn->getCurrentValue() );
-             pChilledBump->m_pFreqSetBtn->setValue( uint16_t(m_pFreqSetBtn->getCurrentValue()) );
 
+             if((pChilledBump->m_xErrorFlag == false  && pChilledBump->m_xControlFlag == false && pChilledBump->m_xRemote == true) ||
+                pSystem->m_xIsInDebug == true)
+             {
+                 pChilledBump->m_pSwitchCmdBtn->setValue( m_pSwitchCmdBtn->getCurrentValue() );
+                 pChilledBump->m_pFreqSetBtn->setValue( uint16_t(m_pFreqSetBtn->getCurrentValue()) );
+             }
              if(m_pErrorCleanCmdBtn->getCurrentValue() == 1)
              {
                  pChilledBump->m_xErrClean = true;
@@ -208,30 +213,4 @@ void BumpPage::paramSetBtnValChanged(int32_t)
         }
     }
     System::getInstance()->m_uiOffLogCount = 0;
-}
-
-void BumpPage::systemDataChangedSlot()
-{
-    System *pSystem = System::getInstance();
-    if(pSystem == nullptr){return;}
-    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
-    {
-        m_pSwitchCmdBtn->setEnabled(true);
-        m_pFreqSetBtn->setEnabled(true);
-        for(uint8_t n = 0; n < CHILLED_BUMP_NUM; n++)
-        {
-            m_ChilledBumps[n]->m_pSwitchCmdBtn->setEnabled(true);
-            m_ChilledBumps[n]->m_pFreqSetBtn->setEnabled(true);
-        }
-    }
-    else
-    {
-        m_pSwitchCmdBtn->setEnabled(false);
-        m_pFreqSetBtn->setEnabled(false);
-        for(uint8_t n = 0; n < CHILLED_BUMP_NUM; n++)
-        {
-            m_ChilledBumps[n]->m_pSwitchCmdBtn->setEnabled(false);
-            m_ChilledBumps[n]->m_pFreqSetBtn->setEnabled(false);
-        }
-    }
 }

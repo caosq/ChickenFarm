@@ -42,6 +42,7 @@ void Controller::delayTimeOutSlot()
     {
         m_xCommErr = true;
         m_xOffline = true;
+        m_xSynchronizing = false;
         m_DelayTimer.start(OFFLINE_CONTAIN_S*1000);
     }
 }
@@ -64,19 +65,25 @@ void Controller::dataChanged(Monitor*)
      {
          m_xCommErr = false;
          m_xOffline = false;
-         emit syncChanged(false);
+         m_xSynchronizing = true;
+         emit syncChanged(m_xSynchronizing);
      }
      else
      {
          m_xCommErr = true;
          m_xOffline = true;
+         m_xSynchronizing = false;
          m_DelayTimer.start(OFFLINE_CONTAIN_S*1000);
      }
 }
 
 void Controller::syncChangedSlot(Monitor*)
 {
-     emit syncChanged(m_sMBSlaveDev.xSynchronized);
+    if(m_sMBSlaveDev.xSynchronized)
+    {
+        m_xSynchronizing = false;    //同步完成
+        emit syncChanged(m_xSynchronizing);
+    }
 }
 
 void Controller::registDevCommData()
@@ -91,7 +98,6 @@ void Controller::registDevCommData()
     ChilledBump    *pChilledBump = nullptr;
     AxialFan       *pAxialFan    = nullptr;
     ButterflyValve *pValve       = nullptr;
-    WindowFan      *psWindowFan  = nullptr;
 
 MASTER_PBUF_INDEX_ALLOC
 
@@ -104,8 +110,8 @@ MASTER_BEGIN_DATA_BUF(m_psRegHoldBuf, m_sDevCommData.sMBRegHoldTable, m_usRegHol
     MASTER_REG_HOLD_DATA(2,  uint16,  0,      3,  1,      RW, 1, pSystem->m_eSystemModeCmd);
     MASTER_REG_HOLD_DATA(4,  uint16,  0,      7,  0,      RO, 1, pSystem->m_eSystemState);
 
-    MASTER_REG_HOLD_DATA(11,   int16,    -2,    462,      0,  RW, 1, pSystem->m_sChickenGrowDay);
-    MASTER_REG_HOLD_DATA(12,  uint16,  1000,  30000,  20000,  RW, 1, pSystem->m_usCO2PPMSet);
+    MASTER_REG_HOLD_DATA(11,   int16,    -2,    462,      0,  WO, 1, pSystem->m_sChickenGrowDay);
+    MASTER_REG_HOLD_DATA(12,  uint16, 10000,  30000,  20000,  RW, 1, pSystem->m_usCO2PPMSet);
     MASTER_REG_HOLD_DATA(13,  uint16,   160,    350,    240,  RW, 1, pSystem->m_usTempSet);
     MASTER_REG_HOLD_DATA(14,  uint16,     0,   1000,    500,  RW, 1, pSystem->m_usHumiSet);
 
@@ -167,6 +173,7 @@ MASTER_BEGIN_DATA_BUF(m_psRegHoldBuf, m_sDevCommData.sMBRegHoldTable, m_usRegHol
     MASTER_REG_HOLD_DATA(89,  uint16,  0,   60,  10,  RW, 1, pSystem->m_usModeChangePeriod_5);
     MASTER_REG_HOLD_DATA(90,  uint16,  0,   60,  10,  RW, 1, pSystem->m_usModeChangePeriod_6);
 
+    MASTER_REG_HOLD_DATA(95,   uint16,  0,   100,  10,  RW, 1, pSystem->m_usModeAdjustTemp_0);
     MASTER_REG_HOLD_DATA(96,   uint16,  0,   100,  10,  RW, 1, pSystem->m_usModeAdjustTemp_1);
     MASTER_REG_HOLD_DATA(97,   uint16,  0,   100,  10,  RW, 1, pSystem->m_usModeAdjustTemp_2);
     MASTER_REG_HOLD_DATA(98,   uint16,  0,   100,  10,  RW, 1, pSystem->m_usModeAdjustTemp_3);
@@ -188,8 +195,8 @@ MASTER_BEGIN_DATA_BUF(m_psRegHoldBuf, m_sDevCommData.sMBRegHoldTable, m_usRegHol
 
     MASTER_REG_HOLD_DATA(120,  uint16,  100,  250, 120,  RW, 1, pSystem->m_usChillerCoolInTemp);
     MASTER_REG_HOLD_DATA(121,  uint16,   50,  200,  70,  RW, 1, pSystem->m_usChillerCoolOutTemp);
-    MASTER_REG_HOLD_DATA(122,  uint16,  300,  450, 450,  RW, 1, pSystem->m_usChillerHeatInTemp);
-    MASTER_REG_HOLD_DATA(123,  uint16,  350,  500, 500,  RW, 1, pSystem->m_usChillerHeatOutTemp);
+    MASTER_REG_HOLD_DATA(122,  uint16,  300,  450, 400,  RW, 1, pSystem->m_usChillerHeatInTemp);
+    MASTER_REG_HOLD_DATA(123,  uint16,  350,  500, 450,  RW, 1, pSystem->m_usChillerHeatOutTemp);
 
     MASTER_REG_HOLD_DATA(128,  uint16,    0,  50,   25,  RW, 1, pSystem->m_usCHCoolPlusSupTempDeviat);
     MASTER_REG_HOLD_DATA(129,  uint16,    0,  50,   21,  RW, 1, pSystem->m_usCHCoolPlusTempDiff);
@@ -203,8 +210,8 @@ MASTER_BEGIN_DATA_BUF(m_psRegHoldBuf, m_sDevCommData.sMBRegHoldTable, m_usRegHol
 
     MASTER_REG_HOLD_DATA(140,  uint16,    0, 100,   50,  RW, 1, pSystem->m_usCHWBCoolPlusFreqTempDeviat);
     MASTER_REG_HOLD_DATA(141,  uint16,    0,  50,   10,  RW, 1, pSystem->m_usCHWBCoolPlusFreqTempDiff_1);
-    MASTER_REG_HOLD_DATA(142,  uint16,    0, 100,    5,  RW, 1, pSystem->m_usCHWBCoolPlusFreqTempDiff_2);
-    MASTER_REG_HOLD_DATA(143,  uint16,    0,  50,   50,  RW, 1, pSystem->m_usCHWBHeatPlusFreqTempDeviat);
+    MASTER_REG_HOLD_DATA(142,  uint16,    0,  50,    5,   RW, 1, pSystem->m_usCHWBCoolPlusFreqTempDiff_2);
+    MASTER_REG_HOLD_DATA(143,  uint16,    0,  100,   50,  RW, 1, pSystem->m_usCHWBHeatPlusFreqTempDeviat);
     MASTER_REG_HOLD_DATA(144,  uint16,    0,  50,   10,  RW, 1, pSystem->m_usCHWBHeatPlusFreqTempDiff_1);
     MASTER_REG_HOLD_DATA(145,  uint16,    0,  50,    5,  RW, 1, pSystem->m_usCHWBHeatPlusFreqTempDiff_2);
 
@@ -233,13 +240,13 @@ MASTER_BEGIN_DATA_BUF(m_psRegHoldBuf, m_sDevCommData.sMBRegHoldTable, m_usRegHol
         pModularAir = pSystem->m_pModularAirs[i];
 
         MASTER_REG_HOLD_DATA(183+i*59,  uint16, 85,  170, 85,  RW, 1, pModularAir->m_eSwitchCmd);
-        MASTER_REG_HOLD_DATA(184+i*59,  uint16,  0,    3,  0,  RW, 1, pModularAir->m_eRunningModeCmd);
+        MASTER_REG_HOLD_DATA(184+i*59,  uint16,  0,    4,  0,  RW, 1, pModularAir->m_eRunningModeCmd);
         MASTER_REG_HOLD_DATA(185+i*59,  uint16,  0,    1,  0,  RO, 1, pModularAir->m_eControlMode);
         MASTER_REG_HOLD_DATA(186+i*59,  uint16,  0,    3,  0,  RO, 1, pModularAir->m_eModularState);
         MASTER_REG_HOLD_DATA(187+i*59,  uint16,  0,    3,  0,  RO, 1, pModularAir->m_eRunningMode);
 
         MASTER_REG_HOLD_DATA(190+i*59,  uint16,   160,     350,   240,  RW, 1, pModularAir->m_usTempSet);
-        MASTER_REG_HOLD_DATA(191+i*59,  uint16,     0,    1000,   600,  RW, 1, pModularAir->m_usHumiSet);
+        MASTER_REG_HOLD_DATA(191+i*59,  uint16,     0,    1000,   500,  RW, 1, pModularAir->m_usHumiSet);
         MASTER_REG_HOLD_DATA(192+i*59,  uint16, 10000,   30000, 20000,  RW, 1, pModularAir->m_usCO2Set);
 
         MASTER_REG_HOLD_DATA(193+i*59,  uint16,  0,   1000,   0,  RO, 1, pModularAir->m_usExitAirDamperAng);
@@ -258,7 +265,7 @@ MASTER_BEGIN_DATA_BUF(m_psRegHoldBuf, m_sDevCommData.sMBRegHoldTable, m_usRegHol
 
         MASTER_REG_HOLD_DATA(206+i*59,  uint16,    0, 50000, 0,  RO, 1, pModularAir->m_pCO2Sensors[0]->m_usCO2ppm);
         MASTER_REG_HOLD_DATA(207+i*59,  uint16,    0, 50000, 0,  RO, 1, pModularAir->m_pCO2Sensors[1]->m_usCO2ppm);
-        MASTER_REG_HOLD_DATA(211+i*59,  int16, -400,   700, 0,  RO, 1, pModularAir->m_pTempHumiOutSensor->m_sTemp);
+        MASTER_REG_HOLD_DATA(211+i*59,  int16,  -400,   700, 0,  RO, 1, pModularAir->m_pTempHumiOutSensor->m_sTemp);
         MASTER_REG_HOLD_DATA(212+i*59,  uint16,    0,  1000, 0,  RO, 1, pModularAir->m_pTempHumiOutSensor->m_usHumi);
 
         MASTER_REG_HOLD_DATA(216+i*59,  int16, -400, 700, 0,  RO, 1, pModularAir->m_pTempHumiInSensors[0]->m_sTemp);
@@ -284,8 +291,8 @@ MASTER_BEGIN_DATA_BUF(m_psRegHoldBuf, m_sDevCommData.sMBRegHoldTable, m_usRegHol
 
     MASTER_REG_HOLD_DATA(306,  uint16,  100,  250, 120,  RW, 1, pModularChiller->m_usChillerCoolInTemp);
     MASTER_REG_HOLD_DATA(307,  uint16,   50,  200,  70,  RW, 1, pModularChiller->m_usChillerCoolOutTemp);
-    MASTER_REG_HOLD_DATA(308,  uint16,  300,  450, 450,  RW, 1, pModularChiller->m_usChillerHeatInTemp);
-    MASTER_REG_HOLD_DATA(309,  uint16,  350,  500, 500,  RW, 1, pModularChiller->m_usChillerHeatOutTemp);
+    MASTER_REG_HOLD_DATA(308,  uint16,  300,  450, 400,  RW, 1, pModularChiller->m_usChillerHeatInTemp);
+    MASTER_REG_HOLD_DATA(309,  uint16,  350,  500, 450,  RW, 1, pModularChiller->m_usChillerHeatOutTemp);
 
     MASTER_REG_HOLD_DATA(310,  uint16,  0,  4, 0,  RO, 1, pModularChiller->m_Modulars[0]->m_eModularState);
     MASTER_REG_HOLD_DATA(311,  uint16,  0,  4, 0,  RO, 1, pModularChiller->m_Modulars[1]->m_eModularState);
@@ -306,8 +313,8 @@ MASTER_BEGIN_DATA_BUF(m_psRegHoldBuf, m_sDevCommData.sMBRegHoldTable, m_usRegHol
 
     MASTER_REG_HOLD_DATA(331,  uint16,  100,  250, 120,  RW, 1, pModularChiller->m_usChillerCoolInTemp);
     MASTER_REG_HOLD_DATA(332,  uint16,   50,  200,  70,  RW, 1, pModularChiller->m_usChillerCoolOutTemp);
-    MASTER_REG_HOLD_DATA(333,  uint16,  300,  450, 450,  RW, 1, pModularChiller->m_usChillerHeatInTemp);
-    MASTER_REG_HOLD_DATA(334,  uint16,  350,  500, 500,  RW, 1, pModularChiller->m_usChillerHeatOutTemp);
+    MASTER_REG_HOLD_DATA(333,  uint16,  300,  450, 400,  RW, 1, pModularChiller->m_usChillerHeatInTemp);
+    MASTER_REG_HOLD_DATA(334,  uint16,  350,  500, 450,  RW, 1, pModularChiller->m_usChillerHeatOutTemp);
 
     MASTER_REG_HOLD_DATA(335,  uint16,  0,  4, 0,  RO, 1, pModularChiller->m_Modulars[0]->m_eModularState);
     MASTER_REG_HOLD_DATA(336,  uint16,  0,  4, 0,  RO, 1, pModularChiller->m_Modulars[1]->m_eModularState);
@@ -365,7 +372,7 @@ MASTER_BEGIN_DATA_BUF(m_psBitCoilBuf, m_sDevCommData.sMBCoilTable, m_usBitCoilIn
     for(uint8_t i = 0; i < pSystem->m_pModularAirs.count(); i++)
     {
         pModularAir = pSystem->m_pModularAirs[i];
-        MASTER_COIL_BIT_DATA(43+i*40, 0, RO, pModularAir->m_xAlarmFlag);
+        MASTER_COIL_BIT_DATA(44+i*40, 0, RO, pModularAir->m_xAlarmFlag);
         MASTER_COIL_BIT_DATA(45+i*40, 0, RO, pModularAir->m_xCommErr);
         MASTER_COIL_BIT_DATA(46+i*40, 0, RO, pModularAir->m_xSupAirFan);
         MASTER_COIL_BIT_DATA(47+i*40, 0, RO, pModularAir->m_xExitAirFan);
@@ -463,7 +470,12 @@ MASTER_BEGIN_DATA_BUF(m_psBitCoilBuf, m_sDevCommData.sMBCoilTable, m_usBitCoilIn
     MASTER_COIL_BIT_DATA(278, 0, RO, pSystem->m_pModularAirs[1]->m_sMeter.m_xCommErr);
     MASTER_COIL_BIT_DATA(279, 0, RO, pSystem->m_pBumpMeter->m_xCommErr);
 
-MASTER_END_DATA_BUF(0, 279)
+    MASTER_COIL_BIT_DATA(280, 0, RO, pSystem->m_pCHWPressureSensors[0]->m_xError);
+    MASTER_COIL_BIT_DATA(281, 0, RO, pSystem->m_pCHWPressureSensors[1]->m_xError);
+    MASTER_COIL_BIT_DATA(282, 0, RO, pSystem->m_pCHWTempSensors[0]->m_xError);
+    MASTER_COIL_BIT_DATA(283, 0, RO, pSystem->m_pCHWTempSensors[1]->m_xError);
+
+MASTER_END_DATA_BUF(0, 290)
 
     m_sDevCommData.pNext = nullptr;
     m_sDevCommData.usProtocolID = PROTOCOL_TYPE_ID;
@@ -471,6 +483,7 @@ MASTER_END_DATA_BUF(0, 279)
     m_sDevCommData.pBitCoilIndex = m_usBitCoilIndex;  //绑定映射
     m_sDevCommData.pxDevDataMapIndex = devDataMapIndex;  //绑定映射函数
     m_sMBSlaveDev.psDevDataInfo = &m_sDevCommData;
+    m_sMBSlaveDev.psDevCurData  = &m_sDevCommData;
 
     m_DelayTimer.start(COMM_ERR_DELAY_S*1000);
 }

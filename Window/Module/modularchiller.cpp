@@ -69,8 +69,8 @@ ModularChiller::ModularChiller(QWidget *parent) :
                                psModular->width(), psModular->height());
         m_Modulars.append(psModular);
 
-        connect(psModular->m_pRunningFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-        connect(psModular->m_pModularStateLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+        connect(psModular->m_pRunningFlagLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+        connect(psModular->m_pModularStateLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
     }
     if(m_usModularNum == 3)
     {
@@ -124,15 +124,21 @@ void ModularChiller::initButton()
 {
     System *pSystem = System::getInstance();
     if(pSystem == nullptr){return;}
+
+    Button::BtnCheckData mBtnCheckData0 = {&pSystem->m_eSystemModeCmd, System::MODE_MANUAL,
+                                           Monitor::Boolean, "系统正在自动运行，请先切换成手动模式"};
+    Button::BtnCheckData mBtnCheckData1 = {&pSystem->m_xIsLogIn, 1, Monitor::Boolean, "请先登录后再操作"};
+    Button::BtnCheckData mBtnCheckData2 = {&m_xCommErr, 0, Monitor::Boolean, "设备通讯故障，请先检查设备通讯问题" };
+
     //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame_2);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
     m_pSwitchCmdBtn->setValueMap(StateButton::State0, 0x0055);
     m_pSwitchCmdBtn->setValueMap(StateButton::State1, 0x00AA);
-    m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
     m_pSwitchCmdBtn->setMonitorData(&m_eSwitchCmd, Monitor::Uint16t);
+    m_pSwitchCmdBtn->setCheckMode(3, &mBtnCheckData0, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //机组运行工作模式设定
@@ -140,9 +146,9 @@ void ModularChiller::initButton()
     m_pRunningModeCmdBtn->setItem(1,tr("制冷"));
     m_pRunningModeCmdBtn->setItem(2,tr("制热"));
     m_pRunningModeCmdBtn->setItem(3,tr("手动化霜"));
-    m_pRunningModeCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pRunningModeCmdBtn->setDefaultValue(1);
     m_pRunningModeCmdBtn->setMonitorData(&m_eRunningModeCmd, Monitor::Uint16t);
+    m_pRunningModeCmdBtn->setCheckMode(3, &mBtnCheckData0, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pRunningModeCmdBtn);
 
     //平均回水温度
@@ -163,29 +169,29 @@ void ModularChiller::initButton()
     //机组制冷进水温度设定值
     m_pChillerCoolInTempBtn = new AnalogValButton(ui->frame_2);
     m_pChillerCoolInTempBtn->setDataParameter("℃", 1, 120, 250, 100, Monitor::Uint16t);
-    m_pChillerCoolInTempBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pChillerCoolInTempBtn->setMonitorData(&m_usChillerCoolInTemp, Monitor::Uint16t);
+    m_pChillerCoolInTempBtn->setCheckMode(2, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pChillerCoolInTempBtn);
 
     //机组制冷出水温度设定值
     m_pChillerCoolOutTempBtn = new AnalogValButton(ui->frame_2);
     m_pChillerCoolOutTempBtn->setDataParameter("℃", 1, 70, 200, 50, Monitor::Uint16t);
-    m_pChillerCoolOutTempBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pChillerCoolOutTempBtn->setMonitorData(&m_usChillerCoolOutTemp, Monitor::Uint16t);
+    m_pChillerCoolOutTempBtn->setCheckMode(2, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pChillerCoolOutTempBtn);
 
     //机组制热进水温度设定值
     m_pChillerHeatInTempBtn = new AnalogValButton(ui->frame_2);
-    m_pChillerHeatInTempBtn->setDataParameter("℃", 1, 450, 450, 300, Monitor::Uint16t);
-    m_pChillerHeatInTempBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
+    m_pChillerHeatInTempBtn->setDataParameter("℃", 1, 400, 450, 300, Monitor::Uint16t);
     m_pChillerHeatInTempBtn->setMonitorData(&m_usChillerHeatInTemp, Monitor::Uint16t);
+    m_pChillerHeatInTempBtn->setCheckMode(2, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pChillerHeatInTempBtn);
 
     //机组制热出水温度设定值
     m_pChillerHeatOutTempBtn = new AnalogValButton(ui->frame_2);
-    m_pChillerHeatOutTempBtn->setDataParameter("℃", 1, 500, 500, 350, Monitor::Uint16t);
-    m_pChillerHeatOutTempBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
+    m_pChillerHeatOutTempBtn->setDataParameter("℃", 1, 450, 500, 350, Monitor::Uint16t);
     m_pChillerHeatOutTempBtn->setMonitorData(&m_usChillerHeatOutTemp, Monitor::Uint16t);
+    m_pChillerHeatOutTempBtn->setCheckMode(2, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pChillerHeatOutTempBtn);
 
     for (uint8_t i = 0, m = 0, n = 0; i < m_Widgets.count(); i++)
@@ -196,25 +202,7 @@ void ModularChiller::initButton()
                                   DATA_LABEL_UP_MARGIN + n * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
-    connect(m_pCommErrLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(System::getInstance(), SIGNAL(systemDataChanged()), this, SLOT(systemDataChangedSlot()));
-    systemDataChangedSlot();
-}
-
-void ModularChiller::systemDataChangedSlot()
-{
-    System *pSystem = System::getInstance();
-    if(pSystem == nullptr){return;}
-    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
-    {
-        m_pSwitchCmdBtn->setEnabled(true);
-        m_pRunningModeCmdBtn->setEnabled(true);
-    }
-    else
-    {
-        m_pSwitchCmdBtn->setEnabled(false);
-        m_pRunningModeCmdBtn->setEnabled(false);
-    }
+    connect(m_pCommErrLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
 }
 
 void ModularChiller::on_pushButton_clicked()
@@ -232,7 +220,7 @@ void ModularChiller::on_pushButton_clicked()
     System::getInstance()->m_uiOffLogCount = 0;
 }
 
-void ModularChiller::stateChangedSlot(int32_t)
+void ModularChiller::stateChangedSlot(void*)
 {
     Modular *psModular = nullptr;
     for(uint8_t i = 0; i < m_Modulars.count(); i++)

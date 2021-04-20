@@ -82,19 +82,24 @@ void ValvePage::initButton()
 {
     System *pSystem = System::getInstance();
     if(pSystem == nullptr){return;}
+
+    Button::BtnCheckData mBtnCheckData0 = {&pSystem->m_eSystemModeCmd, System::MODE_MANUAL,
+                                           Monitor::Boolean, "系统正在自动运行，请先切换成手动模式"};
+    Button::BtnCheckData mBtnCheckData1 = {&pSystem->m_xIsLogIn, 1, Monitor::Boolean, "请先登录后再操作"};
     //开关控制
     m_pSwitchCmdBtn = new StateButton(ui->frame);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
     m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
+    m_pSwitchCmdBtn->setCheckMode(2, &mBtnCheckData0, &mBtnCheckData1);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //故障清除
     m_pErrorCleanCmdBtn = new StateButton(ui->frame);
     m_pErrorCleanCmdBtn->setStateText(StateButton::State0,tr("否"));
     m_pErrorCleanCmdBtn->setStateText(StateButton::State1,tr("是"));
-    m_pErrorCleanCmdBtn->setDelayMode(8000, 0);
+    m_pErrorCleanCmdBtn->setDelayMode(20000, 0);
     m_pErrorCleanCmdBtn->setDeafultState(StateButton::State0);
     m_Widgets.append(m_pErrorCleanCmdBtn);
 
@@ -106,25 +111,25 @@ void ValvePage::initButton()
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
-    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    connect(System::getInstance(), SIGNAL(systemDataChanged()), this, SLOT(systemDataChangedSlot()));
-    connect(m_pErrorCleanCmdBtn, SIGNAL(valChanged(int32_t)), this, SLOT(paramSetBtnValChanged(int32_t)));
-    systemDataChangedSlot();
+    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(void*)), this, SLOT(paramSetBtnValChanged(void*)));
+    connect(m_pErrorCleanCmdBtn, SIGNAL(valChanged(void*)), this, SLOT(paramSetBtnValChanged(void*)));
 }
 
-void ValvePage::paramSetBtnValChanged(int32_t)
+void ValvePage::paramSetBtnValChanged(void*)
 {
     System *pSystem = System::getInstance();
     ButterflyValve* pButterflyValve = nullptr;
 
     if(pSystem == nullptr){return;}
-    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
+    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL || pSystem->m_xIsInDebug == true)
     {
         for(uint8_t i = 0; i < m_ButterflyValves.count(); i++)
         {
              pButterflyValve = m_ButterflyValves[i];
-             pButterflyValve->m_pSwitchCmdBtn->setValue( m_pSwitchCmdBtn->getCurrentValue() );
-
+             if((pButterflyValve->m_xErrorFlag == false && pButterflyValve->m_xRemote == true) || pSystem->m_xIsInDebug == true)
+             {
+                 pButterflyValve->m_pSwitchCmdBtn->setValue( m_pSwitchCmdBtn->getCurrentValue() );
+             }
              if(m_pErrorCleanCmdBtn->getCurrentValue() == 1)
              {
                  pButterflyValve->m_xErrClean = true;
@@ -137,26 +142,4 @@ void ValvePage::paramSetBtnValChanged(int32_t)
         }
     }
     System::getInstance()->m_uiOffLogCount = 0;
-}
-
-void ValvePage::systemDataChangedSlot()
-{
-    System *pSystem = System::getInstance();
-    if(pSystem == nullptr){return;}
-    if(pSystem->m_eSystemModeCmd == System::SystemMode::MODE_MANUAL)
-    {
-        m_pSwitchCmdBtn->setEnabled(true);
-        for(uint8_t n = 0; n < BUTTRERFLY_VALVE_NUM; n++)
-        {
-            m_ButterflyValves[n]->m_pSwitchCmdBtn->setEnabled(true);
-        }
-    }
-    else
-    {
-        m_pSwitchCmdBtn->setEnabled(false);
-        for(uint8_t n = 0; n < BUTTRERFLY_VALVE_NUM; n++)
-        {
-            m_ButterflyValves[n]->m_pSwitchCmdBtn->setEnabled(false);
-        }
-    }
 }

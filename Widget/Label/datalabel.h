@@ -82,7 +82,7 @@ public:
     //void setText(const QString text);
 
     //设置字符串显示，同时设置字号大小
-    void setText(const QString text, int size = 14);
+    void setText(const QString text, int size = 16);
 
     //设置字符串显示，同时设置字号大小
     void setText(const QString text,textControl::textSize size);
@@ -118,7 +118,7 @@ private slots:
 
 signals:
     void fontChange();
-    void valChanged(int32_t val);
+    void valChanged(void*);
 
 private:
     typedef struct

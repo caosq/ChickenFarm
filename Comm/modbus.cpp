@@ -1,5 +1,5 @@
 #include "modbus.h"
-
+#include "mbdtu_m.h"
 //Modbus* Modbus::g_pModbus = nullptr;
 //sMBMasterInfo Modbus::m_MasterInfo;
 
@@ -56,6 +56,11 @@ void Modbus::initMasterPort(eMBMode eMode, const char* pcPortName, uint8_t ucMin
 bool Modbus::masterRegistSlaveDev(sMBSlaveDev* psMBNewDev)
 {
      return xMBMasterRegistDev(&m_MasterInfo, psMBNewDev);
+}
+
+bool Modbus::masterRegistDTUDev(sMBSlaveDev* psMBDTUDev247, sMBSlaveDev* psMBDTUDev200)
+{
+     return xMBMasterRegistDTUDev(&m_MasterInfo, psMBDTUDev247, psMBDTUDev200);
 }
 
 bool Modbus::registMasterMode()

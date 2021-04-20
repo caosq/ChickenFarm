@@ -76,10 +76,13 @@ void TextLabel::setBackGroundColor(QColor color)
 void TextLabel::setTextSize(int size)
 {
     QFont font;
-    font.setPointSize(size);
+    if(size > 0)
+    {
+        font.setPointSize(size);
 
-    setFont(font);
-    m_iTextSize = size;
+        setFont(font);
+        m_iTextSize = size;
+    }
 }
 
 void TextLabel::setTextSize(textControl::textSize size)

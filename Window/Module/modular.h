@@ -65,7 +65,7 @@ public:
     ~Modular();
 
 private slots:
-    void stateChangedSlot(int32_t);
+    void stateChangedSlot(void*);
 
 private:
     Ui::Modular *ui;

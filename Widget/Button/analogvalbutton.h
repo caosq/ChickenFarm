@@ -24,7 +24,7 @@ public:
     static AnalogValButton *forefather();
 
     //绑定数据地址
-    bool setMonitorData(void* pvVal = nullptr, Monitor::DataType emDataType = Monitor::Uint16t);
+    bool setMonitorData(void* pvVal = nullptr, Monitor::DataType emDataType = Monitor::Uint16t, bool xSyncMode = false);
 
     //当某个数据的最大最小是变量时可以使用该函数
     bool setMaxValMonitor(void* pvVa = nullptr, Monitor::DataType emDataType = Monitor::Uint16t);
@@ -62,7 +62,7 @@ public:
     //void setText(const QString text);
 
     //设置字符串显示，同时设置字号大小
-    void setText(const QString text, int size = 14);
+    void setText(const QString text, int size = 16);
 
     //设置文字大小
     void setTextSize(int size);
@@ -108,7 +108,7 @@ private:
 
 signals:
     void fontChange();
-    void valChanged(int32_t val);
+
 
 public slots:
     void setValue(int32_t val);
@@ -139,8 +139,6 @@ private:
     uint8_t     m_ucDecPoint;
     int32_t     m_iMaxVal;
     int32_t     m_iMinVal;
-    int32_t     m_iDefaultVal;
-    int32_t     m_iCurrentVal;
 
     QPixmap     *m_pPressImg;
     QPixmap     *m_pRelaseImg;

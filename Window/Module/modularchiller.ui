@@ -27,7 +27,8 @@
    </property>
    <property name="styleSheet">
     <string notr="true">#frame{
-border-image: url(:/UI/Widget/System_Air_1.png);}
+border-image: url(:/UI/Widget/System_Air_1.png);
+background:transparent;}
 </string>
    </property>
    <property name="frameShape">
@@ -59,9 +60,9 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
      <property name="geometry">
       <rect>
        <x>24</x>
-       <y>30</y>
+       <y>39</y>
        <width>25</width>
-       <height>129</height>
+       <height>111</height>
       </rect>
      </property>
      <property name="palette">
@@ -70,9 +71,9 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
         <colorrole role="WindowText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>252</red>
-           <green>175</green>
-           <blue>62</blue>
+           <red>255</red>
+           <green>170</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
@@ -108,9 +109,9 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
         <colorrole role="WindowText">
          <brush brushstyle="SolidPattern">
           <color alpha="255">
-           <red>252</red>
-           <green>175</green>
-           <blue>62</blue>
+           <red>255</red>
+           <green>170</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
@@ -184,11 +185,8 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
      </property>
      <property name="font">
       <font>
-       <pointsize>15</pointsize>
+       <pointsize>18</pointsize>
       </font>
-     </property>
-     <property name="toolTipDuration">
-      <number>-1</number>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
@@ -202,6 +200,9 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
      <property name="alignment">
       <set>Qt::AlignJustify|Qt::AlignTop</set>
      </property>
+     <property name="toolTipDuration" stdset="0">
+      <number>-1</number>
+     </property>
     </widget>
    </widget>
    <widget class="QPushButton" name="pushButton">
@@ -209,12 +210,13 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
      <rect>
       <x>300</x>
       <y>555</y>
-      <width>28</width>
-      <height>28</height>
+      <width>30</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-image: url(:/UI/userFile/nextpage.png);</string>
+     <string notr="true">border-image: url(:/UI/userFile/nextpage.png);
+outline: none;</string>
     </property>
     <property name="text">
      <string/>
@@ -255,7 +257,7 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
     <rect>
      <x>272</x>
      <y>0</y>
-     <width>105</width>
+     <width>111</width>
      <height>25</height>
     </rect>
    </property>
@@ -379,7 +381,7 @@ border-image: url(:/UI/Widget/System_Chiller_4.png);}</string>
    </property>
    <property name="font">
     <font>
-     <pointsize>16</pointsize>
+     <pointsize>18</pointsize>
     </font>
    </property>
    <property name="styleSheet">

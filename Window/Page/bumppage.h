@@ -50,8 +50,7 @@ public:
     ~BumpPage();
 
 private slots:
-    void systemDataChangedSlot();
-    void paramSetBtnValChanged(int32_t val);
+    void paramSetBtnValChanged(void*);
 
 private:
     Ui::BumpPage *ui;

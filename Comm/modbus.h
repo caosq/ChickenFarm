@@ -18,9 +18,13 @@ public:
     }eParityType;
 
     void uartConfig(uint32_t usBaudRate, uint8_t ucDataBit, uint8_t ucStopBit, uint8_t pcParity);
+
     void initMasterPort(eMBMode eMode, const char* pcPortName, uint8_t ucMinAddr, uint8_t ucMaxAddr, bool bDTUEnable);
     void initSlavePort(eMBMode eMode, const char* pcPortName, uint8_t ucSlaveAddr);
+
     bool masterRegistSlaveDev(sMBSlaveDev* psMBNewDev);
+    bool masterRegistDTUDev(sMBSlaveDev* psMBDTUDev247, sMBSlaveDev* psMBDTUDev200);
+
     bool registMasterMode();
 
     sMBMasterInfo* getMBMasterInfo();

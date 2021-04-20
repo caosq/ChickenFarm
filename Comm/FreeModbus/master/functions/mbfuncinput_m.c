@@ -179,24 +179,23 @@ eMBErrorCode eMBMasterRegInputCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegBuf
 	eMBErrorCode            eStatus = MB_ENOERR;
 	sMasterRegInData*  pvRegInValue = NULL;
     
-    if(psMBMasterInfo->eMBRunMode != STATE_SCAN_DEV) //非轮询从设备模式
+    if(psMBMasterInfo->eMBRunMode != STATE_SCAN_DEV && psMBMasterInfo->eMBRunMode != STATE_SCAN_DTU) //非轮询从设备模式
     {
         return MB_ENOERR;
     }	
     sMBSlaveDev*      psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur ;     //当前从设备
+
+    if(psMBSlaveDevCur == NULL)
+    {
+        return MB_ENOERR;
+    }
     sMBDevDataTable*   psMBRegInTable = &psMBSlaveDevCur->psDevCurData->sMBRegInTable;    //从设备通讯协议表
     UCHAR                ucMBDestAddr = ucMBMasterGetDestAddr(psMBMasterInfo);         //从设备通讯地址
 
-    if(psMBSlaveDevCur->ucDevAddr != ucMBDestAddr) //如果当前从设备地址与要轮询从设备地址不一致，则更新从设备
-    {
-        psMBSlaveDevCur = psMBMasterGetDev(psMBMasterInfo, ucMBDestAddr);
-        psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur = psMBSlaveDevCur;
-        psMBRegInTable = &psMBSlaveDevCur->psDevCurData->sMBRegInTable;
-    }
 	if( (psMBRegInTable->pvDataBuf == NULL) || (psMBRegInTable->usDataCount == 0)) //非空且数据点不为0
 	{
 		return MB_ENOREG;
-	}
+    }
 
 	REG_INPUT_START = psMBRegInTable->usStartAddr;
     REG_INPUT_END = psMBRegInTable->usEndAddr;

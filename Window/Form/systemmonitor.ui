@@ -142,11 +142,16 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>16</pointsize>
+     <family>Ubuntu</family>
+     <pointsize>18</pointsize>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">border-image: url(:/UI/Frame/按键.png);</string>
+    <string notr="true">border-image: url(:/UI/Frame/按键.png);
+outline: none;</string>
    </property>
    <property name="text">
     <string>机  组</string>
@@ -279,9 +284,18 @@
      </disabled>
     </palette>
    </property>
+   <property name="font">
+    <font>
+     <family>Ubuntu</family>
+     <pointsize>18</pointsize>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">font: 16pt &quot;Ubuntu&quot;;
-border-image: url(:/UI/Frame/按键.png);</string>
+    <string notr="true">border-image: url(:/UI/Frame/按键.png);
+outline: none;</string>
    </property>
    <property name="text">
     <string>冷冻水泵</string>
@@ -414,9 +428,14 @@ border-image: url(:/UI/Frame/按键.png);</string>
      </disabled>
     </palette>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">font: 16pt &quot;Ubuntu&quot;;
-border-image: url(:/UI/Frame/按键.png);</string>
+    <string notr="true">border-image: url(:/UI/Frame/按键.png);
+outline: none;</string>
    </property>
    <property name="text">
     <string>传感器</string>
@@ -562,9 +581,14 @@ border-image: url(:/UI/Frame/按键.png);</string>
      </disabled>
     </palette>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">font: 16pt &quot;Ubuntu&quot;;
-border-image: url(:/UI/Frame/按键.png);</string>
+    <string notr="true">border-image: url(:/UI/Frame/按键.png);
+outline: none;</string>
    </property>
    <property name="text">
     <string>蝶  阀</string>
@@ -697,9 +721,14 @@ border-image: url(:/UI/Frame/按键.png);</string>
      </disabled>
     </palette>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">font: 16pt &quot;Ubuntu&quot;;
-border-image: url(:/UI/Frame/按键.png);</string>
+    <string notr="true">border-image: url(:/UI/Frame/按键.png);
+outline: none;</string>
    </property>
    <property name="text">
     <string>组合柜</string>
@@ -832,9 +861,14 @@ border-image: url(:/UI/Frame/按键.png);</string>
      </disabled>
     </palette>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">font: 16pt &quot;Ubuntu&quot;;
-border-image: url(:/UI/Frame/按键.png);</string>
+    <string notr="true">border-image: url(:/UI/Frame/按键.png);
+outline: none;</string>
    </property>
    <property name="text">
     <string>畜牧风机</string>

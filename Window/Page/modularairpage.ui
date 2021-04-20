@@ -38,9 +38,9 @@ border-image: url(:/UI/Widget/System_Air_3.png);}</string>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>104</x>
+      <x>96</x>
       <y>0</y>
-      <width>153</width>
+      <width>161</width>
       <height>25</height>
      </rect>
     </property>
@@ -164,7 +164,7 @@ border-image: url(:/UI/Widget/System_Air_3.png);}</string>
     </property>
     <property name="font">
      <font>
-      <pointsize>15</pointsize>
+      <pointsize>18</pointsize>
      </font>
     </property>
     <property name="styleSheet">
@@ -252,9 +252,9 @@ background:transparent;}</string>
       <colorrole role="ButtonText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>50</red>
-         <green>159</green>
-         <blue>231</blue>
+         <red>0</red>
+         <green>170</green>
+         <blue>255</blue>
         </color>
        </brush>
       </colorrole>
@@ -273,15 +273,6 @@ background:transparent;}</string>
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
-        </color>
-       </brush>
-      </colorrole>
-      <colorrole role="PlaceholderText">
-       <brush brushstyle="SolidPattern">
-        <color alpha="128">
-         <red>252</red>
-         <green>175</green>
-         <blue>62</blue>
         </color>
        </brush>
       </colorrole>
@@ -317,9 +308,9 @@ background:transparent;}</string>
       <colorrole role="ButtonText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>50</red>
-         <green>159</green>
-         <blue>231</blue>
+         <red>0</red>
+         <green>170</green>
+         <blue>255</blue>
         </color>
        </brush>
       </colorrole>
@@ -338,15 +329,6 @@ background:transparent;}</string>
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
-        </color>
-       </brush>
-      </colorrole>
-      <colorrole role="PlaceholderText">
-       <brush brushstyle="SolidPattern">
-        <color alpha="128">
-         <red>252</red>
-         <green>175</green>
-         <blue>62</blue>
         </color>
        </brush>
       </colorrole>
@@ -406,15 +388,6 @@ background:transparent;}</string>
         </color>
        </brush>
       </colorrole>
-      <colorrole role="PlaceholderText">
-       <brush brushstyle="SolidPattern">
-        <color alpha="128">
-         <red>0</red>
-         <green>0</green>
-         <blue>0</blue>
-        </color>
-       </brush>
-      </colorrole>
      </disabled>
     </palette>
    </property>
@@ -425,7 +398,8 @@ background:transparent;}</string>
    </property>
    <property name="styleSheet">
     <string notr="true">border-style:none;
-background:transparent;</string>
+background:transparent;
+outline:none;</string>
    </property>
    <property name="text">
     <string>下一页</string>
@@ -436,7 +410,7 @@ background:transparent;</string>
     <rect>
      <x>35</x>
      <y>60</y>
-     <width>153</width>
+     <width>171</width>
      <height>25</height>
     </rect>
    </property>
@@ -560,7 +534,7 @@ background:transparent;</string>
    </property>
    <property name="font">
     <font>
-     <pointsize>15</pointsize>
+     <pointsize>18</pointsize>
     </font>
    </property>
    <property name="styleSheet">

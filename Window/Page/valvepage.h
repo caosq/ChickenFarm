@@ -33,8 +33,7 @@ public:
     ~ValvePage();
 
 private slots:
-    void systemDataChangedSlot();
-    void paramSetBtnValChanged(int32_t val);
+    void paramSetBtnValChanged(void*);
 
 private:
     Ui::ValvePage *ui;

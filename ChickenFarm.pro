@@ -11,7 +11,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ChickenFarm
 TEMPLATE = app
 
-INCLUDEPATH += /usr/local/qwt/qwt-6.1.2-x64/include \
+QMAKE_CXXFLAGS += -std=c++0x
+
+#INCLUDEPATH += /usr/local/qwt/qwt-6.1.2-x64/include \
+INCLUDEPATH += /usr/local/qwt-6.1.2-arm/include \
             Comm \
             Comm/FreeModbus/config \
             Comm/FreeModbus/driver \
@@ -42,7 +45,9 @@ INCLUDEPATH += /usr/local/qwt/qwt-6.1.2-x64/include \
             Main
 
 
-LIBS += -L "/usr/local/qwt/qwt-6.1.2-x64/lib" -lqwt \
+#LIBS += -L "/usr/local/qwt/qwt-6.1.2-x64/lib"
+LIBS += -L "/usr/local/qwt-6.1.2-arm/lib/" \
+        -lqwt \
         -lrt \
         -lpthread \
 
@@ -65,6 +70,7 @@ SOURCES += \
         Comm/FreeModbus/driver/ti_mbdriver.c \
         Comm/FreeModbus/master/functions/mb_m.c \
         Comm/FreeModbus/master/functions/mbbits_m.c \
+        Comm/FreeModbus/master/functions/mbdtu_m.c \
         Comm/FreeModbus/master/functions/mbfunccoils_m.c \
         Comm/FreeModbus/master/functions/mbfuncdisc_m.c \
         Comm/FreeModbus/master/functions/mbfuncholding_m.c \
@@ -97,6 +103,7 @@ SOURCES += \
         DataManage/datasave.cpp \
         Device/controller.cpp \
         Device/device.cpp \
+        Device/dtu.cpp \
         Device/meter.cpp \
         Widget/Event/usercurrentevent.cpp \
         Widget/Event/userhistoryevent.cpp \
@@ -191,6 +198,7 @@ HEADERS += \
         Comm/FreeModbus/master/functions/mb_m.h \
         Comm/FreeModbus/master/functions/mbbits_m.h \
         Comm/FreeModbus/master/functions/mbdict_m.h \
+        Comm/FreeModbus/master/functions/mbdtu_m.h \
         Comm/FreeModbus/master/functions/mbfunc_m.h \
         Comm/FreeModbus/master/functions/mbmap_m.h \
         Comm/FreeModbus/master/functions/mbscan_m.h \
@@ -212,6 +220,7 @@ HEADERS += \
         DataManage/datasave.h \
         Device/controller.h \
         Device/device.h \
+        Device/dtu.h \
         Device/meter.h \
         Main/global.h \
         Widget/Event/usercurrentevent.h \

@@ -82,14 +82,13 @@ protected:
 private slots:
     void fontSlot();
 
-
 public slots:
     void setValue(int32_t val);
     void setValue(Monitor* pMonitor);
     void clickedSlot();
+
 signals:
     void fontChange();
-    void valChanged(int32_t val);
 
 protected:
     static StateButton *father;

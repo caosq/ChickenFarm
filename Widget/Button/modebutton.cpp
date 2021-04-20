@@ -149,13 +149,13 @@ ModeButton::ModeButton(QWidget *parent) :
 {
     _dtype = Monitor::Uint16t;
 
-    defValState = true;
+    defValState = false;
     enableValMarker = true;
     save = true;
     automaticAttack = true;
 
-    defVal = 0;
-    currentValue = 0;
+    m_iDefaultVal = 0;
+    m_iCurrentVal = 0;
 
     currentText = "";
 
@@ -264,7 +264,7 @@ void ModeButton::initMenu()
 QString ModeButton::getElidedText()
 {
     QFontMetrics metrics(this->font());
-    currentText = _menu->currentText(currentValue);
+    currentText = _menu->currentText(m_iCurrentVal);
 
     return metrics.elidedText(currentText,Qt::ElideRight,this->width()-_gap);
 }
@@ -286,54 +286,101 @@ bool ModeButton::clickedSlot()
     int16_t  sValue  = 0;
     int32_t  iValue  = 0;
 
+    int32_t  iCheckVal;
+    QString  sChecktext;
+    void*    pCheckValAddr = nullptr;
+    Monitor::DataType eCheckDataType;
+
     if(m_xCheckMode)
     {
-        if(m_CheckDataType == Monitor::Uint8t)
+        for (uint8_t n = 0; n < m_BtnCheckDatas.count(); n++)
         {
-            ucValue = *static_cast<uint8_t*>(m_pCheckValAddr);
-            if(m_iCheckVal != int32_t(ucValue)){ xShowMsgBox = true;}
-        }
-        else if(m_CheckDataType == Monitor::Uint16t)
-        {
-            usValue = *static_cast<uint16_t*>(m_pCheckValAddr);
-            if(m_iCheckVal != int32_t(usValue)){ xShowMsgBox = true;}
-        }
-        else if(m_CheckDataType == Monitor::Int8t)
-        {
-            cValue = *static_cast<int8_t*>(m_pCheckValAddr);
-            if(m_iCheckVal != int32_t(cValue)){ xShowMsgBox = true;}
-        }
-        else if(m_CheckDataType == Monitor::Int16t)
-        {
-            sValue = *static_cast<int16_t*>(m_pCheckValAddr);
-            if(m_iCheckVal != int32_t(sValue)){ xShowMsgBox = true;}
-        }
-        else if(m_CheckDataType == Monitor::Uint32t)
-        {
-            uiValue = *static_cast<uint32_t*>(m_pCheckValAddr);
-            if(m_iCheckVal != int32_t(uiValue)){ xShowMsgBox = true;}
-        }
-        else if(m_CheckDataType == Monitor::Int32t)
-        {
-            iValue = *static_cast<int32_t*>(m_pCheckValAddr);
-            if(m_iCheckVal != int32_t(iValue)){ xShowMsgBox = true;}
-        }
-        else if(m_CheckDataType == Monitor::Boolean)
-        {
-            xValue = *static_cast<bool*>(m_pCheckValAddr);
-            if(m_iCheckVal != int32_t(xValue)){ xShowMsgBox = true;}
+            if(m_BtnCheckDatas[n]->pCheckValAddr == nullptr){continue;}
+
+            eCheckDataType = m_BtnCheckDatas[n]->eCheckDataType;
+            pCheckValAddr = m_BtnCheckDatas[n]->pCheckValAddr;
+            sChecktext = m_BtnCheckDatas[n]->strChecktext;
+            iCheckVal = m_BtnCheckDatas[n]->iCheckVal;
+
+            if(eCheckDataType == Monitor::Uint8t)
+            {
+                ucValue = *static_cast<uint8_t*>(pCheckValAddr);
+                if(iCheckVal != int32_t(ucValue)){
+                    xShowMsgBox = true;
+                    break;
+                }
+            }
+            else if(eCheckDataType == Monitor::Uint16t)
+            {
+                usValue = *static_cast<uint16_t*>(pCheckValAddr);
+                if(iCheckVal != int32_t(usValue)){
+                    xShowMsgBox = true;
+                    break;
+                }
+            }
+            else if(eCheckDataType == Monitor::Int8t)
+            {
+                cValue = *static_cast<int8_t*>(pCheckValAddr);
+                if(iCheckVal != int32_t(cValue)){
+                    xShowMsgBox = true;
+                    break;
+                }
+            }
+            else if(eCheckDataType == Monitor::Int16t)
+            {
+                sValue = *static_cast<int16_t*>(pCheckValAddr);
+                if(iCheckVal != int32_t(sValue)){
+                    xShowMsgBox = true;
+                    break;
+                }
+            }
+            else if(eCheckDataType == Monitor::Uint32t)
+            {
+                uiValue = *static_cast<uint32_t*>(pCheckValAddr);
+                if(iCheckVal != int32_t(uiValue)){
+                    xShowMsgBox = true;
+                    break;
+                }
+            }
+            else if(eCheckDataType == Monitor::Int32t)
+            {
+                iValue = *static_cast<int32_t*>(pCheckValAddr);
+                if(iCheckVal != int32_t(iValue)){
+                    xShowMsgBox = true;
+                    break;
+                }
+            }
+            else if(eCheckDataType == Monitor::Boolean)
+            {
+                xValue = *static_cast<bool*>(pCheckValAddr);
+                if(iCheckVal != int32_t(xValue)){
+                    xShowMsgBox = true;
+                    break;
+                }
+            }
         }
     }
-    if(xShowMsgBox)
+    if(xShowMsgBox && g_xDebugMode == false)
     {
         messageBox *pConfirmationBox =  new messageBox(messageBox::Information);
         pConfirmationBox->setButtonText(messageBox::Yes,"确认");
-        pConfirmationBox->setInformativeText(m_sChecktext);
+        pConfirmationBox->setInformativeText(sChecktext);
         pConfirmationBox->show();
         return false;
     }
     else
     {
+        if(m_xConfirmMode)
+        {
+            int32_t test;
+            messageBox *pConfirmationBox = new messageBox(messageBox::Question);
+            pConfirmationBox->setButtonText(messageBox::Yes,"确认");
+            pConfirmationBox->setButtonText(messageBox::No,"取消");
+            pConfirmationBox->setInformativeText(m_sConfirmtext);
+            test = pConfirmationBox->exec();
+
+            if(test == messageBox::No){return false;}
+        }
         if(m_xDelayMode)
         {
             m_DelayTimer.start(m_iDelayTimeMs);
@@ -359,26 +406,26 @@ void ModeButton::hideMenu()
 
 int32_t ModeButton::getCurrentValue()
 {
-    return currentValue;
+    return m_iCurrentVal;
 }
 
 void ModeButton::setValue(Monitor* pMonitor)
 {
     int32_t val = pMonitor->getCurVal();
     int intval = int32_t(val);
-    currentValue = intval;
+    m_iCurrentVal = intval;
     currentText = _menu->currentText(intval);
-    defValState = (defVal == intval) ? true:false;
+    defValState = (m_iDefaultVal == intval) ? true:false;
     update();
-    emit valChanged(val);
+    emit valChanged(this);
 }
 
 void ModeButton::setValue(int32_t val)
 {
     int intval = int32_t(val);
-    currentValue = intval;
+    m_iCurrentVal = intval;
     currentText = _menu->currentText(intval);
-    defValState = (defVal == intval) ? true:false;
+    defValState = (m_iDefaultVal == intval) ? true:false;
 
     if(m_pMonitor)
     {
@@ -386,17 +433,17 @@ void ModeButton::setValue(int32_t val)
     }
     else
     {
-        emit valChanged(val);
+        emit valChanged(this);
     }
     update();
 }
 
 void ModeButton::setDefaultValue(int defValue)
 {
-    defVal = defValue;
-    currentValue = defValue;
-    defValState = (defVal == currentValue) ? true:false;
-    setText(_menu->currentText(currentValue));
+    m_iDefaultVal = defValue;
+    m_iCurrentVal = defValue;
+    defValState = (m_iDefaultVal == m_iCurrentVal) ? true:false;
+    setText(_menu->currentText(m_iCurrentVal));
     update();
 }
 

@@ -161,10 +161,6 @@ void vMBsMasterPortTmrsRespondTimeoutEnable(sMBMasterPort* psMBPort)
     FD_ZERO(&psMBPort->rfds);
     FD_SET(psMBPort->psMBMasterUart->fd, &psMBPort->rfds);
 
-    uint32_t i  = MB_MASTER_TIMEOUT_MS_RESPOND * 1000;    //主栈等待从栈响应定时器
-    psMBPort->sRespondTimeoutTv.tv_sec = i / ( 1000*1000 );
-    psMBPort->sRespondTimeoutTv.tv_usec = i % (1000*1000 );
-
     while( (select_ret = select(psMBPort->psMBMasterUart->fd+1, &psMBPort->rfds, NULL, NULL, &psMBPort->sRespondTimeoutTv) ) == -1)
     {
         FD_ZERO(&rfds);

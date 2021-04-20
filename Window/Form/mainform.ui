@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">border-style:none;</string>
   </property>
   <widget class="QFrame" name="frame">
    <property name="geometry">
@@ -47,7 +47,9 @@ background-image: url(:/UI/Frame/背景.png);
     </property>
     <property name="styleSheet">
      <string notr="true">#paraButton {background-image: url(:/UI/Frame/参数设置.png);
-background-color: transparent; }</string>
+background-color: transparent; 
+border-style:none;
+outline: none;}</string>
     </property>
     <property name="text">
      <string/>
@@ -64,7 +66,9 @@ background-color: transparent; }</string>
     </property>
     <property name="styleSheet">
      <string notr="true">#eventButton {background-image: url(:/UI/Frame/事件记录.png);
-background-color: transparent; }</string>
+background-color: transparent; 
+border-style:none;
+outline: none;}</string>
     </property>
     <property name="text">
      <string/>
@@ -81,7 +85,9 @@ background-color: transparent; }</string>
     </property>
     <property name="styleSheet">
      <string notr="true">#curveButton {background-image: url(:/UI/Frame/曲线走势.png);
-background-color: transparent; }</string>
+background-color: transparent; 
+border-style:none;
+outline: none;}</string>
     </property>
     <property name="text">
      <string/>
@@ -98,7 +104,9 @@ background-color: transparent; }</string>
     </property>
     <property name="styleSheet">
      <string notr="true">#systemButton {background-image: url(:/UI/Frame/系统监控.png); 
-background-color: transparent; }</string>
+background-color: transparent;
+border-style:none; 
+outline: none;}</string>
     </property>
     <property name="text">
      <string/>
@@ -109,13 +117,14 @@ background-color: transparent; }</string>
      <rect>
       <x>950</x>
       <y>35</y>
-      <width>33</width>
-      <height>35</height>
+      <width>30</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="styleSheet">
      <string notr="true">#backButton {background-image: url(:/UI/Frame/返回首页.png);
-background-color: transparent; }</string>
+background-color: transparent;
+outline:none; }</string>
     </property>
     <property name="text">
      <string/>
@@ -188,7 +197,7 @@ background-color: transparent; }</string>
     </property>
     <property name="font">
      <font>
-      <pointsize>15</pointsize>
+      <pointsize>18</pointsize>
      </font>
     </property>
     <property name="text">
@@ -243,7 +252,7 @@ background-color: transparent; }</string>
     </property>
     <property name="font">
      <font>
-      <pointsize>15</pointsize>
+      <pointsize>18</pointsize>
      </font>
     </property>
     <property name="text">
@@ -298,7 +307,7 @@ background-color: transparent; }</string>
     </property>
     <property name="font">
      <font>
-      <pointsize>15</pointsize>
+      <pointsize>18</pointsize>
      </font>
     </property>
     <property name="text">
@@ -353,7 +362,7 @@ background-color: transparent; }</string>
     </property>
     <property name="font">
      <font>
-      <pointsize>15</pointsize>
+      <pointsize>18</pointsize>
      </font>
     </property>
     <property name="text">
@@ -408,7 +417,7 @@ background-color: transparent; }</string>
     </property>
     <property name="font">
      <font>
-      <pointsize>15</pointsize>
+      <pointsize>18</pointsize>
      </font>
     </property>
     <property name="text">
@@ -546,7 +555,7 @@ background-color: transparent; }</string>
      <rect>
       <x>928</x>
       <y>660</y>
-      <width>89</width>
+      <width>86</width>
       <height>30</height>
      </rect>
     </property>
@@ -589,11 +598,12 @@ background-color: transparent; }</string>
     </property>
     <property name="font">
      <font>
-      <pointsize>14</pointsize>
+      <pointsize>16</pointsize>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-image: url(:/UI/Frame/logBtn.png);</string>
+     <string notr="true">border-image: url(:/UI/Frame/logBtn.png);
+outline: none;</string>
     </property>
     <property name="text">
      <string>用户登录</string>

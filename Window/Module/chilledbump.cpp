@@ -71,22 +71,29 @@ void ChilledBump::initButton()
     System *pSystem = System::getInstance();
     if(pSystem == nullptr){return;}
 
+    Button::BtnCheckData mBtnCheckData0 = {&pSystem->m_eSystemModeCmd, System::MODE_MANUAL,
+                                           Monitor::Boolean, "系统正在自动运行，请先切换成手动模式"};
+    Button::BtnCheckData mBtnCheckData1 = {&pSystem->m_xIsLogIn, 1, Monitor::Boolean, "请先登录后再操作"};
+    Button::BtnCheckData mBtnCheckData2 = {&m_xErrorFlag, 0, Monitor::Boolean,  "设备故障，请先检查设备后再清除故障" };
+    Button::BtnCheckData mBtnCheckData3 = {&m_xControlFlag, 0, Monitor::Boolean,  "控制故障，请先检查设备后再清除故障" };
+    Button::BtnCheckData mBtnCheckData4 = {&m_xRemote, 1, Monitor::Boolean, "设备处于本地模式，请先切换成远程模式"};
+
     //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
-    m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
     m_pSwitchCmdBtn->setMonitorData(&m_xSwitchCmd, Monitor::Boolean);
+    m_pSwitchCmdBtn->setCheckMode(5, &mBtnCheckData0, &mBtnCheckData1, &mBtnCheckData2, &mBtnCheckData3, &mBtnCheckData4);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //频率设置
     m_pFreqSetBtn = new AnalogValButton(ui->frame);
     m_pFreqSetBtn->setDataParameter("Hz", 1, 0, 500, 0, Monitor::Uint16t);
-    m_pFreqSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pFreqSetBtn->setMonitorData(&m_usFreqSet, Monitor::Uint16t);
     m_pFreqSetBtn->setMaxValMonitor(&pSystem->m_usCHWBumpMaxFreq, Monitor::Uint16t);
     m_pFreqSetBtn->setMinValMonitor(&pSystem->m_usCHWBumpMinFreq, Monitor::Uint16t);
+    m_pFreqSetBtn->setCheckMode(5, &mBtnCheckData0, &mBtnCheckData1, &mBtnCheckData2, &mBtnCheckData3, &mBtnCheckData4);
     m_Widgets.append(m_pFreqSetBtn);
 
     //频率反馈
@@ -136,12 +143,14 @@ void ChilledBump::initButton()
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
-    connect(m_pErrorFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(m_pControlFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(m_pRunningFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pErrorFlagLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pControlFlagLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pRunningFlagLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pSwitchCmdBtn, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pRemoteLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
 }
 
-void ChilledBump::stateChangedSlot(int32_t)
+void ChilledBump::stateChangedSlot(void*)
 {
     if(m_sQFrameState.IsError != nullptr)
     {
@@ -165,4 +174,6 @@ void ChilledBump::stateChangedSlot(int32_t)
             m_sQFrameState.IsRunning->show();
         }
     }
+    m_usStateMask = m_xSwitchCmd | (m_xRemote << 1) | (m_xRunningFlag << 2) | (m_xErrorFlag << 3) |
+                    (m_xControlFlag << 4) | (m_xErrClean << 5);
 }

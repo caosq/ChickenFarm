@@ -4,15 +4,17 @@
 #include <unistd.h>
 #include "system.h"
 
+#define SYNC_FILE   "/home/root/.DataSync"
 #define MONITOR_DATA_MAX_NUM   100     //最大可监控点位数，根据实际情况调整
 
-Monitor::Monitor(void* pvVal, DataType eDataType, uint32_t uiDataId, int32_t iMaxVal, int32_t iMinVal)
+Monitor::Monitor(void* pvVal, DataType eDataType, uint32_t uiDataId, int32_t iMaxVal, int32_t iMinVal, bool xSyncMode)
 {
     this->m_pvVal     = pvVal;
     this->m_iMaxVal   = iMaxVal;
     this->m_iMinVal   = iMinVal;
     this->m_DataType  = eDataType;
     this->m_uiDataId  = uiDataId;
+    this->m_xSyncMode = xSyncMode;
 }
 
 void Monitor::setValRange(int32_t iMaxVal, int32_t iMinVal)
@@ -95,6 +97,10 @@ void Monitor::setValue(int32_t iVal)
             m_iDataVal = int32_t(xValue);
             *static_cast<bool*>(m_pvVal) = xValue;
         }
+        if(m_xSyncMode)
+        {
+            DataMonitor::readFile()->setValue(QString::number(m_uiDataId), m_iDataVal);
+        }
         emit valChanged(this);
     }
 }
@@ -120,23 +126,24 @@ uint32_t Monitor::getDataId()
     return m_uiDataId;
 }
 
-QMap<void* , Monitor*>  DataMonitor::g_Monitors;
-sMonitorMapList*        DataMonitor::g_psMonitorMapList = nullptr;
-DataMonitor*            DataMonitor::g_pDataMonitor = nullptr;
-uint16_t                DataMonitor::g_usMonitorID = 0;
+QMap<void*, Monitor*>  DataMonitor::g_Monitors;
+sMonitorMapList*       DataMonitor::g_psMonitorMapList = nullptr;
+//DataMonitor*           DataMonitor::g_pDataMonitor = nullptr;
+DataSave *             DataMonitor::g_pSyncFile = nullptr;
+uint16_t               DataMonitor::g_usMonitorID = 0;
 
 DataMonitor::DataMonitor(QObject *parent) :
      QObject(parent)
 {
 }
 
-DataMonitor* DataMonitor::getInstance()
+DataSave* DataMonitor::readFile()
 {
-    if(g_pDataMonitor == nullptr)
+    if(g_pSyncFile == nullptr)
     {
-        g_pDataMonitor = new DataMonitor();
+        g_pSyncFile = new DataSave(SYNC_FILE, QSettings::IniFormat);
     }
-    return g_pDataMonitor;
+    return g_pSyncFile;
 }
 
 void* DataMonitor::monitorPollTask(void *pvArg)
@@ -156,17 +163,9 @@ void* DataMonitor::monitorPollTask(void *pvArg)
     QMap<uint16_t, Monitor*>* pMonitorMap = static_cast< QMap<uint16_t, Monitor*> *>(pvArg);
 
     Monitor* pMonitor = nullptr;
-    //pthread_mutex_t *mutex = &System::getInstance()->pModbus->getMBMasterInfo()->sMBPort.mutex;
-
     while(pMonitorMap != nullptr)
     {
         usleep(1000);
-        //if((mutex = &System::getInstance()->pModbus.getMBMasterInfo()->sMBPort.mutex) == nullptr)
-        //{
-        //    continue;
-        //}
-        //pthread_mutex_lock(&System::getInstance()->pModbus->getMBMasterInfo()->sMBPort.mutex);
-
         for(it=pMonitorMap->begin(); it!=pMonitorMap->end(); ++it)
         {
             pMonitor = it.value();
@@ -209,17 +208,20 @@ void* DataMonitor::monitorPollTask(void *pvArg)
 
             if(pMonitor->m_iDataVal != iDataVal)
             {
+                if(pMonitor->m_xSyncMode)
+                {
+                    DataMonitor::readFile()->setValue(QString::number(pMonitor->getDataId()), iDataVal);
+                }
                 pMonitor->m_iDataVal = iDataVal;
                 emit pMonitor->valChanged(pMonitor);
 
-                qDebug("pMonitor->valChanged %d %d \n", iDataVal, pMonitorMap);
+                qDebug("pMonitor->valChanged %d ID %d pMonitorMap %d \n", iDataVal, pMonitor->getDataId(), pMonitorMap);
             }
         }
-        //pthread_mutex_unlock(mutex);//解锁
     }
 }
 
-Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, int32_t iMaxVal, int32_t iMinVal)
+Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, int32_t iMaxVal, int32_t iMinVal, bool xSyncMode)
 {
     bool     xValue = 0;
     uint8_t  ucValue = 0;
@@ -231,7 +233,8 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
     int32_t  iValue = 0;
     uint32_t uiValue = 0;
 
-    Monitor*         pMonitor = nullptr;
+    Monitor          *pMonitor = nullptr;
+    DataSave         *pSyncFile = nullptr;
     sMonitorMapList* pmMonitorMapList = nullptr;
 
     if(pvVal == nullptr){return nullptr;}
@@ -271,46 +274,163 @@ Monitor* DataMonitor::monitorRegist(void* pvVal, Monitor::DataType eDataType, in
             return nullptr;
         }
     }
-    pMonitor = new Monitor(pvVal, eDataType, g_usMonitorID, iMaxVal, iMinVal);
-    g_usMonitorID++;
-    g_Monitors.insert(pvVal, pMonitor);
-    pmMonitorMapList->m_MonitorMap.insert(pvVal,pMonitor);
+    pMonitor = new Monitor(pvVal, eDataType, g_usMonitorID, iMaxVal, iMinVal, xSyncMode);
 
     if(pMonitor == nullptr){return nullptr;}
+    if(xSyncMode){
+        pSyncFile = DataMonitor::readFile();
+    }
     if(eDataType == Monitor::Uint8t)
     {
-        ucValue = *static_cast<uint8_t*>(pvVal);
+        if(xSyncMode)
+        {
+            if(pSyncFile->contains(QString::number(g_usMonitorID)))
+            {
+                ucValue = pSyncFile->value(QString::number(g_usMonitorID)).toInt();
+                *static_cast<uint8_t*>(pvVal) = uint8_t(ucValue);
+            }
+            else
+            {
+                ucValue =  *static_cast<uint8_t*>(pvVal);
+                pSyncFile->setValue(QString::number(g_usMonitorID), ucValue);
+            }
+        }
+        else
+        {
+            ucValue = *static_cast<uint8_t*>(pvVal);
+        }
         pMonitor->m_iDataVal = int32_t(ucValue);
+
     }
     else if(eDataType == Monitor::Uint16t)
     {
-        usValue = *static_cast<uint16_t*>(pvVal);
+        if( xSyncMode)
+        {
+            if(pSyncFile->contains(QString::number(g_usMonitorID)))
+            {
+                usValue = pSyncFile->value(QString::number(g_usMonitorID)).toInt();
+                *static_cast<int32_t*>(pvVal) = int32_t(usValue);
+            }
+            else
+            {
+                usValue =  *static_cast<uint16_t*>(pvVal);
+                pSyncFile->setValue(QString::number(g_usMonitorID), usValue);
+            }
+        }
+        else
+        {
+            usValue = *static_cast<uint16_t*>(pvVal);
+        }
         pMonitor->m_iDataVal = int32_t(usValue);
+
     }
     else if(eDataType == Monitor::Int8t)
     {
-        cValue = *static_cast<int8_t*>(pvVal);
+        if(xSyncMode)
+        {
+            if(pSyncFile->contains(QString::number(g_usMonitorID)))
+            {
+                cValue = DataMonitor::readFile()->value(QString::number(g_usMonitorID)).toInt();
+                *static_cast<int8_t*>(pvVal) = int8_t(cValue);
+            }
+            else
+            {
+                cValue =  *static_cast<int8_t*>(pvVal);
+                pSyncFile->setValue(QString::number(g_usMonitorID), cValue);
+            }
+        }
+        else
+        {
+            cValue = *static_cast<int8_t*>(pvVal);
+        }
         pMonitor->m_iDataVal = int32_t(cValue);
     }
     else if(eDataType == Monitor::Int16t)
     {
-        sValue = *static_cast<int16_t*>(pvVal);
+        if(xSyncMode)
+        {
+            if(pSyncFile->contains(QString::number(g_usMonitorID)))
+            {
+                sValue = DataMonitor::readFile()->value(QString::number(g_usMonitorID)).toInt();
+                *static_cast<int16_t*>(pvVal) = int16_t(sValue);
+            }
+            else
+            {
+                sValue =  *static_cast<int16_t*>(pvVal);
+                pSyncFile->setValue(QString::number(g_usMonitorID), sValue);
+            }
+        }
+        else
+        {
+            sValue = *static_cast<int16_t*>(pvVal);
+        }
         pMonitor->m_iDataVal = int32_t(sValue);
     }
     else if(eDataType == Monitor::Uint32t)
     {
-        uiValue = *static_cast<uint32_t*>(pvVal);
+        if(xSyncMode)
+        {
+            if(pSyncFile->contains(QString::number(g_usMonitorID)))
+            {
+                uiValue = DataMonitor::readFile()->value(QString::number(g_usMonitorID)).toInt();
+                *static_cast<uint32_t*>(pvVal) = uint32_t(sValue);
+            }
+            else
+            {
+                uiValue =  *static_cast<uint32_t*>(pvVal);
+                pSyncFile->setValue(QString::number(g_usMonitorID), uiValue);
+            }
+        }
+        else
+        {
+            uiValue = *static_cast<uint32_t*>(pvVal);
+        }
         pMonitor->m_iDataVal = int32_t(uiValue);
     }
     else if(eDataType == Monitor::Int32t)
     {
-        iValue = *static_cast<int32_t*>(pvVal);
+        if( xSyncMode && pSyncFile->contains(QString::number(g_usMonitorID)) )
+        {
+            if(pSyncFile->contains(QString::number(g_usMonitorID)))
+            {
+                iValue = DataMonitor::readFile()->value(QString::number(g_usMonitorID)).toInt();
+                *static_cast<int32_t*>(pvVal) = int32_t(sValue);
+            }
+            else
+            {
+                iValue =  *static_cast<int32_t*>(pvVal);
+                pSyncFile->setValue(QString::number(g_usMonitorID), iValue);
+            }
+        }
+        else
+        {
+            iValue = *static_cast<int32_t*>(pvVal);
+        }
         pMonitor->m_iDataVal = iValue;
     }
     else if(eDataType == Monitor::Boolean)
     {
-        xValue = *static_cast<bool*>(pvVal);
+        if( xSyncMode && pSyncFile->contains(QString::number(g_usMonitorID)) )
+        {
+            if(pSyncFile->contains(QString::number(g_usMonitorID)))
+            {
+                xValue = DataMonitor::readFile()->value(QString::number(g_usMonitorID)).toBool();
+                *static_cast<bool*>(pvVal) = bool(sValue);
+            }
+            else
+            {
+                xValue =  *static_cast<bool*>(pvVal);
+                pSyncFile->setValue(QString::number(g_usMonitorID), xValue);
+            }
+        }
+        else
+        {
+            xValue = *static_cast<bool*>(pvVal);
+        }
         pMonitor->m_iDataVal = int32_t(xValue);
     }
+    g_usMonitorID++;
+    g_Monitors.insert(pvVal, pMonitor);
+    pmMonitorMapList->m_MonitorMap.insert(pvVal,pMonitor);
     return pMonitor;
 }

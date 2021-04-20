@@ -14,19 +14,19 @@
  *********************************************************************/
 uint8_t xMB_UartInit(const sUART_Def *Uart)
 {
-    struct termios tios;
+    struct termios tios = {0};
     speed_t speed;
 
-    //struct serial_rs485 rs485conf;
+    struct serial_rs485 rs485conf;
 
-    //rs485conf.flags |= SER_RS485_ENABLED;
-    //rs485conf.flags |= SER_RS485_RTS_ON_SEND;
+    rs485conf.flags |= SER_RS485_ENABLED;
+    rs485conf.flags |= SER_RS485_RTS_ON_SEND;
     //rs485conf.flags &= ~(SER_RS485_RTS_ON_SEND);
     //rs485conf.flags |= (SER_RS485_RTS_AFTER_SEND);
     //rs485conf.flags &= ~SER_RS485_RX_DURING_TX;
     //rs485conf.delay_rts_after_send = 0;
 
-    //ioctl(Uart->fd, TIOCSRS485, &rs485conf);
+    ioctl(Uart->fd, TIOCSRS485, &rs485conf);
 
         //printf("ioctl error\n");
 //        close(Uart->fd);

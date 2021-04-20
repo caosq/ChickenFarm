@@ -172,12 +172,12 @@ BOOL xMBMasterPortSerialGetBytes(const sMBMasterPort* psMBPort, UCHAR* pucRcvBuf
         *psReadBytes += (USHORT)sReadBytes;
     }
 
-/*    while(sReadBytes < *psReadBytes)
+    while(sReadBytes < *psReadBytes)
     {
          debug("%d ", *(pucRcvBuf + sReadBytes));
          sReadBytes++;
     }
-    debug("\n ");*/
+    debug("\n ");
     return *psReadBytes > 0 ? TRUE:FALSE;
 #endif
 }

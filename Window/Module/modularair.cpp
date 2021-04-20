@@ -20,10 +20,10 @@
 #define DATA_LABEL_INTERVAL_H   320
 #define DATA_LABEL_INTERVAL_V   35
 
-#define COLOR_STATE_COOL         "#00BBFF"
+#define COLOR_STATE_COOL         "#00FFFF"
 #define COLOR_STATE_HEAT         "#FF5511"
 #define COLOR_STATE_FAN          "#00FF00"
-#define COLOR_STATE_NEGATICE_FAN "#40E0D0"
+#define COLOR_STATE_NEGATICE_FAN "#FFBB66"
 #define COLOR_STATE_EX_FAN       "#EE82EE"
 #define COLOR_STATE_DEFROST      "#87CEFA"
 #define COLOR_STATE_ANTI_FREEZE  "#FFFF00"
@@ -98,15 +98,21 @@ void ModularAir::initButton()
 {
     System *pSystem = System::getInstance();
     if(pSystem == nullptr){return;}
+
+    Button::BtnCheckData mBtnCheckData0 = {&pSystem->m_eSystemModeCmd, System::MODE_MANUAL,
+                                           Monitor::Boolean, "系统正在自动运行，请先切换成手动模式"};
+    Button::BtnCheckData mBtnCheckData1 = {&pSystem->m_xIsLogIn, 1, Monitor::Boolean, "请先登录后再操作"};
+    Button::BtnCheckData mBtnCheckData2 = {&m_xCommErr, 0, Monitor::Boolean, "设备通讯故障，请先检查设备通讯问题" };
+
      //启停命令
     m_pSwitchCmdBtn = new StateButton(ui->frame);
     m_pSwitchCmdBtn->setStateText(StateButton::State0,tr("关闭"));
     m_pSwitchCmdBtn->setStateText(StateButton::State1,tr("开启"));
     m_pSwitchCmdBtn->setValueMap(StateButton::State0, 0x0055);
     m_pSwitchCmdBtn->setValueMap(StateButton::State1, 0x00AA);
-    m_pSwitchCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pSwitchCmdBtn->setDeafultState(StateButton::State0);
     m_pSwitchCmdBtn->setMonitorData(&m_eSwitchCmd, Monitor::Uint16t);
+    m_pSwitchCmdBtn->setCheckMode(3, &mBtnCheckData0, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pSwitchCmdBtn);
 
     //机组运行工作模式设定
@@ -115,30 +121,31 @@ void ModularAir::initButton()
     m_pRunningModeCmdBtn->setItem(1,tr("通风"));
     m_pRunningModeCmdBtn->setItem(2,tr("供热"));
     m_pRunningModeCmdBtn->setItem(3,tr("负压通风"));
-    m_pRunningModeCmdBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
+    m_pRunningModeCmdBtn->setItem(4,tr("自动"));
     m_pRunningModeCmdBtn->setDefaultValue(0);
     m_pRunningModeCmdBtn->setMonitorData(&m_eRunningModeCmd, Monitor::Uint16t);
+    m_pRunningModeCmdBtn->setCheckMode(3, &mBtnCheckData0, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pRunningModeCmdBtn);
 
     //目标温度设定
     m_pTempSetBtn = new AnalogValButton(ui->frame);
     m_pTempSetBtn->setDataParameter("℃", 1, 240, 350, 160, Monitor::Uint16t);
-    m_pTempSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
     m_pTempSetBtn->setMonitorData(&m_usTempSet, Monitor::Uint16t);
+    m_pTempSetBtn->setCheckMode(2, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pTempSetBtn);
 
     //目标湿度设定
     m_pHumiSetBtn = new AnalogValButton(ui->frame);
-    m_pHumiSetBtn->setDataParameter("%", 1, 600, 1000, 0, Monitor::Uint16t);
-    m_pHumiSetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
+    m_pHumiSetBtn->setDataParameter("%", 1, 500, 1000, 0, Monitor::Uint16t);
     m_pHumiSetBtn->setMonitorData(&m_usHumiSet, Monitor::Uint16t);
+    m_pHumiSetBtn->setCheckMode(2, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pHumiSetBtn);
 
     //目标CO2设定
     m_pCO2SetBtn = new AnalogValButton(ui->frame);
-    m_pCO2SetBtn->setDataParameter("ppm", 1, 20000, 35000, 10000, Monitor::Uint16t);
-    m_pCO2SetBtn->setCheckMode(&pSystem->m_xIsLogIn, 1, "请先登录后再操作", Monitor::Boolean);
+    m_pCO2SetBtn->setDataParameter("ppm", 1, 20000, 30000, 10000, Monitor::Uint16t);
     m_pCO2SetBtn->setMonitorData(&m_usCO2Set, Monitor::Uint16t);
+    m_pCO2SetBtn->setCheckMode(2, &mBtnCheckData1, &mBtnCheckData2);
     m_Widgets.append(m_pCO2SetBtn);
 
     //机组状态
@@ -321,18 +328,21 @@ void ModularAir::initButton()
                                   DATA_LABEL_UP_MARGIN + n * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
-    connect(m_pExitAirSenErrLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(m_pFreAirSenErrLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(m_pCommErrLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(m_pAlarmFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(m_pModularStateLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(m_pControlModeLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(m_pRunningModeLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pExitAirSenErrLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pFreAirSenErrLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pCommErrLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pAlarmFlagLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pModularStateLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pControlModeLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pRunningModeLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
 
-
+    connect(m_pRecycleModeLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pWetModeLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pSupAirFanLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pExitAirFanLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
 }
 
-void ModularAir::stateChangedSlot(int32_t)
+void ModularAir::stateChangedSlot(void*)
 {
     if(m_sQFrameState.IsError != nullptr)
     {
@@ -373,4 +383,6 @@ void ModularAir::stateChangedSlot(int32_t)
             m_sQFrameState.IsRunning->hide();
         }
     }
+    m_usStateMask_1 = m_xAlarmFlag | (m_xCommErr << 1) | (m_xSupAirFan << 2) | (m_xExitAirFan << 3) |
+                      (m_xWetMode << 4) | (m_xRecycleMode << 5) | (m_xExitAirSenErr << 6) | (m_xFreAirSenErr << 7);
 }

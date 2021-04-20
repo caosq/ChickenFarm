@@ -103,10 +103,10 @@ void Curve::initLabel()
     _labelThird = new TextLabel(this);
     _labelFour = new TextLabel(this);
 
-    _labelFirst->setText(tr("室内温度"),12);
-    _labelSecond->setText(tr("室外温度"),12);
-    _labelThird->setText(tr("冷冻总管供水温度"),12);
-    _labelFour->setText(tr("冷冻总管回水温度"),15);
+    _labelFirst->setText(tr("室内温度"),16);
+    _labelSecond->setText(tr("室外温度"),16);
+    _labelThird->setText(tr("冷冻总管供水温度"),16);
+    _labelFour->setText(tr("冷冻总管回水温度"),16);
 
     _labelFirst->setGeometry(50,HY1,LABELSIZE);
     _labelSecond->setGeometry(200,HY1,LABELSIZE);
@@ -332,8 +332,8 @@ void Curve::on_tempButton_clicked()
     _labelThird->hide();
     _labelFour->hide();
 
-    _labelFirst->setText(tr("室内环境温度"),14);
-    _labelSecond->setText(tr("室外环境温度"),14);
+    _labelFirst->setText(tr("室内环境温度"),16);
+    _labelSecond->setText(tr("室外环境温度"),16);
 
     System::getInstance()->m_uiOffLogCount = 0;
 }
@@ -363,8 +363,8 @@ void Curve::on_humiButton_clicked()
     _labelThird->hide();
     _labelFour->hide();
 
-    _labelFirst->setText(tr("室内环境湿度"),14);
-    _labelSecond->setText(tr("室外环境湿度"),14);
+    _labelFirst->setText(tr("室内环境湿度"),16);
+    _labelSecond->setText(tr("室外环境湿度"),16);
 
      System::getInstance()->m_uiOffLogCount = 0;
 }
@@ -395,7 +395,7 @@ void Curve::on_co2Button_clicked()
     _labelThird->hide();
     _labelFour->hide();
 
-    _labelFirst->setText(tr("室内CO2浓度"),14);
+    _labelFirst->setText(tr("室内CO2浓度"),16);
     System::getInstance()->m_uiOffLogCount = 0;
 }
 
@@ -424,7 +424,7 @@ void Curve::on_airButton_clicked()
     _labelThird->hide();
     _labelFour->hide();
 
-    _labelFirst->setText(tr("系统新风量"),14);
+    _labelFirst->setText(tr("系统新风量"),16);
     System::getInstance()->m_uiOffLogCount = 0;
 }
 
@@ -453,10 +453,10 @@ void Curve::on_powerButton_clicked()
     _labelThird->show();
     _labelFour->show();
 
-    _labelFirst->setText(tr("机组耗电功率"),14);
-    _labelSecond->setText(tr("冷冻水泵耗电功率"),14);
-    _labelThird->setText(tr("1#组合柜耗电功率"),14);
-    _labelFour->setText(tr("2#组合柜耗电功率"),14);
+    _labelFirst->setText(tr("机组耗电功率"),16);
+    _labelSecond->setText(tr("冷冻水泵耗电功率"),16);
+    _labelThird->setText(tr("1#组合柜耗电功率"),16);
+    _labelFour->setText(tr("2#组合柜耗电功率"),16);
 
     System::getInstance()->m_uiOffLogCount = 0;
 

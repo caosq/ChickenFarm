@@ -22,7 +22,7 @@ void EventMonitor::registMonitorItem(void* pvVal, Monitor::DataType emDataType, 
 
     if(!m_eventItemMap.contains(pvVal))
     {
-        Monitor* pMonitor = DataMonitor::getInstance()->monitorRegist(pvVal, emDataType);
+        Monitor* pMonitor = DataMonitor::monitorRegist(pvVal, emDataType);
         if(pMonitor)
         {
             connect(pMonitor, SIGNAL(valChanged(Monitor*)), this, SLOT(valChangedSlot(Monitor*)));

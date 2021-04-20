@@ -22,10 +22,10 @@
 #define DATA_LABEL_INTERVAL_H   220
 #define DATA_LABEL_INTERVAL_V   35
 
-#define COLOR_STATE_COOL         "#00BBFF"
+#define COLOR_STATE_COOL         "#00FFFF"
 #define COLOR_STATE_HEAT         "#FF5511"
 #define COLOR_STATE_FAN          "#00FF00"
-#define COLOR_STATE_NEGATICE_FAN "#40E0D0"
+#define COLOR_STATE_NEGATICE_FAN "#FFBB66"
 #define COLOR_STATE_EX_FAN       "#EE82EE"
 #define COLOR_STATE_DEFROST      "#87CEFA"
 #define COLOR_STATE_ANTI_FREEZE  "#FFFF00"
@@ -69,8 +69,8 @@ void Modular::initLabel()
     m_Labels[2]->setText(tr("出水温度"), LABEL_FONT_SIZE);
     m_Labels[3]->setText(tr("运行标志"), LABEL_FONT_SIZE);
     m_Labels[4]->setText(tr("水流开关"), LABEL_FONT_SIZE);
-    m_Labels[5]->setText(tr("总报警标志"), LABEL_FONT_SIZE);
-    m_Labels[6]->setText(tr("总故障标志"), LABEL_FONT_SIZE);
+    m_Labels[5]->setText(tr("总故障标志"), LABEL_FONT_SIZE);
+    m_Labels[6]->setText(tr("总报警标志"), LABEL_FONT_SIZE);
     m_Labels[7]->setText(tr("压缩机1"), LABEL_FONT_SIZE);
     m_Labels[8]->setText(tr("压缩机2"), LABEL_FONT_SIZE);
 
@@ -162,12 +162,12 @@ void Modular::initButton()
                                   DATA_LABEL_UP_MARGIN + m * DATA_LABEL_INTERVAL_V,
                                   DATA_LABEL_SIZE);
     }
-    connect(m_pErrorFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(m_pAlarmFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
-    connect(m_pRunningFlagLabel, SIGNAL(valChanged(int32_t)), this, SLOT(stateChangedSlot(int32_t)));
+    connect(m_pErrorFlagLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pAlarmFlagLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
+    connect(m_pRunningFlagLabel, SIGNAL(valChanged(void*)), this, SLOT(stateChangedSlot(void*)));
 }
 
-void Modular::stateChangedSlot(int32_t)
+void Modular::stateChangedSlot(void*)
 {
     if(m_sQFrameState.IsError != nullptr)
     {

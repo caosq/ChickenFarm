@@ -84,7 +84,7 @@ extern "C" {
 #define MB_MASTER_SCAN_TASK_STK_SIZE        160
 #define MB_MASTER_HEART_BEAT_TASK_STK_SIZE  160
 
-#define MB_MASTER_WAITING_DELAY             1000    //主栈等待响应时间
+//#define MB_MASTER_WAITING_DELAY             1000    //主栈等待响应时间
 #define MB_MASTER_HEART_BEAT_DELAY_MS       100   //心跳延时
 
 /* ----------------------- Type definitions ---------------------------------*/
@@ -127,8 +127,10 @@ typedef enum
 {
     STATE_HEART_BEAT,            //心跳模式
     STATE_SCAN_DEV,              //主栈轮询从设备模式
+    STATE_SCAN_DTU,              //主栈轮询GPRS模块模式
     STATE_TEST_DEV,              //主栈测试从设备模式
     STATE_SYSN_DEV,              //主栈同步从设备数据模式
+
 }eMasterRunMode;
 
 
@@ -153,21 +155,20 @@ typedef struct                 /* master poll task information */
 #elif MB_LINUX_ENABLED
     pthread_t            sMBPollTask;               //主栈状态机任务信息
     pthread_t            sMBScanTask;               //主栈轮询任务信息
+
+#if MB_MASTER_DTU_ENABLED > 0     //GPRS模块功能支持
+    pthread_t            sMBScanDTUTask;            //主栈轮询DTU任务信息
+#endif
+
 #endif
 
 }sMBMasterTask;
 
-#if MB_MASTER_DTU_ENABLED > 0     //GPRS模块功能支持
-typedef  void (*pvDTUScanDev)(void* p_arg);   
-#endif 
-
 
 typedef struct sMBMasterInfo  /* master information */
 {
-#if MB_MASTER_DTU_ENABLED > 0     //GPRS模块功能支持
-    BOOL                bDTUEnable;    
-    pvDTUScanDev        pvDTUScanDevCallBack; ;        //DTU模块轮询回调
-#endif    
+
+    BOOL                bDTUEnable;
 
     eMBMode             eMode;                         //MODBUS模式:    RTU模式   ASCII模式   TCP模式
     eMBState            eMBState;                      //主栈状态
@@ -186,8 +187,7 @@ typedef struct sMBMasterInfo  /* master information */
     UCHAR*              pucMasterPDUCur;               //当前发送帧PDU数据域指针
     UCHAR               ucMBDestAddr;                  //当前从设备地址
    
-    BOOL                xFrameIsBroadcast;             //是否为广播帧
-    
+    BOOL                xFrameIsBroadcast;             //是否为广播帧   
 #if MB_MASTER_RTU_ENABLED > 0         //RTU mode information
     UCHAR               ucRTUSndBuf[MB_PDU_SIZE_MAX];         //发送缓冲区
     UCHAR               ucRTURcvBuf[MB_SER_PDU_SIZE_MAX];     //接收缓冲区
@@ -215,7 +215,6 @@ typedef struct                 /* 主栈节点配置信息 */
     UCHAR       ucMaxAddr;
 
     BOOL        bDTUEnable;
-
 #if MB_UCOSIII_ENABLED
 
 #if MB_MASTER_HEART_BEAT_ENABLED > 0

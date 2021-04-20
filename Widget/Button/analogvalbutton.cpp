@@ -22,7 +22,7 @@ AnalogValButton::AnalogValButton(QWidget *parent) :
     m_ucDecPoint = 0;
     m_eDataType = Monitor::Uint16t;
 
-    defValState = true;
+    defValState = false;
     enableValMarker = true;
     save = true;
     automaticAttack = true;
@@ -55,9 +55,9 @@ AnalogValButton *AnalogValButton::forefather()
     return father;
 }
 
-bool AnalogValButton::setMonitorData(void* pvVal, Monitor::DataType emDataType)
+bool AnalogValButton::setMonitorData(void* pvVal, Monitor::DataType emDataType, bool xSyncMode)
 {
-    m_pMonitor = DataMonitor::monitorRegist(pvVal, emDataType, m_iMaxVal, m_iMinVal);
+    m_pMonitor = DataMonitor::monitorRegist(pvVal, emDataType, m_iMaxVal, m_iMinVal, xSyncMode);
 
     if(m_pMonitor != nullptr)
     {
@@ -247,7 +247,7 @@ void AnalogValButton::setValue(Monitor* pMonitor)
     }
     setText(m_strCurrentText);
 
-    emit valChanged(m_iCurrentVal);
+    emit valChanged(this);
     update();
 }
 
@@ -262,7 +262,7 @@ void AnalogValButton::setValue(int32_t val)
         int32_t tempval = static_cast<int32_t>(val);
         m_iCurrentVal = static_cast<int32_t>(val);
 
-        defValState = (tempval == val) ? true:false;
+        defValState = (m_iDefaultVal == tempval) ? true:false;
         m_strCurrentText = QString::number( val/qPow(10, m_ucDecPoint), '.', m_ucDecPoint).append("  ").append(m_strUnit );
     }
         break;
@@ -302,7 +302,7 @@ void AnalogValButton::setValue(int32_t val)
     }
     else
     {
-        emit valChanged(m_iCurrentVal);
+        emit valChanged(this);
     }
     setText(m_strCurrentText);
     update();

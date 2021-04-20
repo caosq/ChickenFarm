@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <pthread.h>
 #include "device.h"
+#include "datasave.h"
 
 #include <QObject>
 #include <QMap>
@@ -29,7 +30,7 @@ public:
         Uint32t,
     };
 
-    explicit  Monitor(void* pvVal, DataType eDataType, uint32_t uiDataId, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
+    explicit  Monitor(void* pvVal, DataType eDataType, uint32_t uiDataId, int32_t iMaxVal = 65535, int32_t iMinVal = -65535, bool xSyncMode = false);
 
     friend class DataMonitor;
 
@@ -43,13 +44,13 @@ public:
     void*    getValueAddr();
 
 private:
-
-    int32_t    m_iMaxVal = 0;
-    int32_t    m_iMinVal = 0;
-    int32_t    m_iDataVal = 0;     //数据值
-    uint32_t   m_uiDataId = 0;     //数据ID
-    void*      m_pvVal = nullptr;
-    DataType   m_DataType = Uint16t;  //数据类型
+    int32_t  m_iMaxVal = 0;
+    int32_t  m_iMinVal = 0;
+    int32_t  m_iDataVal = 0;     //数据值
+    uint32_t m_uiDataId = 0;     //数据ID
+    void*    m_pvVal = nullptr;
+    DataType m_DataType = Uint16t; //数据类型
+    bool     m_xSyncMode = false;  //掉电记忆
 
 signals:
     void valChanged(Monitor*);
@@ -81,16 +82,15 @@ public:
     static uint16_t g_usMonitorID;
     static sMonitorMapList*  g_psMonitorMapList;
 
-    static Monitor* monitorRegist(void* pvVal, Monitor::DataType emDataType, int32_t iMaxVal = 65535, int32_t iMinVal = -65535);
+    static Monitor* monitorRegist(void* pvVal, Monitor::DataType emDataType, int32_t iMaxVal = 65535, int32_t iMinVal = -65535, bool xSyncMode = false);
     static void* monitorPollTask(void *pvArg);
-    static DataMonitor* getInstance();
+    static DataSave* readFile();
 
 private:
     static QMap<void* , Monitor*> g_Monitors;
 
     explicit DataMonitor(QObject *parent = nullptr);
-    static DataMonitor*  g_pDataMonitor;
-
+    static DataSave *g_pSyncFile;
 };
 
 

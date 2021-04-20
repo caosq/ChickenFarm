@@ -46,10 +46,10 @@ void PressureSensor::initLabel()
 
 void PressureSensor::initButton()
 {
-    //温度
+    //压力
     m_pPressureLabel = new DataLabel(ui->frame, DataLabel::Data);
     m_pPressureLabel->setAlignment(Qt::AlignLeft);
-    m_pPressureLabel->setDataParameter("kPa", 0, Monitor::Uint16t);
+    m_pPressureLabel->setDataParameter("kPa", 1, Monitor::Uint16t);
     m_pPressureLabel->setMonitorData(&m_usPressure, Monitor::Uint16t);
     m_Widgets.append(m_pPressureLabel);
 

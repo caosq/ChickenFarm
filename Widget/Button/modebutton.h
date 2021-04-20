@@ -149,7 +149,6 @@ private slots:
 
 signals:
     void fontChange();
-    void valChanged(int32_t val);
 
 private:
     Monitor*    m_pMonitor;
@@ -166,12 +165,7 @@ private:
     bool automaticAttack;
 
     Monitor::DataType _dtype;
-
     privateMenu *_menu;
-
-    int defVal;
-    int currentValue;
-
     QString currentText;
 
     Qt::Alignment _alignmentFlag;

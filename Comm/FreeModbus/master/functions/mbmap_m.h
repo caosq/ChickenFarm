@@ -89,6 +89,7 @@ extern "C" {
         vMBMasterDevRegHoldDataInit(static_cast<sMasterRegHoldData*>(pvDataBuf) + usIndex, \
         arg1, arg2, arg3, arg4, arg5, arg6, arg7, static_cast<void*>(&arg8)); \
         usIndex++; \
+        if(pDaTableIndex != NULL) \
         pDaTableIndex[arg1] = usIndex;
 
 //输入寄存器数据申请
@@ -97,6 +98,7 @@ extern "C" {
         arg1, arg2, arg3, arg4, arg5, arg6, static_cast<void*>(&arg7)); \
         pDaTableIndex[arg1] = usIndex; \
         usIndex++; \
+        if(pDaTableIndex != NULL) \
         pDaTableIndex[arg1] = usIndex;
 
 //线圈数据申请
@@ -104,6 +106,7 @@ extern "C" {
         vMBMasterDevCoilDataInit(static_cast<sMasterBitCoilData*>(pvDataBuf) + usIndex, \
         arg1, arg2, arg3, static_cast<void*>(&arg4)); \
         usIndex++; \
+        if(pDaTableIndex != NULL) \
         pDaTableIndex[arg1] = usIndex;
 
 //离散量数据申请
@@ -111,6 +114,7 @@ extern "C" {
         vMBMasterDevDiscDataInit(static_cast<sMasterBitDiscData*>(pvDataBuf) + usIndex, \
         arg1, arg2, static_cast<void*>(&arg3)); \
         usIndex++; \
+        if(pDaTableIndex != NULL) \
         pDaTableIndex[arg1] = usIndex;
 
 //结束数据表申请

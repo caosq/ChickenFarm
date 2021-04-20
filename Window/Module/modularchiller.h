@@ -50,13 +50,18 @@ public:
     int16_t   m_sRetWaterTemp = 0;            //平均回水温度
     uint16_t  m_usChillerCoolInTemp = 120;    //机组制冷进水温度设定值
     uint16_t  m_usChillerCoolOutTemp = 70;    //机组制冷出水温度设定值
-    uint16_t  m_usChillerHeatInTemp = 450;    //机组制热进水温度设定值
-    uint16_t  m_usChillerHeatOutTemp = 500;   //机组制热出水温度设定值
+    uint16_t  m_usChillerHeatInTemp = 400;    //机组制热进水温度设定值
+    uint16_t  m_usChillerHeatOutTemp = 450;   //机组制热出水温度设定值
+
+    uint16_t  m_usStateMask_1 = 0;            //状态标志1
+    uint16_t  m_usStateMask_2 = 0;            //状态标志2
+    uint16_t  m_usStateMask_3 = 0;            //状态标志3
 
     bool      m_xCommErr = 0;             //通讯故障
     bool      m_xErrClean = 0;            //故障清除
 
     QVector<Modular*>  m_Modulars;
+
     uint16_t  m_usModularNum = 0;
     static uint8_t  m_usModularChillerCount;  //机组数量
 
@@ -85,8 +90,7 @@ public:
     ~ModularChiller();
 
 private slots:
-    void stateChangedSlot(int32_t);
-    void systemDataChangedSlot();
+    void stateChangedSlot(void*);
     void on_pushButton_clicked();
 
 private:

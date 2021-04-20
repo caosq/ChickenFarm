@@ -1,5 +1,5 @@
-#ifndef DATASAVE_H
-#define DATASAVE_H
+#ifndef DataSave_H
+#define DataSave_H
 
 #include <QObject>
 #include <QFile>
@@ -9,11 +9,11 @@
 #include <QVector>
 #include <QTimer>
 
-class dataSave : public QSettings
+class DataSave : public QSettings
 {
     Q_OBJECT
 public:
-    explicit dataSave(const QString &fileName, Format format, QObject *parent = 0);
+    explicit DataSave(const QString &fileName, Format format, QObject *parent = 0);
 
     //设置单个数据，会立即保存
     void setValue(const QString &key, const QVariant &value);
@@ -47,4 +47,4 @@ private slots:
     
 };
 
-#endif // DATASAVE_H
+#endif // DataSave_H

@@ -19,6 +19,7 @@ public:
     sMBSlaveDev  m_sMBSlaveDev;   //本通讯设备
     bool m_xCommErr = false;      //通讯故障
     bool m_xOffline = false;      //设备掉线
+    bool m_xSynchronizing = false; //设备正在同步
 
 public:
     explicit Controller(QObject *parent = nullptr);

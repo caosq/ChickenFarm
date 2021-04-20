@@ -1,5 +1,5 @@
-#ifndef _USER_MB_DICT_M_H
-#define _USER_MB_DICT_M_H
+#ifndef _MB_DICT_M_H
+#define _MB_DICT_M_H
 
 #include "mbframe.h"
 #include "mbconfig.h"
@@ -193,9 +193,15 @@ typedef struct    /* 主栈从设备状态结构  */
     UCHAR         ucSlaveDevCount;    //从设备总数量
     UCHAR         ucSlaveDevMinAddr;  //从设备最小通讯地址
     UCHAR         ucSlaveDevMaxAddr;  //从设备最大通讯地址
-   
+
     sMBSlaveDev*  psMBSlaveDevsList;  //当前在线从设备列表
     sMBSlaveDev*  psMBSlaveDevCur;    //当前活动的设备
+
+#if MB_MASTER_DTU_ENABLED > 0     //GPRS模块功能支持
+    sMBSlaveDev*  psMBDTUDev247;
+    sMBSlaveDev*  psMBDTUDev200;
+#endif
+
        
 }sMBMasterDevsInfo; 
 

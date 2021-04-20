@@ -55,7 +55,9 @@ public:
 
 private slots:
     void systemDataChangedSlot();
-    void paramSetBtnValChanged(int32_t val);
+
+    void paramSetBtnValChanged(void*);
+
     void on_pushButton_clicked();
 
 private:

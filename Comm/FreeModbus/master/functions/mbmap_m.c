@@ -16,7 +16,6 @@ eMBMasterReqErrCode eMBMasterRegInMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSnd
                                       USHORT usRegAddr, sMasterRegInData ** pvRegInValue)
 {
 	USHORT usIndex;
-	
     sMBSlaveDev*        psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;     //当前从设备
     sMBDevDataTable*     psMBRegInTable = &psMBSlaveDevCur->psDevCurData->sMBRegInTable;
 
@@ -49,9 +48,10 @@ eMBMasterReqErrCode eMBMasterRegInMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSnd
     {
          return MB_MRE_EILLSTATE;
     }
-    if( *(psMBSlaveDevCur->psDevCurData->pRegInIndex + usCoilAddr) != 65535)  //映射值非法
+    usIndex = *(psMBSlaveDevCur->psDevCurData->pRegInIndex + usRegAddr);
+    if(usIndex > 0 && psMBRegInTable->usStartAddr <= usIndex-1 && usIndex-1 <= psMBRegInTable->usEndAddr)  //有效映射值
     {
-        *pvRegInValue = (sMasterRegInData*)(psMBRegInTable->pvDataBuf) + *(psMBSlaveDevCur->psDevCurData->pRegInIndex + usRegAddr);
+        *pvRegInValue = (sMasterRegInData*)(psMBRegInTable->pvDataBuf) + usIndex - 1;
     }
     else
     {

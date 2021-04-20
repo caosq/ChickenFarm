@@ -22,6 +22,7 @@ public:
 
     uint16_t  m_usFreqSet = 0;         //频率设置
     uint16_t  m_usFreq = 0;            //频率反馈
+    uint16_t  m_usStateMask = 0;     //状态标志
 
     bool      m_xSwitchCmd = 0;        //启停命令
     bool      m_xRemote = 0;           //远程/本地
@@ -50,7 +51,7 @@ private:
     void initButton();
 
 private slots:
-    void stateChangedSlot(int32_t);
+    void stateChangedSlot(void*);
 
 public:
     explicit ChilledBump(QWidget *parent = nullptr);

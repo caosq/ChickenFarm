@@ -3,6 +3,7 @@
 #include "ui_mainform.h"
 
 #include <QTextCodec>
+//#include <QWSServer>
 #include <QBrush>
 #include <QLocale>
 #include "password.h"
@@ -26,6 +27,7 @@
 //#define MB_PIX2 ":UI/baseFile/mbPix2.png"
 #define MB_PIX2 ":UI/Frame/combobox.png"
 
+#define US_CODEC_FOR_TR "utf-8"
 
 MainForm::MainForm(QWidget *parent) :
     QWidget(parent),
@@ -40,6 +42,8 @@ MainForm::MainForm(QWidget *parent) :
     initLabel();
     initButton();
     initForm();
+
+    //ui->frame_2->hide();
 }
 
 MainForm::~MainForm()
@@ -57,7 +61,7 @@ void MainForm::initLabel()
     m_pTitleLabel->setText("");
 
     pe.setColor(QPalette::WindowText,Qt::white);
-    font.setPointSize(14);//字体大小
+    font.setPointSize(18);//字体大小
     m_pTitleLabel->setPalette(pe);
     m_pTitleLabel->setFont(font);
 
@@ -70,15 +74,24 @@ void MainForm::initLabel()
 
 void MainForm::initButton()
 {
+    //设置全局tr编码
+    QTextCodec::setCodecForTr(QTextCodec::codecForName(US_CODEC_FOR_TR));
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf-8"));
+    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
+
+    //QWSServer::setCursorVisible(false);
+
     AnalogValButton::forefather()->setFatherPixmap(AnalogValButton::press,AB_PRESS_PIX);
     AnalogValButton::forefather()->setFatherPixmap(AnalogValButton::release,AB_RELEASE_PIX);
 
     StateButton::forefather()->setFatherPixmap(StateButton::State0, SBUTTON_STATE0);
     StateButton::forefather()->setFatherPixmap(StateButton::State1, SBUTTON_STATE1);
-    StateButton::forefather()->setFatherFontSize(14);
+    StateButton::forefather()->setFatherFontSize(16);
 
     ModeButton::forefather()->setFatherPixmap(MB_PIX2);
-    ModeButton::forefather()->setFatherFontSize(14);
+    ModeButton::forefather()->setFatherFontSize(16);
+
+    TextLabel::forefather()->setFatherFontSize(16);
 
     //设置通用按键图标
     ubutton::forefather()->setFatherPixmap(ubutton::press,UB_PRESS_PIX);
@@ -116,6 +129,7 @@ void MainForm::initForm()
     //m_pLogLabel->setText("触摸屏与控制器通讯故障");
 
     connect(System::getInstance(), SIGNAL(systemTimeChanged()), this, SLOT(systemTimeChangedSlot()));
+    connect(System::getInstance(), SIGNAL(systemLogChanged(bool)), this, SLOT(systemLogChangedSlot(bool)));
 }
 
 void MainForm::systemTimeChangedSlot()
@@ -134,6 +148,18 @@ void MainForm::systemTimeChangedSlot()
     {
         //ui->mainStackedWidget->setCurrentWidget(&m_Home);
         ui->pushButton->setText("用户登录");
+    }
+
+    //ui->mainStackedWidget->setCurrentIndex(System::getInstance()->s++);
+    //if(System::getInstance()->s == 3){System::getInstance()->s = 0;}
+}
+
+void MainForm::systemLogChangedSlot(bool)
+{
+    if(!System::getInstance()->m_xIsLogIn)
+    {
+        ui->mainStackedWidget->setCurrentWidget(&m_Home);
+         //system("echo 0 > /sys/class/pwm/ehrpwm.1:0/run");
     }
 }
 
@@ -158,7 +184,7 @@ void MainForm::on_paraButton_clicked()
         System::getInstance()->m_uiOffLogCount = 0;
         ui->mainStackedWidget->setCurrentWidget(&m_Setting);
         m_pTitleLabel->setText("参数设置");
-        emit System::getInstance()->systemStackChanged(ui->mainStackedWidget->currentIndex());
+        System::getInstance()->systemStackChanged(ui->mainStackedWidget->currentIndex());
     }
 }
 

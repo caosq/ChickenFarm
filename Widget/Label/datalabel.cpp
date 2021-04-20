@@ -491,7 +491,7 @@ void DataLabel::setValue(Monitor* pMonitor)
     }
         break;
     }
-    emit valChanged(val);
+    emit valChanged(this);
 }
 
 void DataLabel::setValue(int32_t val)
@@ -525,7 +525,7 @@ void DataLabel::setValue(int32_t val)
     }
     else
     {
-        emit valChanged(val);
+        emit valChanged(this);
     }
 }
 

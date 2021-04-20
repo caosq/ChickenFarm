@@ -36,6 +36,7 @@ public:
         RUN_MODE_FAN          = 1,      //通风
         RUN_MODE_HEAT         = 2,      //供热
         RUN_MODE_NEGATICE_FAN = 3,      //负压通风
+        RUN_MODE_AUTO         = 4,      //自动
     }RunningMode;
 
     typedef enum   /*机组状态*/
@@ -72,7 +73,7 @@ public:
     ControlMode   m_eControlMode = MODE_LOCATE;          //机组控制模式
 
     uint16_t      m_usTempSet = 240;         //目标温度设定
-    uint16_t      m_usHumiSet = 600;          //目标湿度设定
+    uint16_t      m_usHumiSet = 500;          //目标湿度设定
     uint16_t      m_usCO2Set = 20000;         //目标CO2设定
 
     uint16_t      m_usExitAirDamperAng = 0;      //排风阀当前开度
@@ -94,6 +95,9 @@ public:
     uint16_t      m_usPower= 0;                 //实时功率
     uint16_t      m_usTotalEnergy_L = 0;         //累计耗电量低位
     uint16_t      m_usTotalEnergy_H = 0;         //累计耗电量高位
+
+    uint16_t      m_usStateMask_1 = 0;            //状态标志1
+    uint16_t      m_usStateMask_2 = 0;            //状态标志2
 
     bool          m_xRecycleMode = 0;             //转轮回收
     bool          m_xWetMode = 0;                 //湿膜加湿
@@ -159,7 +163,7 @@ private:
     void initButton();
 
 private slots:
-     void stateChangedSlot(int32_t);
+     void stateChangedSlot(void*);
 
 public:
     explicit ModularAir(QWidget *parent = nullptr);

@@ -39,7 +39,7 @@ public:
 
     //设置字号大小
     void setTextSize(int size);
-    void setTextSize(textControl::textSize size = textControl::size18);
+    void setTextSize(textControl::textSize size = textControl::size20);
 
     //统一设置字号大小
     void setFatherFontSize(int size);
@@ -47,7 +47,7 @@ private:
     static TextLabel   *father;
     static QFont    fatherFont;
 
-    int m_iTextSize = 14;
+    int m_iTextSize = 16;
 
 private slots:
     void fontSlot();
