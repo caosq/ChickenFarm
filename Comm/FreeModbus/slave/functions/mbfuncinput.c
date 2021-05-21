@@ -44,8 +44,6 @@
 #include "mbdict.h"
 #include "mbmap.h"
 
-#if MB_SLAVE_RTU_ENABLED > 0 || MB_SLAVE_ASCII_ENABLED > 0 
-
 /* ----------------------- Defines ------------------------------------------*/
 #define MB_PDU_FUNC_READ_ADDR_OFF           ( MB_PDU_DATA_OFF )
 #define MB_PDU_FUNC_READ_REGCNT_OFF         ( MB_PDU_DATA_OFF + 2 )
@@ -57,7 +55,7 @@
 
 /* ----------------------- Start implementation -----------------------------*/
 
-#if MB_FUNC_READ_INPUT_ENABLED > 0
+#if MB_FUNC_READ_INPUT_ENABLED
 /***********************************************************************************
  * @brief 读输入寄存器功能函数
  * @param pucFrame       Modbus的PDU缓冲区数据指针
@@ -77,7 +75,6 @@ eMBSlaveFuncReadInputRegister(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USHO
     {
         usRegAddress  = (USHORT)( pucFrame[MB_PDU_FUNC_READ_ADDR_OFF] << 8 );
         usRegAddress |= (USHORT)( pucFrame[MB_PDU_FUNC_READ_ADDR_OFF + 1] );
-        usRegAddress++;
 
         usRegCount  = (USHORT)( pucFrame[MB_PDU_FUNC_READ_REGCNT_OFF] << 8 );
         usRegCount |= (USHORT)( pucFrame[MB_PDU_FUNC_READ_REGCNT_OFF + 1] );
@@ -139,21 +136,23 @@ eMBSlaveRegInputCB(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRegBuffer, USHORT usAd
 {
     USHORT iRegIndex, usRegInValue, REG_INPUT_START, REG_INPUT_END;
     
-    eMBErrorCode           eStatus = MB_ENOERR;
+    eMBErrorCode eStatus = MB_ENOERR;
 	sMBSlaveRegData*  pvRegInValue = NULL;
 	
     sMBSlaveDataTable* psMBRegInTable = &psMBSlaveInfo->sMBCommInfo.psSlaveCurData->sMBRegInTable;  //从栈通讯协议表
   
+    if( (psMBRegInTable == NULL) || (psMBRegInTable->pvDataBuf == NULL) ||
+        (psMBRegInTable->usDataCount == 0)) //非空且数据点不为0
+    {
+        return MB_ENOREG;
+    }
     REG_INPUT_START = psMBRegInTable->usStartAddr;
     REG_INPUT_END = psMBRegInTable->usEndAddr;
 
-    /* it already plus one in modbus function method. */
-    usAddress--;
     if( (usAddress < REG_INPUT_START) || (usAddress + usNRegs -1 > REG_INPUT_END) )
     { 
         return MB_ENOREG;
     }
-    
     iRegIndex = usAddress ;
     while (usNRegs > 0)
     {
@@ -181,9 +180,9 @@ eMBSlaveRegInputCB(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRegBuffer, USHORT usAd
             {
                 usRegInValue = (USHORT)(*(int8_t*)pvRegInValue->pvValue);
             }
-            if( (pvRegInValue->fTransmitMultiple != 0.0f) && (pvRegInValue->fTransmitMultiple != 1.0f) )
+            if( (pvRegInValue->ucTmitMult != 0) && (pvRegInValue->ucTmitMult != 1) )
             {
-                usRegInValue = (USHORT)((float)usRegInValue * (float)pvRegInValue->fTransmitMultiple);     //传输因子
+                usRegInValue = (USHORT)(usRegInValue * pvRegInValue->ucTmitMult);     //传输因子
             }  
             *pucRegBuffer++ = (UCHAR)(usRegInValue >> 8);
             *pucRegBuffer++ = (UCHAR)(usRegInValue & 0xFF);	
@@ -200,4 +199,3 @@ eMBSlaveRegInputCB(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRegBuffer, USHORT usAd
 }
 #endif
 
-#endif

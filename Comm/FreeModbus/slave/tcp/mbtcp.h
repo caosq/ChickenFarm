@@ -31,23 +31,30 @@
 #ifndef _MB_TCP_H
 #define _MB_TCP_H
 
+#include "mb.h"
+
 #ifdef __cplusplus
-PR_BEGIN_EXTERN_C
+extern "C" {
 #endif
 
 /* ----------------------- Defines ------------------------------------------*/
 #define MB_TCP_PSEUDO_ADDRESS   255
 
+#if MB_SLAVE_TCP_ENABLED    
 /* ----------------------- Function prototypes ------------------------------*/
-    eMBErrorCode eMBTCPDoInit( USHORT ucTCPPort );
-void            eMBTCPStart( void );
-void            eMBTCPStop( void );
-eMBErrorCode    eMBTCPReceive( UCHAR * pucRcvAddress, UCHAR ** pucFrame,
-                               USHORT * pusLength );
-eMBErrorCode    eMBTCPSend( UCHAR _unused, const UCHAR * pucFrame,
-                            USHORT usLength );
+BOOL xMBSlaveTCPServerInit(sMBSlaveTcpInfo *psMBSlaveTcpInfo);
 
+void vMBSlaveTCPStart(sMBSlaveInfo* psMBSlaveInfo);
+void vMBSlaveTCPStop(sMBSlaveInfo* psMBSlaveInfo);
+
+void vMBSlaveTCPGetRequest(sMBSlaveInfo* psMBSlaveInfo);
+
+eMBErrorCode eMBSlaveTCPReceive(sMBSlaveInfo* psMBSlaveInfo, UCHAR *pucRcvAddr, UCHAR **pucFrame, USHORT *pusLength);
+eMBErrorCode eMBSlaveTCPSend(sMBSlaveInfo* psMBSlaveInfo, UCHAR _unused, const UCHAR *pucFrame, USHORT usLength);
+    
+#endif
+    
 #ifdef __cplusplus
-PR_END_EXTERN_C
+}
 #endif
 #endif

@@ -12,21 +12,27 @@
  * @param   *Uart   UART
  * @return	none
  *********************************************************************/
-uint8_t xMB_UartInit(const sUART_Def *Uart)
+uint8_t xMB_UartInit(const sUART_Def *Uart, int fd)
 {
     struct termios tios = {0};
     speed_t speed;
+    int32_t err;
 
     struct serial_rs485 rs485conf;
 
     rs485conf.flags |= SER_RS485_ENABLED;
     rs485conf.flags |= SER_RS485_RTS_ON_SEND;
     //rs485conf.flags &= ~(SER_RS485_RTS_ON_SEND);
-    //rs485conf.flags |= (SER_RS485_RTS_AFTER_SEND);
-    //rs485conf.flags &= ~SER_RS485_RX_DURING_TX;
-    //rs485conf.delay_rts_after_send = 0;
 
-    ioctl(Uart->fd, TIOCSRS485, &rs485conf);
+    rs485conf.flags &= ~(SER_RS485_RTS_AFTER_SEND);
+    //rs485conf.flags rs485conf.flags |= SER_RS485_RX_DURING_TX;
+
+    rs485conf.delay_rts_after_send = 0;
+
+    if( (err = ioctl(fd, TIOCSRS485, &rs485conf) )< 0 )
+    {
+       printf("ioctl error %d\n", err);
+    }
 
         //printf("ioctl error\n");
 //        close(Uart->fd);
@@ -74,6 +80,7 @@ uint8_t xMB_UartInit(const sUART_Def *Uart)
 	/* Set the baud rate */
 	if((cfsetispeed(&tios, speed) < 0) || (cfsetospeed(&tios, speed) < 0))
     {
+        printf("cfsetispeed error\n");
 		return 0;
 	}
     /* C_CFLAG      Control options
@@ -248,10 +255,11 @@ uint8_t xMB_UartInit(const sUART_Def *Uart)
 	tios.c_cc[VMIN] = 0;
 	tios.c_cc[VTIME] = 0;
 
-    tcflush(Uart->fd, TCIOFLUSH);
+    tcflush(fd, TCIOFLUSH);
 
-    if (tcsetattr(Uart->fd, TCSANOW, &tios) < 0)
+    if( (err = tcsetattr(fd, TCSANOW, &tios) )< 0)
     {
+        printf("tcsetattr error %d \n", err);
         return 0;
     }
     return 1;
@@ -264,7 +272,22 @@ uint8_t xMB_UartInit(const sUART_Def *Uart)
  * 					1：发送
  * @return	none
  *********************************************************************/
-void MB_SendOrRecive(const sUART_Def *Uart, eUART_EN mode)
+void MB_SendOrRecive(const sUART_Def *Uart, eUART_EN mode, int fd)
 {
-	
+    struct serial_rs485 rs485conf;
+    int32_t err;
+
+    rs485conf.flags |= SER_RS485_ENABLED;
+    if(mode == UART_TX_EN)
+    {
+        rs485conf.flags |= SER_RS485_RTS_ON_SEND;
+    }
+    else if(mode == UART_RX_EN)
+    {
+        rs485conf.flags &= ~(SER_RS485_RTS_ON_SEND);
+    }
+    if( (err = ioctl(fd, TIOCSRS485, &rs485conf) )< 0 )
+    {
+       printf("ioctl error %d\n", err);
+    }
 }

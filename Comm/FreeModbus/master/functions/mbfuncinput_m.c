@@ -57,9 +57,9 @@
 #define MB_PDU_FUNC_READ_RSP_BYTECNT_OFF    ( MB_PDU_DATA_OFF )
 
 /* ----------------------- Start implementation -----------------------------*/
-#if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
+#if MB_MASTER_RTU_ENABLED || MB_MASTER_ASCII_ENABLED || MB_MASTER_TCP_ENABLED
 
-#if MB_FUNC_READ_INPUT_ENABLED > 0
+#if MB_FUNC_READ_INPUT_ENABLED
  /***********************************************************************************
  * @brief  主栈读输入寄存器
  * @param  ucSndAddr      从栈地址
@@ -70,7 +70,9 @@
  * @author laoc
  * @date 2019.01.22
  *************************************************************************************/
-eMBMasterReqErrCode eMBMasterReqReadInputRegister(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, USHORT usRegAddr, USHORT usNRegs, ULONG ulTimeOut)
+eMBMasterReqErrCode 
+eMBMasterReqReadInputRegister(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, 
+                              USHORT usRegAddr, USHORT usNRegs, ULONG ulTimeOut)
 {
     UCHAR               *pucMBFrame  = NULL;
 	sMBMasterDevsInfo*  psMBDevsInfo = &psMBMasterInfo->sMBDevsInfo;    //从设备状态信息
@@ -168,35 +170,40 @@ eMBMasterFuncReadInputRegister(sMBMasterInfo* psMBMasterInfo, UCHAR* pucFrame, U
  *
  * @return result
  */
-eMBErrorCode eMBMasterRegInputCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegBuffer, USHORT usAddress, USHORT usNRegs)
+eMBErrorCode 
+eMBMasterRegInputCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegBuffer, USHORT usAddress, USHORT usNRegs)
 {
-    USHORT          iRegIndex, REG_INPUT_START, REG_INPUT_END;
+    USHORT iRegIndex, REG_INPUT_START, REG_INPUT_END;
     
-	USHORT          usRegInValue;
-	SHORT           sRegInValue;
-	CHAR            cRegInValue;
+	USHORT usRegInValue;
+	SHORT sRegInValue;
+	CHAR cRegInValue;
     
-	eMBErrorCode            eStatus = MB_ENOERR;
+	eMBErrorCode eStatus = MB_ENOERR;
 	sMasterRegInData*  pvRegInValue = NULL;
+    
+    sMBDevDataTable* psMBRegInTable = NULL;
+    sMBSlaveDev* psMBSlaveDevCur = NULL;
+    UCHAR ucMBDestAddr = 1;
     
     if(psMBMasterInfo->eMBRunMode != STATE_SCAN_DEV && psMBMasterInfo->eMBRunMode != STATE_SCAN_DTU) //非轮询从设备模式
     {
         return MB_ENOERR;
     }	
-    sMBSlaveDev*      psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur ;     //当前从设备
+    psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur ;     //当前从设备
 
     if(psMBSlaveDevCur == NULL)
     {
         return MB_ENOERR;
     }
-    sMBDevDataTable*   psMBRegInTable = &psMBSlaveDevCur->psDevCurData->sMBRegInTable;    //从设备通讯协议表
-    UCHAR                ucMBDestAddr = ucMBMasterGetDestAddr(psMBMasterInfo);         //从设备通讯地址
+    psMBRegInTable = &psMBSlaveDevCur->psDevCurData->sMBRegInTable;    //从设备通讯协议表
+    ucMBDestAddr = ucMBMasterGetDestAddr(psMBMasterInfo);         //从设备通讯地址
 
-	if( (psMBRegInTable->pvDataBuf == NULL) || (psMBRegInTable->usDataCount == 0)) //非空且数据点不为0
+    if( (psMBRegInTable == NULL) || (psMBRegInTable->pvDataBuf == NULL) ||
+        (psMBRegInTable->usDataCount == 0)) //非空且数据点不为0
 	{
 		return MB_ENOREG;
     }
-
 	REG_INPUT_START = psMBRegInTable->usStartAddr;
     REG_INPUT_END = psMBRegInTable->usEndAddr;
 
@@ -218,20 +225,20 @@ eMBErrorCode eMBMasterRegInputCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegBuf
     
         if( (pvRegInValue != NULL) && (pvRegInValue->pvValue != NULL) && (pvRegInValue->ucAccessMode != WO) )
     	{
-            if( (pvRegInValue->fTransmitMultiple != 0.0f) && (pvRegInValue->fTransmitMultiple != 1.0f))
+            if( (pvRegInValue->ucTmitMult != 0) && (pvRegInValue->ucTmitMult != 1))
     	    {
-    	    	usRegInValue = (USHORT)((float)usRegInValue / (float)pvRegInValue->fTransmitMultiple);      //传输因子
+    	    	usRegInValue = (USHORT)(usRegInValue / pvRegInValue->ucTmitMult);      //传输因子
     	    }
     		if (pvRegInValue->ucDataType == uint16)
     		{
-    			if( (usRegInValue >= pvRegInValue->lMinVal) && (usRegInValue <= pvRegInValue->lMaxVal) )
+    			if( (usRegInValue >= pvRegInValue->usMinVal) && (usRegInValue <= pvRegInValue->usMaxVal) )
     			{
     				*(USHORT*)pvRegInValue->pvValue  = (USHORT)usRegInValue;
     			}					
     		}
     		else if(pvRegInValue->ucDataType == uint8)
     		{			
-    			if( (usRegInValue >= pvRegInValue->lMinVal) && (usRegInValue <= pvRegInValue->lMaxVal) )
+    			if( (usRegInValue >= pvRegInValue->usMinVal) && (usRegInValue <= pvRegInValue->usMaxVal) )
     			{
     				*(UCHAR*)pvRegInValue->pvValue = (UCHAR)usRegInValue;
     			}
@@ -239,7 +246,7 @@ eMBErrorCode eMBMasterRegInputCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegBuf
     		else if(pvRegInValue->ucDataType == int16)
     		{	
     			sRegInValue = (SHORT)usRegInValue;
-    			if( ( usRegInValue >= (SHORT)pvRegInValue->lMinVal) && ( usRegInValue <= (SHORT)pvRegInValue->lMaxVal) )
+    			if( ( usRegInValue >= (SHORT)pvRegInValue->usMinVal) && ( usRegInValue <= (SHORT)pvRegInValue->usMaxVal) )
     			{		
     				*(SHORT*)pvRegInValue->pvValue = (SHORT)sRegInValue ;			   
     			}
@@ -247,7 +254,7 @@ eMBErrorCode eMBMasterRegInputCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegBuf
             else if(pvRegInValue->ucDataType == int8)
     		{	
                 cRegInValue = (int8_t)usRegInValue;	
-    			if( (cRegInValue >= (int8_t)pvRegInValue->lMinVal) && (cRegInValue <= (int8_t)pvRegInValue->lMaxVal) )
+    			if( (cRegInValue >= (int8_t)pvRegInValue->usMinVal) && (cRegInValue <= (int8_t)pvRegInValue->usMaxVal) )
     			{		
     				*(CHAR*)pvRegInValue->pvValue = (int8_t)cRegInValue;				   
     			}

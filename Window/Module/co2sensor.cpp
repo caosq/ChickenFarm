@@ -46,7 +46,7 @@ void CO2Sensor::initLabel()
 
 void CO2Sensor::initButton()
 {
-    //CO2
+    //温度
     m_pCO2Label = new DataLabel(ui->frame, DataLabel::Data);
     m_pCO2Label->setAlignment(Qt::AlignLeft);
     m_pCO2Label->setDataParameter("ppm", 1, Monitor::Uint16t);

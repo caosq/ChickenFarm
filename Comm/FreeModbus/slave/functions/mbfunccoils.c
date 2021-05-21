@@ -42,8 +42,6 @@
 #include "mbconfig.h"
 #include "mbbits.h"
 
-#if MB_SLAVE_RTU_ENABLED > 0 || MB_SLAVE_ASCII_ENABLED > 0 
-
 /* ----------------------- Defines ------------------------------------------*/
 #define MB_PDU_FUNC_READ_ADDR_OFF           ( MB_PDU_DATA_OFF )
 #define MB_PDU_FUNC_READ_COILCNT_OFF        ( MB_PDU_DATA_OFF + 2 )
@@ -64,7 +62,7 @@
 
 /* ----------------------- Start implementation -----------------------------*/
 
-#if MB_FUNC_READ_COILS_ENABLED > 0
+#if MB_FUNC_READ_COILS_ENABLED
 /***********************************************************************************
  * @brief 读线圈功能函数
  * @param pucFrame       Modbus的PDU缓冲区数据指针
@@ -141,7 +139,7 @@ eMBSlaveFuncReadCoils(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USHORT* usLe
 }
 #endif
 
-#if MB_FUNC_WRITE_COIL_ENABLED > 0
+#if MB_FUNC_WRITE_COIL_ENABLED
 /***********************************************************************************
  * @brief 写单个线圈功能函数
  * @param pucFrame       Modbus的PDU缓冲区数据指针
@@ -197,7 +195,7 @@ eMBSlaveFuncWriteCoil(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USHORT* usLe
 }
 #endif
 
-#if MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
+#if MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
 /***********************************************************************************
  * @brief 写多个线圈功能函数
  * @param pucFrame       Modbus的PDU缓冲区数据指针
@@ -218,7 +216,6 @@ eMBSlaveFuncWriteMultipleCoils(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USH
     {
         usCoilAddress  = (USHORT)( *(pucFrame + MB_PDU_FUNC_WRITE_MUL_ADDR_OFF) << 8 );
         usCoilAddress |= (USHORT)( *(pucFrame + MB_PDU_FUNC_WRITE_MUL_ADDR_OFF + 1) );
-        usCoilAddress++;
 
         usCoilCnt  = (USHORT)( *(pucFrame + MB_PDU_FUNC_WRITE_MUL_COILCNT_OFF) << 8 );
         usCoilCnt |= (USHORT)( *(pucFrame + MB_PDU_FUNC_WRITE_MUL_COILCNT_OFF + 1) );
@@ -269,7 +266,7 @@ eMBSlaveFuncWriteMultipleCoils(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USH
 }
 #endif
 
-#if MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED> 0 || MB_FUNC_READ_COILS_ENABLED > 0 
+#if MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_READ_COILS_ENABLED
 /***********************************************************************************
  * @brief 线圈状态寄存器回调函数（读、连续读、写、连续写）
  * @param pucRegBuffer  位组成一个字节，起始寄存器对应的位处于该字节pucRegBuffer的最低位LSB。
@@ -290,13 +287,15 @@ eMBErrorCode eMBSlaveRegCoilsCB(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRegBuffer
 {
     USHORT COIL_START, COIL_END;
     sMBSlaveDataTable* psMBCoilTable = &psMBSlaveInfo->sMBCommInfo.psSlaveCurData->sMBCoilTable;  //从栈通讯协议表
-    eMBErrorCode    eStatus = MB_ENOERR;
+    eMBErrorCode  eStatus = MB_ENOERR;
 
+    if( (psMBCoilTable == NULL) || (psMBCoilTable->pvDataBuf == NULL) ||
+        (psMBCoilTable->usDataCount == 0)) //非空且数据点不为0
+    {
+        return MB_ENOREG;
+    }
     COIL_START = psMBCoilTable->usStartAddr;
     COIL_END = psMBCoilTable->usEndAddr;
-   
-    /* it already plus one in modbus function method. */
-    usAddress--;
 
     if( (usAddress >= COIL_START) && (usAddress + usNCoils -1 <= COIL_END) )
     {
@@ -320,6 +319,3 @@ eMBErrorCode eMBSlaveRegCoilsCB(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRegBuffer
 }
 
 #endif
-
-#endif
-

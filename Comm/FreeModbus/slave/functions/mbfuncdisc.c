@@ -66,7 +66,6 @@ eMBSlaveFuncReadDiscreteInputs(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USH
     {
         usRegAddress  = (USHORT)( pucFrame[MB_PDU_FUNC_READ_ADDR_OFF] << 8 );
         usRegAddress |= (USHORT)( pucFrame[MB_PDU_FUNC_READ_ADDR_OFF + 1] );
-        usRegAddress++;
 
         usDiscreteCnt  = (USHORT)( pucFrame[MB_PDU_FUNC_READ_DISCCNT_OFF] << 8 );
         usDiscreteCnt |= (USHORT)( pucFrame[MB_PDU_FUNC_READ_DISCCNT_OFF + 1] );
@@ -143,10 +142,13 @@ eMBSlaveRegDiscreteCB(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRegBuffer, USHORT u
     USHORT DISCRETE_INPUT_START, DISCRETE_INPUT_END;
     sMBSlaveDataTable* psMBDiscInTable = &psMBSlaveInfo->sMBCommInfo.psSlaveCurData->sMBDiscInTable;  //从栈通讯协议表
     
+    if( (psMBDiscInTable == NULL) || (psMBDiscInTable->pvDataBuf == NULL) ||
+        (psMBDiscInTable->usDataCount == 0)) //非空且数据点不为0
+    {
+        return MB_ENOREG;
+    }
     DISCRETE_INPUT_START = psMBDiscInTable->usStartAddr;
     DISCRETE_INPUT_END = psMBDiscInTable->usEndAddr;
-    /* it already plus one in modbus function method. */
-    usAddress--;
 
     if ( (usAddress >= DISCRETE_INPUT_START) && (usAddress + usNDiscrete -1 <= DISCRETE_INPUT_END) )
     {

@@ -203,8 +203,8 @@ void BumpPage::paramSetBtnValChanged(void*)
              if(m_pErrorCleanCmdBtn->getCurrentValue() == 1)
              {
                  pChilledBump->m_xErrClean = true;
-                 pChilledBump->m_xErrorFlag = false;
-                 pChilledBump->m_xControlFlag = false;
+                 //pChilledBump->m_xErrorFlag = false;
+                 //pChilledBump->m_xControlFlag = false;
              }
              else
              {

@@ -43,8 +43,7 @@
 
 //#include "my_rtt_printf.h"
 
-#if MB_SLAVE_RTU_ENABLED > 0
-
+#if MB_SLAVE_RTU_ENABLED
 /**********************************************************************
  * @brief  RTU模式协议栈初始化
  * @param  *Uart           UART配置
@@ -52,7 +51,7 @@
  * @author laoc
  * @date 2019.01.22
  *********************************************************************/
-eMBErrorCode eMBSlaveRTUInit( sMBSlaveInfo* psMBSlaveInfo )
+eMBErrorCode eMBSlaveRTUInit(sMBSlaveInfo* psMBSlaveInfo)
 {
     ULONG usTimerT35_50us, Baud_rate;
     sMBSlavePort* psMBPort  = &psMBSlaveInfo->sMBPort;
@@ -65,7 +64,7 @@ eMBErrorCode eMBSlaveRTUInit( sMBSlaveInfo* psMBSlaveInfo )
     Baud_rate = psMBPort->psMBSlaveUart->baud;
 #endif
 
-    if(xMBSlavePortSerialInit(psMBPort) == FALSE)           //串口初始化
+    if(xMBSlavePortSerialInit(psMBPort) == FALSE)    //串口初始化
     {
         return MB_EPORTERR;
     }
@@ -109,7 +108,7 @@ eMBErrorCode eMBSlaveRTUInit( sMBSlaveInfo* psMBSlaveInfo )
  * @author laoc
  * @date 2019.01.22
  *********************************************************************/
-void eMBSlaveRTUStart(sMBSlaveInfo* psMBSlaveInfo)
+void vMBSlaveRTUStart(sMBSlaveInfo* psMBSlaveInfo)
 {
     sMBSlavePort* psMBPort = &psMBSlaveInfo->sMBPort;
     
@@ -119,7 +118,7 @@ void eMBSlaveRTUStart(sMBSlaveInfo* psMBSlaveInfo)
      * modbus protocol stack until the bus is free.
      */
     psMBSlaveInfo->eRcvState = STATE_RX_INIT;
-    vMBSlavePortSerialEnable(psMBPort, TRUE, FALSE);    //从栈等待数据，开启串口接收，发送未开启
+    //vMBSlavePortSerialEnable(psMBPort, TRUE, FALSE);    //从栈等待数据，开启串口接收，发送未开启
     vMBSlavePortTimersEnable(psMBPort);                 //启动定时器
 }
 
@@ -128,12 +127,22 @@ void eMBSlaveRTUStart(sMBSlaveInfo* psMBSlaveInfo)
  * @author laoc
  * @date 2019.01.22
  *********************************************************************/
-void eMBSlaveRTUStop( sMBSlaveInfo* psMBSlaveInfo )
+void vMBSlaveRTUStop(sMBSlaveInfo* psMBSlaveInfo)
 {
     sMBSlavePort* psMBPort = &psMBSlaveInfo->sMBPort;
     
     vMBSlavePortSerialEnable(psMBPort, FALSE, FALSE);
     vMBSlavePortTimersDisable(psMBPort);
+}
+
+/**********************************************************************
+ * @brief  RTU模式协议栈等待数据请求
+ * @author laoc
+ * @date 2019.01.22
+ *********************************************************************/
+void vMBSlaveRTUGetRequest(sMBSlaveInfo* psMBSlaveInfo)
+{
+    vMBSlavePortSerialEnable(&psMBSlaveInfo->sMBPort, TRUE, FALSE);    //从栈等待数据，开启串口接收，发送未开启
 }
 
 /**********************************************************************
@@ -149,7 +158,7 @@ void eMBSlaveRTUStop( sMBSlaveInfo* psMBSlaveInfo )
  * @date 2019.01.22
  *********************************************************************/
 eMBErrorCode 
-eMBSlaveRTUReceive(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRcvAddress, UCHAR** pucFrame, USHORT* pusLength)
+eMBSlaveRTUReceive(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRcvAddr, UCHAR** pucFrame, USHORT* pusLength)
 {
    /*  eMBRTUReceive函数完成了CRC校验、帧数据地址和长度的赋值，便于给上层进行处理！之后
     *  eMBPoll函数发送 ( void )xMBPortEventPost( EV_EXECUTE )事件。在EV_EXECUTE 事件中，从
@@ -159,12 +168,12 @@ eMBSlaveRTUReceive(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRcvAddress, UCHAR** pu
 
     /* Length and CRC check */
     if( (psMBSlaveInfo->usRcvBufferPos >= MB_SER_PDU_SIZE_MIN)
-        && (usMBCRC16( (UCHAR*)(psMBSlaveInfo->ucRTUBuf), psMBSlaveInfo->usRcvBufferPos ) == 0) )
+        && (usMBCRC16( (UCHAR*)(psMBSlaveInfo->ucRcvBuf), psMBSlaveInfo->usRcvBufferPos ) == 0) )
     {
         /* Save the address field. All frames are passed to the upper layed
          * and the decision if a frame is used is done there.
          */
-        *pucRcvAddress = psMBSlaveInfo->ucRTUBuf[MB_SER_PDU_ADDR_OFF];
+        *pucRcvAddr = psMBSlaveInfo->ucRcvBuf[MB_SER_PDU_ADDR_OFF];
 
         /* Total length of Modbus-PDU is Modbus-Serial-Line-PDU minus
          * size of address field and CRC checksum.
@@ -172,11 +181,15 @@ eMBSlaveRTUReceive(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRcvAddress, UCHAR** pu
         *pusLength = (USHORT)(psMBSlaveInfo->usRcvBufferPos - MB_SER_PDU_PDU_OFF - MB_SER_PDU_SIZE_CRC); //PDU的长度为数据帧-从栈地址-CRC校验
 
         /* Return the start of the Modbus PDU to the caller. */
-        *pucFrame = (UCHAR*)( &(psMBSlaveInfo->ucRTUBuf[MB_SER_PDU_PDU_OFF]) );   //pucFrame指向PDU起始位置
+        *pucFrame = (UCHAR*)( &(psMBSlaveInfo->ucRcvBuf[MB_SER_PDU_PDU_OFF]) ); //pucFrame指向PDU起始位置
     }
     else
     {
         return MB_EIO;
+    }
+    if(psMBSlaveInfo->pvMBSlaveReceiveCallback != NULL)
+    {
+        psMBSlaveInfo->pvMBSlaveReceiveCallback((void*)psMBSlaveInfo);
     }
     return MB_ENOERR;
 }
@@ -194,12 +207,11 @@ eMBSlaveRTUReceive(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRcvAddress, UCHAR** pu
  * @date 2019.01.22
  *********************************************************************/
 eMBErrorCode 
-eMBSlaveRTUSend( sMBSlaveInfo* psMBSlaveInfo, UCHAR ucSlaveAddress, UCHAR* pucFrame, USHORT usLength )
+eMBSlaveRTUSend( sMBSlaveInfo* psMBSlaveInfo, UCHAR ucSlaveAddr, UCHAR* pucFrame, USHORT usLength)
 {
     /* 在 eMBRTUSend函数中会调用串口发送数据，在进入串口发送中断后会调用xMBRTUTransmitFSM
      * 发送状态机函数发送应答报文。*/
     USHORT usCRC16;
-    
     sMBSlavePort* psMBPort = &psMBSlaveInfo->sMBPort;
     /* Check if the receiver is still in idle state. If not we where to
      * slow with processing the received frame and the master sent another
@@ -216,13 +228,13 @@ eMBSlaveRTUSend( sMBSlaveInfo* psMBSlaveInfo, UCHAR ucSlaveAddress, UCHAR* pucFr
         psMBSlaveInfo->usSndBufferCount = 1;
 
         /* Now copy the Modbus-PDU into the Modbus-Serial-Line-PDU. */  
-        psMBSlaveInfo->pucSndBufferCur[MB_SER_PDU_ADDR_OFF] = ucSlaveAddress;        //在协议数据单元前加从机地址
+        psMBSlaveInfo->pucSndBufferCur[MB_SER_PDU_ADDR_OFF] = ucSlaveAddr; //在协议数据单元前加从机地址
         psMBSlaveInfo->usSndBufferCount += usLength;
 
         /* Calculate CRC16 checksum for Modbus-Serial-Line-PDU. */
         usCRC16 = usMBCRC16( (UCHAR*)(psMBSlaveInfo->pucSndBufferCur), psMBSlaveInfo->usSndBufferCount );
-        psMBSlaveInfo->ucRTUBuf[psMBSlaveInfo->usSndBufferCount++] = (UCHAR)(usCRC16 & 0xFF);
-        psMBSlaveInfo->ucRTUBuf[psMBSlaveInfo->usSndBufferCount++] = (UCHAR)(usCRC16 >> 8);
+        psMBSlaveInfo->ucRcvBuf[psMBSlaveInfo->usSndBufferCount++] = (UCHAR)(usCRC16 & 0xFF);
+        psMBSlaveInfo->ucRcvBuf[psMBSlaveInfo->usSndBufferCount++] = (UCHAR)(usCRC16 >> 8);
 
 		 /* Activate the transmitter. */
         psMBSlaveInfo->eSndState = STATE_TX_XMIT;           //发送状态
@@ -241,12 +253,16 @@ eMBSlaveRTUSend( sMBSlaveInfo* psMBSlaveInfo, UCHAR ucSlaveAddress, UCHAR* pucFr
     {
         return MB_EIO;
     }
+    if(psMBSlaveInfo->pvMBSlaveSendCallback != NULL)
+    {
+        psMBSlaveInfo->pvMBSlaveSendCallback((void*)psMBSlaveInfo);
+    }
     return MB_ENOERR;
 }
 
 /**********************************************************************
  * @brief  串口接收数据
- *         1. 将接收到的数据存入ucRTUBuf[]中
+ *         1. 将接收到的数据存入ucRcvBuf[]中
  *         2. usRcvBufferPos为全局变量，表示接收数据的个数
  *         3. 每接收到一个字节的数据，3.5T定时器清0
  * @return BOOL   
@@ -258,11 +274,10 @@ BOOL xMBSlaveRTUReceiveFSM(sMBSlaveInfo* psMBSlaveInfo)
     /*在串口中断前，状态机为eRcvState=STATE_RX_IDLE，接收状态机开始后，读取uart串口缓存中的数据，并进入STATE_RX_IDLE分支中存储一次数据后开启定时器，
     然后进入STATE_RX_RCV分支继续接收后续的数据，直至定时器超时！如果没有超时的话，状态不会转换，将还可以继续接收数据。超时之后，
     在T3.5超时函数xMBRTUTimerT35Expired 中将发送EV_FRAME_RECEIVED事件。然后eMBPoll函数将会调用eMBRTUReceive函数。*/
-    UCHAR           ucByte;
-    BOOL            xTaskNeedSwitch = FALSE;
-    
+    UCHAR ucByte;
+    BOOL xTaskNeedSwitch = FALSE;
     sMBSlavePort* psMBPort = &psMBSlaveInfo->sMBPort;
-    
+
     assert_param(psMBSlaveInfo->eSndState == STATE_TX_IDLE);    //确保没有数据在发送
 
     /* Always read the character. */
@@ -274,6 +289,9 @@ BOOL xMBSlaveRTUReceiveFSM(sMBSlaveInfo* psMBSlaveInfo)
          * wait until the frame is finished.
          */
     case STATE_RX_INIT:
+#if MB_LINUX_ENABLED
+        xMBSlavePortSerialReadBytes(psMBPort, &psMBSlaveInfo->ucRcvBuf[psMBSlaveInfo->usRcvBufferPos], &psMBSlaveInfo->usRcvBufferPos);
+#endif
         vMBSlavePortTimersEnable(psMBPort);             //开启3.5T定时器
         break;
 
@@ -288,12 +306,14 @@ BOOL xMBSlaveRTUReceiveFSM(sMBSlaveInfo* psMBSlaveInfo)
          * is received the t1.5 and t3.5 timers are started and the
          * receiver is in the state STATE_RX_RECEIVCE.
          */
-    case STATE_RX_IDLE:                  // 接收器空闲，开始接收，进入STATE_RX_RCV状态
+    case STATE_RX_IDLE:   // 接收器空闲，开始接收，进入STATE_RX_RCV状态
         psMBSlaveInfo->usRcvBufferPos = 0;
-        psMBSlaveInfo->ucRTUBuf[psMBSlaveInfo->usRcvBufferPos++] = ucByte;    //保存数据
+#if MB_UCOSIII_ENABLED
+        psMBSlaveInfo->ucRcvBuf[psMBSlaveInfo->usRcvBufferPos++] = ucByte;    //保存数据
+#elif MB_LINUX_ENABLED
+        xMBSlavePortSerialReadBytes(psMBPort, &psMBSlaveInfo->ucRcvBuf[psMBSlaveInfo->usRcvBufferPos], &psMBSlaveInfo->usRcvBufferPos);
+#endif
         psMBSlaveInfo->eRcvState = STATE_RX_RCV;
-
-        /* Enable t3.5 timers. */
         vMBSlavePortTimersEnable(psMBPort);           //重启3.5T定时器
         break;
 
@@ -306,9 +326,9 @@ BOOL xMBSlaveRTUReceiveFSM(sMBSlaveInfo* psMBSlaveInfo)
         if(psMBSlaveInfo->usRcvBufferPos < MB_SER_PDU_SIZE_MAX)
         {
 #if MB_UCOSIII_ENABLED
-            psMBSlaveInfo->ucRTUBuf[psMBSlaveInfo->usRcvBufferPos++] = ucByte;  //接收数据
+            psMBSlaveInfo->ucRcvBuf[psMBSlaveInfo->usRcvBufferPos++] = ucByte;  //接收数据
 #elif MB_LINUX_ENABLED
-            xMBSlavePortSerialGetBytes(psMBPort, psMBSlaveInfo->ucRTUBuf, &psMBSlaveInfo->usRcvBufferPos);
+            xMBSlavePortSerialReadBytes(psMBPort, &psMBSlaveInfo->ucRcvBuf[psMBSlaveInfo->usRcvBufferPos], &psMBSlaveInfo->usRcvBufferPos);
 #endif
         }
         else
@@ -354,7 +374,12 @@ BOOL xMBSlaveRTUTransmitFSM(sMBSlaveInfo* psMBSlaveInfo)
             psMBSlaveInfo->pucSndBufferCur++;  /* next byte in sendbuffer. */
             psMBSlaveInfo->usSndBufferCount--;
 #elif MB_LINUX_ENABLED
-            (void)xMBSlavePortSerialPutBytes(psMBPort, psMBSlaveInfo->pucSndBufferCur, psMBSlaveInfo->usSndBufferCount); 
+            if(xMBSlavePortSerialWriteBytes(psMBPort, psMBSlaveInfo->pucSndBufferCur, psMBSlaveInfo->usSndBufferCount))
+            {
+                 psMBSlaveInfo->usSndBufferCount = 0;
+            }
+            xNeedPoll = xMBSlavePortEventPost(psMBPort, EV_FRAME_SENT);
+            psMBSlaveInfo->eSndState = STATE_TX_IDLE;    //发送器状态为空闲状态
 #endif 
         }
         else                //传递任务，发送完成
@@ -377,12 +402,12 @@ BOOL xMBSlaveRTUTransmitFSM(sMBSlaveInfo* psMBSlaveInfo)
  * @author laoc
  * @date 2019.01.22
  *********************************************************************/  
-BOOL xMBSlaveRTUTimerT35Expired(sMBSlaveInfo* psMBSlaveInfo)
+BOOL xMBSlaveRTUTimerExpired(sMBSlaveInfo* psMBSlaveInfo)
 {
     BOOL xNeedPoll = FALSE;
-    sMBSlavePort* psMBPort  = &psMBSlaveInfo->sMBPort;
+    sMBSlavePort* psMBPort = &psMBSlaveInfo->sMBPort;
     
-    switch (psMBSlaveInfo->eRcvState)             //上报modbus协议栈的事件状态给poll函数
+    switch (psMBSlaveInfo->eRcvState)   //上报modbus协议栈的事件状态给poll函数
     {
         /* Timer t35 expired. Startup phase is finished. */
     case STATE_RX_INIT:
@@ -403,9 +428,8 @@ BOOL xMBSlaveRTUTimerT35Expired(sMBSlaveInfo* psMBSlaveInfo)
 //			debug("EV_FRAME_RECEIVED_ERROR %d ******************\n", psMBSlaveInfo->usRcvBufferPos);
 			psMBSlaveInfo->usRcvBufferPos = 0;
 			psMBSlaveInfo->eRcvState = STATE_RX_RCV;
-            xNeedPoll = FALSE;
-//			vMBPortTimersEnable();
-//			xRcvStateNeedChange = FALSE;
+
+            xNeedPoll = xMBSlavePortEventPost(psMBPort, EV_ERROR_RCV);
 		}
         break;
 
@@ -415,11 +439,11 @@ BOOL xMBSlaveRTUTimerT35Expired(sMBSlaveInfo* psMBSlaveInfo)
 
         /* Function called in an illegal state. */
     default:
-        assert_param( (eRcvState == STATE_RX_INIT) || (eRcvState == STATE_RX_RCV) || 
-                      (eRcvState == STATE_RX_ERROR) );
+        assert_param(eRcvState == STATE_RX_INIT || eRcvState == STATE_RX_RCV || 
+                     eRcvState == STATE_RX_ERROR );
 	    break;
     }
-    vMBSlavePortTimersDisable(psMBPort);      //当接收到一帧数据后，禁止3.5T定时器，直到接受下一帧数据开始，开始计时
+    //vMBSlavePortTimersDisable(psMBPort);      //当接收到一帧数据后，禁止3.5T定时器，直到接受下一帧数据开始，开始计时
     psMBSlaveInfo->eRcvState = STATE_RX_IDLE; //处理完一帧数据，接收器状态为空闲
 
     return xNeedPoll;

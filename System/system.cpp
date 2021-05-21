@@ -5,11 +5,20 @@
 #define PORT_NAME "/dev/ttyO3"
 //#define PORT_NAME "/dev/ttyUSB0"
 //#define PORT_NAME "/dev/ttyS0"
-//#define PORT_NAME_DTU "/dev/ttyUSB0"
+//#define PORT_NAME_DTU "/dev/ttyS2"
+//#define PORT_NAME_DTU "/dev/ttyUSB3"
 #define PORT_NAME_DTU "/dev/ttyO2"
+//#define PORT_NAME_BMS "/dev/ttyUSB0"
+//#define PORT_NAME_BMS "/dev/ttyS1"
+
 
 #define SYS_OFF_LOG_TIME_COUNT  300
+
 #define CONTROLLER_DEV_ADDR       1
+#define DEV_SELF_COMM_ADDR        1
+
+#define MODBUS_SLAVE_MAX_DEV_ADDR    1
+#define MODBUS_SLAVE_MIN_DEV_ADDR    1
 
 System* System::g_pSystem = nullptr;
 System::System(QObject *parent) :
@@ -24,12 +33,21 @@ System* System::getInstance()
     if(g_pSystem == nullptr)
     {
         g_pSystem = new System();
-        g_pSystem->m_Modbus.uartConfig(9600, 8, 1, Modbus::eParityType::None);
-        g_pSystem->m_Modbus.initMasterPort(eMBMode::MB_RTU, PORT_NAME, 1, 1, false);
-
-        g_pSystem->m_ModbusDTU.uartConfig(9600, 8, 1, Modbus::eParityType::None);
+#if MB_MASTER_RTU_ENABLE && MB_MASTER_RTU_ENABLED
+        g_pSystem->m_Modbus.masterUartConfig(9600, 8, 1, eParityType::None);
+        g_pSystem->m_Modbus.initMasterPort(eMBMode::MB_RTU, PORT_NAME, MODBUS_SLAVE_MIN_DEV_ADDR, MODBUS_SLAVE_MAX_DEV_ADDR, false);
+#endif
+#if MB_MASTER_TCP_ENABLE && MB_MASTER_TCP_ENABLED
+        g_pSystem->m_ModbusTCP.initMasterTCPPort("MB_MASTER_TCP", MODBUS_SLAVE_MIN_DEV_ADDR, MODBUS_SLAVE_MAX_DEV_ADDR);
+#endif
+#if MB_MASTER_DTU_ENABLE && MB_MASTER_RTU_ENABLED
+        g_pSystem->m_ModbusDTU.masterUartConfig(9600, 8, 1,eParityType::None);
         g_pSystem->m_ModbusDTU.initMasterPort(eMBMode::MB_RTU, PORT_NAME_DTU, 200, 247, true);
-
+#endif
+#if MB_SLAVE_RTU_ENABLE && MB_SLAVE_RTU_ENABLED
+        g_pSystem->m_ModbusBMS.slaveUartConfig(9600, 8, 1,eParityType::None);
+        g_pSystem->m_ModbusBMS.initSlavePort(eMBMode::MB_RTU, PORT_NAME_BMS, DEV_SELF_COMM_ADDR);
+#endif
         g_pSystem->m_pSysModeCmdMonitor = DataMonitor::monitorRegist(&g_pSystem->m_eSystemModeCmd, Monitor::DataType::Uint16t);
         g_pSystem->m_pExAirFanRatedVolMonitor_H = DataMonitor::monitorRegist(&g_pSystem->m_usExAirFanRatedVol_H, Monitor::DataType::Uint16t);
         g_pSystem->m_pExAirFanRatedVolMonitor_L = DataMonitor::monitorRegist(&g_pSystem->m_usExAirFanRatedVol_L, Monitor::DataType::Uint16t);
@@ -47,21 +65,48 @@ System* System::getInstance()
 
 void System::initController()
 {
+#if MB_MASTER_RTU_ENABLE && MB_MASTER_RTU_ENABLED
     m_Controller.initComm(CONTROLLER_DEV_ADDR);
+    m_Modbus.masterRegistSlaveDev(&m_Controller.m_sMBSlaveDev);
+    if(!m_Modbus.registMasterMode())
+    {
+        qDebug("modbus port error \n");
+    }
+#endif
+#if MB_MASTER_TCP_ENABLE && MB_MASTER_TCP_ENABLED
+    m_Controller.initComm(CONTROLLER_DEV_ADDR);
+    m_ModbusTCP.masterRegistSlaveDev(&m_Controller.m_sMBSlaveDev);
+    if(!m_ModbusTCP.registMasterMode())
+    {
+        qDebug("m_ModbusTCP connect error \n");
+    }
+#endif
+
+#if MB_MASTER_DTU_ENABLE && MB_MASTER_RTU_ENABLED
     m_DTU.initComm();
-
-    g_pSystem->m_Modbus.masterRegistSlaveDev(&m_Controller.m_sMBSlaveDev);
-
-    g_pSystem->m_ModbusDTU.masterRegistDTUDev(&m_DTU.m_sMBDTUDev247, &m_DTU.m_sMBDTUDev200);
-
-    if(g_pSystem->m_Modbus.registMasterMode())
+    m_ModbusDTU.masterRegistDTUDev(&m_DTU.m_sMBDTUDev247, &m_DTU.m_sMBDTUDev200);
+    if(!m_ModbusDTU.registMasterMode())
     {
-        qDebug("modbus success \n");
+        qDebug("modbusDTU port error \n");
     }
-    if(g_pSystem->m_ModbusDTU.registMasterMode())
+#endif
+
+#if MB_SLAVE_RTU_ENABLE && MB_SLAVE_RTU_ENABLED
+    m_BMS.initComm();
+    m_ModbusBMS.registSlaveCommData(&m_BMS.m_sBMSCommData);
+    if(!m_ModbusBMS.registSlaveMode())
     {
-        qDebug("modbusDTU success \n");
+       qDebug("modbusBMS port error \n");
     }
+#endif
+#if MB_SLAVE_TCP_ENABLE && MB_SLAVE_TCP_ENABLED
+    m_BMS.initComm();
+    m_ModbusBMS.registTcpCommData(&m_BMS.m_sBMSCommData);
+    if(!m_ModbusBMS.registSlaveTcp(DEV_SELF_COMM_ADDR))
+    {
+        qDebug("m_ModbusBMS registSlaveTCP error \n");
+    }
+#endif
     connect(&m_Controller, SIGNAL(offlineChanged(bool)), this, SLOT(devOfflineChangedSlot(bool)));
     connect(&m_Controller, SIGNAL(syncChanged(bool)), this, SLOT(syncChangedSlot(bool)));
 }

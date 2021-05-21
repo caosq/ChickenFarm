@@ -1,7 +1,7 @@
+#include "string.h"
 #include "mbmap.h"
-#include "mbdict.h"
 
-#if MB_FUNC_READ_INPUT_ENABLED > 0
+#if MB_FUNC_READ_INPUT_ENABLED
 /***********************************************************************************
  * @brief  输入寄存器映射
  * @param  usRegInAddr    寄存器地址
@@ -13,12 +13,11 @@
 eMBErrorCode 
 eMBSlaveRegInMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usRegInAddr, sMBSlaveRegData** pvRegInValue)
 {
-    USHORT usIndex;
-	eMBErrorCode eStatus = MB_ENOERR;
-    
-    sMBSlaveCommData*            psCurData  = psMBSlaveInfo->sMBCommInfo.psSlaveCurData;
+    USHORT usIndex = 0;
+    sMBSlaveCommData* psCurData  = psMBSlaveInfo->sMBCommInfo.psSlaveCurData;
 	const sMBSlaveDataTable* psMBRegInTable = &psCurData->sMBRegInTable;
-	
+
+#if  MB_UCOSIII_ENABLED
     if(psCurData->pxSlaveDataMapIndex == NULL || psMBRegInTable == NULL || psMBRegInTable->pvDataBuf == NULL)
     {
          return MB_EILLSTATE;
@@ -32,13 +31,27 @@ eMBSlaveRegInMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usRegInAddr, sMBSlaveRegDat
         *pvRegInValue = NULL;
         return MB_ENOREG;
     }
-    return eStatus;	
+#elif MB_LINUX_ENABLED
+    if(psCurData->pRegInIndex == NULL || psMBRegInTable == NULL || psMBRegInTable->pvDataBuf == NULL)
+    {
+         return MB_EILLSTATE;
+    }
+    usIndex = *(psCurData->pRegInIndex + usRegInAddr);
+    if(usIndex > 0 && psMBRegInTable->usStartAddr <= usIndex-1 && usIndex-1 <= psMBRegInTable->usEndAddr)  //有效映射值
+    {
+        *pvRegInValue = (sMBSlaveRegData*)(psMBRegInTable->pvDataBuf) + usIndex - 1;
+    }
+    else
+    {
+        return MB_ENOREG;
+    }
+#endif
+    return MB_ENOERR;
 }
 #endif
 
-#if MB_FUNC_WRITE_HOLDING_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0 \
-    || MB_FUNC_READ_HOLDING_ENABLED > 0 || MB_FUNC_READWRITE_HOLDING_ENABLED > 0
-
+#if MB_FUNC_WRITE_HOLDING_ENABLED || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED \
+    || MB_FUNC_READ_HOLDING_ENABLED || MB_FUNC_READWRITE_HOLDING_ENABLED
 /***********************************************************************************
  * @brief  保持寄存器映射
  * @param  usRegHoldAddr    寄存器地址
@@ -50,12 +63,11 @@ eMBSlaveRegInMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usRegInAddr, sMBSlaveRegDat
 eMBErrorCode 
 eMBSlaveRegHoldMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usRegHoldAddr, sMBSlaveRegData** pvRegHoldValue)
 {
-    USHORT usIndex;
-    eMBErrorCode eStatus = MB_ENOERR;
-    
-    sMBSlaveCommData*              psCurData  = psMBSlaveInfo->sMBCommInfo.psSlaveCurData;
+    USHORT usIndex = 0;
+    sMBSlaveCommData* psCurData  = psMBSlaveInfo->sMBCommInfo.psSlaveCurData;
 	const sMBSlaveDataTable* psMBRegHoldTable = &psCurData->sMBRegHoldTable;
 
+#if  MB_UCOSIII_ENABLED
     if(psCurData->pxSlaveDataMapIndex == NULL || psMBRegHoldTable == NULL || psMBRegHoldTable->pvDataBuf == NULL)
     {
          return MB_EILLSTATE;
@@ -69,11 +81,27 @@ eMBSlaveRegHoldMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usRegHoldAddr, sMBSlaveRe
         *pvRegHoldValue = NULL;
         return MB_ENOREG;
     }
-    return eStatus;	
+#elif  MB_LINUX_ENABLED
+    if(psCurData->pRegInIndex == NULL || psMBRegHoldTable == NULL || psMBRegHoldTable->pvDataBuf == NULL)
+    {
+         return MB_EILLSTATE;
+    }
+    usIndex = *(psCurData->pRegInIndex + usRegHoldAddr);
+    if(usIndex > 0 && psMBRegHoldTable->usStartAddr <= usIndex-1 && usIndex-1 <= psMBRegHoldTable->usEndAddr)  //有效映射值
+    {
+        *pvRegHoldValue = (sMBSlaveRegData*)(psMBRegHoldTable->pvDataBuf) + usIndex - 1;
+    }
+    else
+    {
+        return MB_ENOREG;
+    }
+#endif
+    return MB_ENOERR;
 }
+
 #endif
 
-#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
 /***********************************************************************************
  * @brief  线圈字典映射
  * @param  usCoilAddr    线圈地址
@@ -85,12 +113,11 @@ eMBSlaveRegHoldMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usRegHoldAddr, sMBSlaveRe
 eMBErrorCode 
 eMBSlaveCoilsMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usCoilAddr, sMBSlaveBitData** pvCoilValue)
 {
-    USHORT usIndex;
-    eMBErrorCode eStatus = MB_ENOERR;
-    
-	sMBSlaveCommData*           psCurData  = psMBSlaveInfo->sMBCommInfo.psSlaveCurData;
+    USHORT usIndex = 0;
+    sMBSlaveCommData* psCurData  = psMBSlaveInfo->sMBCommInfo.psSlaveCurData;
 	const sMBSlaveDataTable* psMBCoilTable = &psCurData->sMBCoilTable;
-    
+
+#if MB_UCOSIII_ENABLED
     if(psCurData->pxSlaveDataMapIndex == NULL || psMBCoilTable == NULL || psMBCoilTable->pvDataBuf == NULL)
     {
          return MB_EILLSTATE;
@@ -104,12 +131,27 @@ eMBSlaveCoilsMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usCoilAddr, sMBSlaveBitData
         *pvCoilValue = NULL;
         return MB_ENOREG;
     }
-    return eStatus;	
+#elif  MB_LINUX_ENABLED
+    if(psCurData->pRegInIndex == NULL || psMBCoilTable == NULL || psMBCoilTable->pvDataBuf == NULL)
+    {
+         return MB_EILLSTATE;
+    }
+    usIndex = *(psCurData->pRegInIndex + usCoilAddr);
+    if(usIndex > 0 && psMBCoilTable->usStartAddr <= usIndex-1 && usIndex-1 <= psMBCoilTable->usEndAddr)  //有效映射值
+    {
+        *pvCoilValue = (sMBSlaveBitData*)(psMBCoilTable->pvDataBuf) + usIndex - 1;
+    }
+    else
+    {
+        return MB_ENOREG;
+    }
+#endif
+    return MB_ENOERR;
 } 
 
 #endif
 
-#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
 /***********************************************************************************
  * @brief  离散量字典映射
  * @param  usCoilAddr    线圈地址
@@ -122,11 +164,11 @@ eMBErrorCode
 eMBSlaveDiscreteMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usDiscreteAddr, sMBSlaveBitData** pvDiscreteValue)
 {
     USHORT usIndex;
-    eMBErrorCode eStatus = MB_ENOERR;
 
-	sMBSlaveCommData*             psCurData  = psMBSlaveInfo->sMBCommInfo.psSlaveCurData;
+    sMBSlaveCommData* psCurData  = psMBSlaveInfo->sMBCommInfo.psSlaveCurData;
 	const sMBSlaveDataTable* psMBDiscInTable = &psCurData->sMBDiscInTable;
-    
+
+#if MB_UCOSIII_ENABLED
     if(psCurData->pxSlaveDataMapIndex == NULL || psMBDiscInTable == NULL || psMBDiscInTable->pvDataBuf == NULL)
     {
          return MB_EILLSTATE;
@@ -140,7 +182,22 @@ eMBSlaveDiscreteMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usDiscreteAddr, sMBSlave
         *pvDiscreteValue = NULL;
         return MB_ENOREG;
     }
-    return eStatus;	
+#elif  MB_LINUX_ENABLED
+    if(psCurData->pRegInIndex == NULL || psMBDiscInTable == NULL || psMBCoilTable->pvDataBuf == NULL)
+    {
+         return MB_EILLSTATE;
+    }
+    usIndex = *(psCurData->pRegInIndex + usDiscreteAddr);
+    if(usIndex > 0 && psMBDiscInTable->usStartAddr <= usIndex-1 && usIndex-1 <= psMBDiscInTable->usEndAddr)  //有效映射值
+    {
+        *pvDiscreteValue = (sMBSlaveBitData*)(psMBDiscInTable->pvDataBuf) + usIndex - 1;
+    }
+    else
+    {
+        return MB_ENOREG;
+    }
+#endif
+    return MB_ENOERR;
 }
 #endif
 
@@ -149,16 +206,16 @@ eMBSlaveDiscreteMap(sMBSlaveInfo* psMBSlaveInfo, USHORT usDiscreteAddr, sMBSlave
  * @author laoc
  * @date 2019.01.22
  *************************************************************************************/
-void vMBSlaveRegDataInit(sMBSlaveRegData* pData, USHORT usAddr, UCHAR ucDataType, LONG lMinVal, 
-                         LONG lMaxVal, UCHAR ucAccessMode, float fTransmitMultiple, void* pvValue)                                  
+void vMBSlaveRegDataInit(sMBSlaveRegData* pData, USHORT usAddr, UCHAR ucDataType, USHORT usMinVal, 
+                         USHORT usMaxVal, UCHAR ucAccessMode, UCHAR ucTmitMult, void* pvValue)                                  
 {
-    pData->usAddr            = usAddr;                    
-    pData->ucDataType        = ucDataType;                         
-    pData->lMinVal           = lMinVal;                  
-    pData->lMaxVal           = lMaxVal;                  
-    pData->ucAccessMode      = ucAccessMode;        
-    pData->fTransmitMultiple = fTransmitMultiple;
-    pData->pvValue           = pvValue;  
+    pData->usAddr       = usAddr;                    
+    pData->ucDataType   = ucDataType;                         
+    pData->usMinVal     = usMinVal;                  
+    pData->usMaxVal     = usMaxVal;                  
+    pData->ucAccessMode = ucAccessMode;        
+    pData->ucTmitMult   = ucTmitMult;
+    pData->pvValue      = pvValue;  
 
 //    if(usAddr == 37)
 //    {
@@ -189,12 +246,13 @@ void vMBSlaveBitDataInit(sMBSlaveBitData* pData, USHORT usAddr, UCHAR ucAccessMo
  * @author laoc
  * @date 2019.01.22
  *************************************************************************************/
-void vMBSlaveDevDataTableInit(sMBSlaveDataTable* pDataTable, void* pvDataBuf, USHORT usStartAddr, 
-                              USHORT usEndAddr, USHORT usDataCount)                                  
+void vMBSlaveDevDataTableInit(sMBSlaveDataTable* pDataTable, void* pvDataBuf, USHORT usStartAddr,
+                              USHORT usEndAddr, USHORT usDataCount)
 {
     pDataTable->pvDataBuf   = pvDataBuf;        //协议数据域
     pDataTable->usStartAddr = usStartAddr;      //起始地址
     pDataTable->usEndAddr   = usEndAddr;        //末尾地址
     pDataTable->usDataCount = usDataCount;      //协议点位总数
     
+    //debug("vMBSlaveDevDataTableInit usStartAddr %d  usEndAddr %d \n",  usStartAddr, usEndAddr);
 }

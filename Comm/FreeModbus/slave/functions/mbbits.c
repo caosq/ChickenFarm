@@ -28,17 +28,8 @@
  * File: $Id: mbutils.c,v 1.6 2007/02/18 23:49:07 wolti Exp $
  */
 
-/* ----------------------- System includes ----------------------------------*/
-#include "stdlib.h"
-#include "string.h"
-
-/* ----------------------- Platform includes --------------------------------*/
-#include "port.h"
-
 /* ----------------------- Modbus includes ----------------------------------*/
-
-#include "mbproto.h"
-#include "mbframe.h"
+#include "stddef.h"
 #include "mbbits.h"
 #include "mbmap.h"
 
@@ -64,7 +55,7 @@ eMBErrorCode eMBSlaveUtilSetBits(sMBSlaveInfo* psMBSlaveInfo, UCHAR* ucByteBuf,
     USHORT          usNPreBits, iNReg, iBits, i; 
 	UCHAR           ucBit;
 	
-    sMBSlaveBitData *    pucBitData = NULL;
+    sMBSlaveBitData * pucBitData = NULL;
 	
     iNReg = (USHORT)(usNBits / BITS_UCHAR) + 1;
     usNPreBits = (USHORT)(usNBits % BITS_UCHAR);
@@ -83,7 +74,7 @@ eMBErrorCode eMBSlaveUtilSetBits(sMBSlaveInfo* psMBSlaveInfo, UCHAR* ucByteBuf,
         {
             switch(eDataType)
             {	
-#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0					
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
                 case CoilData:		   
                     (void)eMBSlaveCoilsMap(psMBSlaveInfo, usAddress, &pucBitData);         //扫描线圈字典，找到对应的线圈
 				break;
@@ -152,7 +143,7 @@ eMBErrorCode eMBSlaveUtilGetBits(sMBSlaveInfo* psMBSlaveInfo, UCHAR* ucByteBuf,
         {
             switch(eDataType)
             {					
-#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0					
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
 				case CoilData:		   
                     (void)eMBSlaveCoilsMap(psMBSlaveInfo, usAddress, &pucBitData);         //扫描线圈字典，找到对应的线圈
 				break;

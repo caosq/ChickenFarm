@@ -54,9 +54,9 @@
 #define MB_PDU_FUNC_READ_SIZE_MIN           ( 1 )
 
 /* ----------------------- Start implementation -----------------------------*/
-#if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
+#if MB_MASTER_RTU_ENABLED || MB_MASTER_ASCII_ENABLED || MB_MASTER_TCP_ENABLED
 
-#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
  /***********************************************************************************
  * @brief  主栈读离散量
  * @param  ucSndAddr      从栈地址
@@ -193,7 +193,8 @@ eMBErrorCode eMBMasterRegDiscreteCB(sMBMasterInfo* psMBMasterInfo, UCHAR * pucRe
         psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur = psMBSlaveDevCur;
         psMBDiscInTable = &psMBSlaveDevCur->psDevCurData->sMBDiscInTable;
     } 
-    if( (psMBDiscInTable->pvDataBuf == NULL) || (psMBDiscInTable->usDataCount == 0)) //非空且数据点不为0
+    if( (psMBDiscInTable == NULL) || (psMBDiscInTable->pvDataBuf == NULL) ||
+        (psMBDiscInTable->usDataCount == 0)) //非空且数据点不为0
 	{
 		return MB_ENOREG;
 	} 

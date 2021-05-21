@@ -31,7 +31,6 @@
 #ifndef _MB_PORT_H
 #define _MB_PORT_H
 
-#include "port.h"
 #include "mbproto.h"
 #include "mbconfig.h"
 #include "mbdriver.h"
@@ -40,7 +39,6 @@
 
 #elif MB_LINUX_ENABLED
 #include <semaphore.h>
-
 #endif
 
 #ifdef __cplusplus
@@ -53,89 +51,84 @@ typedef enum
     EV_READY,                   /*!< Startup finished. */
     EV_FRAME_RECEIVED,          /*!< Frame received. */
     EV_EXECUTE,                 /*!< Execute function. */
-    EV_FRAME_SENT               /*!< Frame sent. */
+    EV_FRAME_SENT,              /*!< Frame sent. */
+    EV_ERROR_RCV
 } eMBSlaveEventType;
-
 
 typedef struct                        /* 从栈接口定义  */
 {
-    sUART_Def*     psMBSlaveUart;         //从栈接口通讯串口结构
+    struct sMBSlaveInfo* psMBSlaveInfo; //所属主栈
+    eMBSlaveEventType    eQueuedEvent;  //从栈接口事件
+    const CHAR*          pcMBPortName;  //从栈接口名称
+    BOOL                 xEventInQueue; //从栈接口有新事件
+
+#if MB_SLAVE_RTU_ENABLED || MB_SLAVE_ASCII_ENABLED 
+    sUART_Def* psMBSlaveUart;      //从栈接口通讯串口结构
 
 #if MB_UCOSIII_ENABLED
-	OS_TMR               sSlavePortTmr;         //从栈接口3.5字符间隔定时器
-    OS_SEM               sMBEventSem;           //从栈接口事件消息量
+    OS_TMR    sSlavePortTmr;  //从栈接口3.5字符间隔定时器
 #elif MB_LINUX_ENABLED
-    struct timeval       sSlavePortTv;         //从栈接口3.5字符延时
-    sem_t               sMBEventSem;           //从栈接口事件消息量
-#endif                                                
-	eMBSlaveEventType    eQueuedEvent;          //从栈接口事件                  
-    BOOL                 xEventInQueue;         //从栈接口有新事件                                     
-    const CHAR*          pcMBPortName;          //从栈接口名称
-    struct sMBSlaveInfo* psMBSlaveInfo;         //所属主栈
+    uint16_t  usTim1Timerout50us;
+    struct timeval sSlavePortTv;   //从栈接口3.5字符延时
+#endif
+
+#endif
+
+#if MB_SLAVE_TCP_ENABLED
+    int fd;                //接口对应文件号
+    int iSocketOfflines;   //掉线次数
+    BOOL xSocketConnected; //socket是否链接
+#endif
+
+#if MB_UCOSIII_ENABLED
+    OS_SEM sMBEventSem;    //从栈接口事件消息量
+    
+#elif MB_LINUX_ENABLED 
+    sem_t sMBEventSem;    //从栈接口事件消息量
+#endif
+
 }sMBSlavePort;
-
-
-#if MB_SLAVE_RTU_ENABLED > 0 || MB_SLAVE_ASCII_ENABLED > 0
 
 /* -----------------------Slave Serial port functions ----------------------------*/
 BOOL xMBSlavePortSerialInit(sMBSlavePort* psMBPort);
 
 void vMBSlavePortClose(sMBSlavePort* psMBPort);
-
 void xMBSlavePortSerialClose(sMBSlavePort* psMBPort);
-
 void vMBSlavePortSerialEnable(sMBSlavePort* psMBPort, BOOL xRxEnable, BOOL xTxEnable);
 
 INLINE BOOL xMBSlavePortSerialGetByte(sMBSlavePort* psMBPort, UCHAR* pucByte);
-
 INLINE BOOL xMBSlavePortSerialPutByte(sMBSlavePort* psMBPort, UCHAR ucByte);
-
-INLINE BOOL xMBSlavePortSerialGetBytes(const sMBSlavePort* psMBPort, UCHAR* pucRcvBuf, USHORT* psReadBytes);
-
-INLINE BOOL xMBSlavePortSerialPutBytes(sMBSlavePort* psMBPort, UCHAR* pucSndBuf, USHORT usSndBytes);
+INLINE BOOL xMBSlavePortSerialReadBytes(const sMBSlavePort* psMBPort, UCHAR* pucRcvBuf, USHORT* psReadBytes);
+INLINE BOOL xMBSlavePortSerialWriteBytes(sMBSlavePort* psMBPort, UCHAR* pucSndBuf, USHORT usSndBytes);
 
 void prvvSlaveUARTTxReadyISR(const sMBSlavePort* psMBPort);
-
 void prvvSlaveUARTRxISR(const sMBSlavePort* psMBPort);
 
 /* -----------------------Master Serial port event functions ----------------------------*/
 BOOL xMBSlavePortEventInit(sMBSlavePort* psMBPort);
-
 BOOL xMBSlavePortEventPost(sMBSlavePort* psMBPort, eMBSlaveEventType eEvent);
-
 BOOL xMBSlavePortEventGet(sMBSlavePort* psMBPort, eMBSlaveEventType* eEvent);
-
 
 /* ----------------------- Timers functions ---------------------------------*/
 BOOL xMBSlavePortTimersInit(sMBSlavePort* psMBPort, USHORT usTim1Timerout50us);
-
 void xMBSlavePortTimersClose(sMBSlavePort* psMBPort);
 
 INLINE void vMBSlavePortTimersEnable(sMBSlavePort* psMBPort);
-
 INLINE void vMBSlavePortTimersDisable(sMBSlavePort* psMBPort);
 
 eMBException prveMBSlaveError2Exception(eMBErrorCode eErrorCode);
 
-#endif
-
-
-#if MB_SLAVE_TCP_ENABLED > 0 
-
 /* ----------------------- TCP port functions -------------------------------*/
-BOOL xMBSlaveTCPPortInit( USHORT usTCPPort );
+BOOL xMBSlaveTCPPortInit(sMBSlavePort* psMBPort);
 
-void vMBSlaveTCPPortClose( void );
+void vMBSlaveTCPPortClose(sMBSlavePort* psMBPort);
+void vMBSlaveTCPPortDisable(sMBSlavePort* psMBPort);
 
-void vMBSlaveTCPPortDisable( void );
-
-BOOL xMBSlaveTCPPortGetRequest( UCHAR **ppucMBTCPFrame, USHORT * usTCPLength );
-
-BOOL xMBSlaveTCPPortSendResponse( const UCHAR *pucMBTCPFrame, USHORT usTCPLength );
-
-#endif
+BOOL xMBSlaveTCPPortGetRequest(sMBSlavePort* psMBPort);
+BOOL xMBSlaveTCPPortSendResponse(sMBSlavePort* psMBPort, const UCHAR *pucMBTCPFrame, USHORT usTCPLength);
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif

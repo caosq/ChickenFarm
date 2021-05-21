@@ -24,17 +24,14 @@ typedef struct
 
 typedef struct
 {
-    int fd;
+    uint32_t baud;
 
     /* Parity: "even", "odd", "none" */
     uint8_t parity;
-
-    uint32_t baud;
     /* Data bit */
     uint8_t data_bit;
     /* Stop bit */
     uint8_t stop_bit;
-
 }sUART_Def;
 
 #endif
@@ -45,7 +42,16 @@ typedef enum
     UART_TX_EN = 1        //发送使能
 }eUART_EN;
 
+#if MB_UCOSIII_ENABLED
+
 uint8_t xMB_UartInit(const sUART_Def *Uart);
-void MB_SendOrRecive(const sUART_Def *Uart,eUART_EN mode);
+void MB_SendOrRecive(const sUART_Def *Uart, eUART_EN mode);
+
+#elif MB_LINUX_ENABLED
+
+uint8_t xMB_UartInit(const sUART_Def *Uart, int fd);
+void MB_SendOrRecive(const sUART_Def *Uart, eUART_EN mode, int fd);
+#endif
+
 
 #endif

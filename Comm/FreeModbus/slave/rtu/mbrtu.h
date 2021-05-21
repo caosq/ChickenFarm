@@ -39,21 +39,23 @@
 extern "C" {
 #endif
 
-#if MB_SLAVE_RTU_ENABLED > 0
+#if MB_SLAVE_RTU_ENABLED
 
 eMBErrorCode eMBSlaveRTUInit(sMBSlaveInfo* psMBSlaveInfo);
 
-void            eMBSlaveRTUStart(sMBSlaveInfo* psMBSlaveInfo);
-void            eMBSlaveRTUStop(sMBSlaveInfo* psMBSlaveInfo);
+void vMBSlaveRTUStart(sMBSlaveInfo* psMBSlaveInfo);
+void vMBSlaveRTUStop(sMBSlaveInfo* psMBSlaveInfo);
 
-eMBErrorCode    eMBSlaveRTUReceive(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRcvAddress, UCHAR** pucFrame, USHORT* pusLength);
-eMBErrorCode    eMBSlaveRTUSend(sMBSlaveInfo* psMBSlaveInfo, UCHAR slaveAddress, UCHAR* pucFrame, USHORT usLength);
+void vMBSlaveRTUGetRequest(sMBSlaveInfo* psMBSlaveInfo);
 
-BOOL            xMBSlaveRTUReceiveFSM(sMBSlaveInfo* psMBSlaveInfo);
-BOOL            xMBSlaveRTUTransmitFSM(sMBSlaveInfo* psMBSlaveInfo);
+eMBErrorCode eMBSlaveRTUReceive(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRcvAddress, UCHAR** pucFrame, USHORT* pusLength);
+eMBErrorCode eMBSlaveRTUSend(sMBSlaveInfo* psMBSlaveInfo, UCHAR slaveAddress, UCHAR* pucFrame, USHORT usLength);
 
-BOOL            xMBSlaveRTUTimerT15Expired(sMBSlaveInfo* psMBSlaveInfo);
-BOOL            xMBSlaveRTUTimerT35Expired(sMBSlaveInfo* psMBSlaveInfo);
+BOOL xMBSlaveRTUReceiveFSM(sMBSlaveInfo* psMBSlaveInfo);
+BOOL xMBSlaveRTUTransmitFSM(sMBSlaveInfo* psMBSlaveInfo);
+
+BOOL xMBSlaveRTUTimerT15Expired(sMBSlaveInfo* psMBSlaveInfo);
+BOOL xMBSlaveRTUTimerExpired(sMBSlaveInfo* psMBSlaveInfo);
 #endif
 
 #ifdef __cplusplus

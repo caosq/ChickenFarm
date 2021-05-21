@@ -39,22 +39,18 @@
 extern "C" {
 #endif
 
-#if MB_MASTER_RTU_ENABLED > 0
+#if MB_MASTER_RTU_ENABLED
 
-eMBErrorCode    eMBMasterRTUInit(sMBMasterInfo* psMBMasterInfo);
-void            eMBMasterRTUStart(sMBMasterInfo* psMBMasterInfo);
-void            eMBMasterRTUStop(sMBMasterInfo* psMBMasterInfo);
+eMBErrorCode eMBMasterRTUInit(sMBMasterInfo* psMBMasterInfo);
+void vMBMasterRTUStart(sMBMasterInfo* psMBMasterInfo);
+void vMBMasterRTUStop(sMBMasterInfo* psMBMasterInfo);
 
-eMBErrorCode    eMBMasterRTUReceive(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRcvAddress, UCHAR** pucFrame, USHORT* pusLength);
-									 
-eMBErrorCode    eMBMasterRTUSend(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddress, UCHAR* pucFrame, USHORT usLength);
+eMBErrorCode eMBMasterRTUReceive(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRcvAddress, UCHAR** pucFrame, USHORT* pusLength);
+eMBErrorCode eMBMasterRTUSend(sMBMasterInfo* psMBMasterInfo, UCHAR ucSlaveAddress, UCHAR* pucFrame, USHORT usLength);
 
-BOOL            xMBMasterRTUReceiveFSM(sMBMasterInfo* psMBMasterInfo);
-BOOL            xMBMasterRTUTransmitFSM(sMBMasterInfo* psMBMasterInfo);
-BOOL            xMBMasterRTUTimerExpired(sMBMasterInfo* psMBMasterInfo);
-
-eMBMasterRcvState usMBMasterGetRcvState(const sMBMasterInfo* psMBMasterInfo);
-eMBMasterSndState usMBMasterGetSndState(const sMBMasterInfo* psMBMasterInfo);
+BOOL xMBMasterRTUReceiveFSM(sMBMasterInfo* psMBMasterInfo);
+BOOL xMBMasterRTUTransmitFSM(sMBMasterInfo* psMBMasterInfo);
+BOOL xMBMasterRTUTimerExpired(sMBMasterInfo* psMBMasterInfo);
 
 #endif
 

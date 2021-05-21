@@ -31,13 +31,22 @@
 #ifndef _MB_H
 #define _MB_H
 
-#include <stddef.h>
-
-#include "port.h"
 #include "mbport.h"
-#include "mbproto.h"
-#include "mbframe.h"
 #include "mbdict.h"
+
+#if MB_UCOSIII_ENABLED
+
+#if MB_SLAVE_TCP_ENABLED
+#include "sockets.h"
+#endif
+
+#elif MB_LINUX_ENABLED
+
+#if MB_SLAVE_TCP_ENABLED
+#include <netinet/in.h>
+#endif
+
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,9 +81,8 @@ extern "C" {
 /*! \ingroup modbus
  * \brief Use the default Modbus TCP port (502)
  */
-#define MB_TCP_PORT_USE_DEFAULT 0   
-
-#define MB_SLAVE_POLL_TASK_STK_SIZE         256
+#define MB_TCP_PORT_USE_DEFAULT       0   
+#define MB_SLAVE_POLL_TASK_STK_SIZE   256
 
 /* ----------------------- Type definitions ---------------------------------*/
 typedef enum
@@ -91,72 +99,32 @@ typedef enum
     STATE_TX_XMIT               /*!< Transmitter is in transfer state. */
 } eMBSlaveSndState;
 
-
 typedef struct                 /* master poll task information */ 
 {
 #if  MB_UCOSIII_ENABLED
     OS_TCB     sSlavePollTCB;
     OS_PRIO    ucSlavePollPrio;
-
     CPU_STK    usSlavePollStk[MB_SLAVE_POLL_TASK_STK_SIZE];
+    
 #elif MB_LINUX_ENABLED
     pthread_t  sMBPollTask;               //从栈状态机任务信息
 #endif
 
 }sMBSlaveTask;
 
-typedef struct sMBSlaveInfo  /* Slave information */
-{
-    sMBSlavePort      sMBPort;        //从栈硬件接口信息
-    sMBSlaveTask      sMBTask;        //从栈状态机任务信息
+typedef void (*pvMBSlaveFrameStart)(struct sMBSlaveInfo* psMBSlaveInfo);
+typedef void (*pvMBSlaveFrameStop)(struct sMBSlaveInfo* psMBSlaveInfo);
+typedef void (*pvMBSlaveFrameGetRequest)(struct sMBSlaveInfo* psMBSlaveInfo);
 
-    sMBSlaveCommInfo  sMBCommInfo;    //从栈通讯信息
-    
-	eMBMode           eMode;              //MODBUS模式: RTU模式   ASCII模式   TCP模式 
-    eMBState          eMBState;           //从栈状态
-	eMBSlaveSndState  eSndState;          //发送状态
-    eMBSlaveRcvState  eRcvState;          //接收状态
-    
-    USHORT            usSndBufferCount;   //发送缓冲区数据量
-    USHORT            usRcvBufferPos;     //接收缓冲区数据位置
-    
-    UCHAR*            pucSndBufferCur;    //当前发送数据缓冲区指针
-    
-#if MB_SLAVE_RTU_ENABLED > 0         /*RTU mode information*/
-    UCHAR             ucRTUBuf[MB_SER_PDU_SIZE_MAX];       //接收缓冲区                      
-#endif
-
-#if MB_MASTER_ASCII_ENABLED > 0 
-#endif
-
-     struct sMBSlaveInfo*    pNext;     //下一从栈节点
-     struct sMBSlaveInfo*    pLast;     //末尾从栈节点
-}sMBSlaveInfo;
-
-typedef struct                 /* 从栈节点配置信息 */
-{
-   eMBMode     eMode;
-   sUART_Def*  psSlaveUart;
-                       
-   CHAR*       pcMBPortName;
-   UCHAR       ucSlaveAddr;
-#if MB_UCOSIII_ENABLED
-   OS_PRIO     ucSlavePollPrio;
-#endif
-}sMBSlaveNodeInfo;
-
-typedef void (*pvMBSlaveFrameStart)(sMBSlaveInfo* psMBSlaveInfo);
-typedef void (*pvMBSlaveFrameStop)(sMBSlaveInfo* psMBSlaveInfo);
 typedef void (*pvMBSlaveFrameClose)(sMBSlavePort* psMBPort);
 
-#if MB_SLAVE_RTU_ENABLED > 0 || MB_SLAVE_ASCII_ENABLED > 0 
-
-typedef eMBErrorCode (*peMBSlaveFrameReceive) (sMBSlaveInfo* psMBSlaveInfo, UCHAR * pucRcvAddress, UCHAR** pucFrame, USHORT * pusLength);
-typedef eMBErrorCode (*peMBSlaveFrameSend) (sMBSlaveInfo* psMBSlaveInfo, UCHAR slaveAddress, UCHAR* pucFrame, USHORT usLength);
-
+typedef eMBErrorCode (*peMBSlaveFrameReceive)(struct sMBSlaveInfo* psMBSlaveInfo, UCHAR *pucRcvAddress, 
+                                              UCHAR** pucFrame, USHORT *pusLength);
+typedef eMBErrorCode (*peMBSlaveFrameSend)(struct sMBSlaveInfo* psMBSlaveInfo, UCHAR slaveAddress, 
+                                           const UCHAR* pucFrame, USHORT usLength);
 typedef void (*pvMBSlaveFrameReceiveCallback)(void* p_arg);
 typedef void (*pvMBSlaveFrameSendCallback)(void* p_arg);
-#endif
+
 /* ----------------------- Callback for the protocol stack ------------------*/
 /*!
  * \brief Callback function for the porting layer when a new byte is
@@ -170,22 +138,101 @@ typedef void (*pvMBSlaveFrameSendCallback)(void* p_arg);
  *   a new byte was received. The port implementation should wake up the
  *   tasks which are currently blocked on the eventqueue.
  */
-typedef BOOL (*pxMBSlaveFrameCBByteReceived)(sMBSlaveInfo* psMBSlaveInfo);
+typedef BOOL (*pxMBSlaveFrameCBByteReceived)(struct sMBSlaveInfo* psMBSlaveInfo);
+typedef BOOL (*pxMBSlaveFrameCBTransmitterEmpty)(struct sMBSlaveInfo* psMBSlaveInfo);
+typedef BOOL (*pxMBSlaveFrameCBTimerExpired)(struct sMBSlaveInfo* psMBSlaveInfo);
 
-typedef BOOL (*pxMBSlaveFrameCBTransmitterEmpty)(sMBSlaveInfo* psMBSlaveInfo);
+//extern pxMBSlaveFrameCBTimerExpired  pxMBSlaveFrameCBTimerExpiredCur;
 
-typedef BOOL (*pxMBSlaveFrameCBTimerExpired)(sMBSlaveInfo* psMBSlaveInfo);
+typedef struct sMBSlaveInfo  /* Slave information */
+{
+    /* Functions pointer which are initialized in eMBInit( ). Depending on the
+     * mode (RTU or ASCII) the are set to the correct implementations.
+     */
+    peMBSlaveFrameSend       peMBSlaveFrameSendCur;
+    peMBSlaveFrameReceive    peMBSlaveFrameReceiveCur;
+    pvMBSlaveFrameStart      pvMBSlaveFrameStartCur;
+    pvMBSlaveFrameStop       pvMBSlaveFrameStopCur;
+    pvMBSlaveFrameGetRequest pvMBSlaveFrameGetRequestCur;
+    pvMBSlaveFrameClose      pvMBSlaveFrameCloseCur;
 
-/* Callback functions required by the porting layer. They are called when
- * an external event has happend which includes a timeout or the reception
- * or transmission of a character.
- */
-extern pxMBSlaveFrameCBByteReceived     pxMBSlaveFrameCBByteReceivedCur;
-extern pxMBSlaveFrameCBTransmitterEmpty pxMBSlaveFrameCBTransmitterEmptyCur;
-extern pxMBSlaveFrameCBTimerExpired     pxMBSlaveFrameCBTimerExpiredCur;
+    pvMBSlaveFrameReceiveCallback    pvMBSlaveReceiveCallback;
+    pvMBSlaveFrameSendCallback       pvMBSlaveSendCallback;
+    
+    /* Callback functions required by the porting layer. They are called when
+     * an external event has happend which includes a timeout or the reception
+     * or transmission of a character.
+     */
+    pxMBSlaveFrameCBByteReceived     pxMBSlaveFrameCBByteReceivedCur;
+    pxMBSlaveFrameCBTransmitterEmpty pxMBSlaveFrameCBTransmitterEmptyCur;
+    pxMBSlaveFrameCBTimerExpired     pxMBSlaveFrameCBTimerExpiredCur;
 
-extern pvMBSlaveFrameReceiveCallback    pvMBSlaveReceiveCallback;
-extern pvMBSlaveFrameSendCallback       pvMBSlaveSendCallback;
+    sMBSlavePort      sMBPort;        //从栈硬件接口信息
+    sMBSlaveTask      sMBTask;        //从栈状态机任务信息
+
+    sMBSlaveCommInfo  sMBCommInfo;    //从栈通讯信息
+    
+    eMBMode           eMode;      //MODBUS模式: RTU模式   ASCII模式
+    eMBState          eMBState;   //从栈状态
+    eMBSlaveSndState  eSndState;  //发送状态
+    eMBSlaveRcvState  eRcvState;  //接收状态
+    
+    USHORT usSndBufferCount;   //发送缓冲区数据量
+    USHORT usRcvBufferPos;     //接收缓冲区数据位置
+    USHORT usLength;           //报文长度
+
+    UCHAR *pucSndBufferCur;   //当前发送数据缓冲区指针
+    UCHAR *pucMBFrame;        //接收和发送报文数据缓存区
+    
+    UCHAR  ucRcvBuf[MB_SER_PDU_SIZE_MAX];       //接收缓冲区                      
+    UCHAR  ucRcvAddress;      //modbus从机地址
+ 
+    struct sMBSlaveInfo*    pNext;     //下一从栈节点
+    struct sMBSlaveInfo*    pLast;     //末尾从栈节点
+}sMBSlaveInfo;
+
+
+#if MB_SLAVE_TCP_ENABLED
+typedef struct                 /* master poll task information */
+{
+    UCHAR ucSlaveAddr; 
+
+    pvMBSlaveFrameReceiveCallback    pvMBSlaveReceiveCallback;
+    pvMBSlaveFrameSendCallback       pvMBSlaveSendCallback;
+#if  MB_UCOSIII_ENABLED
+    OS_PRIO    ucSlaveTcpPollPrio;
+    OS_PRIO    ucSlaveTcpServerPrio;
+    OS_TCB     sSlaveTcpServerTCB;
+    CPU_STK    usSlaveTcpServerStk[MB_SLAVE_POLL_TASK_STK_SIZE];
+    
+#elif MB_LINUX_ENABLED  
+    pthread_t sMBSlaveTcpServerTask;  //TCP从栈服务任务信息
+#endif 
+    struct sockaddr_in sTcpServerAddr;
+    sMBSlaveInfo sMBSlaveTcpClients[MB_SLAVE_MAX_TCP_CLIENT];
+}sMBSlaveTcpInfo;
+#endif
+
+typedef struct    /* 从栈节点配置信息 */
+{
+   eMBMode eMode;
+   const CHAR* pcMBPortName;
+   UCHAR ucSlaveAddr;
+    
+#if MB_SLAVE_TCP_ENABLED
+   int iSocketClient;
+   int iSocketServer; //Server对应的socket号 
+#endif    
+
+#if MB_SLAVE_RTU_ENABLED || MB_SLAVE_ASCII_ENABLED
+   sUART_Def* psSlaveUart; 
+#endif    
+  
+#if MB_UCOSIII_ENABLED
+   OS_PRIO ucSlavePollPrio;
+#endif
+    
+}sMBSlaveNodeInfo;
 
 /* ----------------------- Function prototypes ------------------------------*/
 /*! \ingroup modbus
@@ -229,7 +276,7 @@ eMBErrorCode  eMBSlaveInit(sMBSlaveInfo* psMBSlaveInfo);
  *        slave addresses are in the range 1 - 247.
  *    - eMBErrorCode::MB_EPORTERR IF the porting layer returned an error.
  */
-eMBErrorCode    eMBSlaveTCPInit( USHORT usTCPPort );
+eMBErrorCode eMBSlaveTCPInit(sMBSlaveInfo* psMBSlaveInfo);
 
 /*! \ingroup modbus
  * \brief Release resources used by the protocol stack.
@@ -459,6 +506,8 @@ eMBErrorCode eMBSlaveRegDiscreteCB( sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucRegBu
 BOOL xMBSlaveRegistNode( sMBSlaveInfo* psMBSlaveInfo, sMBSlaveNodeInfo* psSlaveNode);
 
 void vMBSlaveRegistCommData(sMBSlaveInfo* psMBSlaveInfo, sMBSlaveCommData* psSlaveCurData);
+
+void vMBSlaveSetAddr(sMBSlaveInfo* psMBSlaveInfo, UCHAR ucSlaveAddr);
 
 sMBSlaveInfo* psMBSlaveFindNodeByPort(const CHAR* pcMBPortName);
 									 

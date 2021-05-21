@@ -44,7 +44,7 @@ void Curve::initPolt()
     ui->curveStackedWidget->addWidget(curveHumi);
     ui->curveStackedWidget->addWidget(curveCO2);
     ui->curveStackedWidget->addWidget(curveAir);
-     ui->curveStackedWidget->addWidget(curvePower);
+    ui->curveStackedWidget->addWidget(curvePower);
 
     ui->curveStackedWidget->addWidget(curveTempH);
     ui->curveStackedWidget->addWidget(curveHumiH);

@@ -7,11 +7,20 @@
 
 #if MB_UCOSIII_ENABLED
 
-#elif MB_LINUX_ENABLED
+#if MB_MASTER_TCP_ENABLED
+#include "sockets.h"
+#endif
 
+#elif MB_LINUX_ENABLED
 #include <time.h>
 
+#if MB_MASTER_TCP_ENABLED
+#include <netinet/in.h>
 #endif
+
+#endif
+
+
 /* ----------------------Master Defines -------------------------------------*/
 
 #define MB_HEART_BEAT_DELAY_MS    10   //主栈心跳延时
@@ -31,33 +40,33 @@ typedef enum   /*轮询模式*/
 
 typedef struct        /* 主栈保持寄存器数据结构 */
 {
-	USHORT            usAddr;            //地址
-    UCHAR             ucDataType;        //数据类型
-    volatile USHORT   usPreVal;          //先前值
-    LONG              lMinVal;           //最小值
-    LONG              lMaxVal;           //最大值
-    UCHAR             ucAccessMode;      //访问权限
-    float             fTransmitMultiple; //传输因子
-    void*             pvValue;           //变量指针    
+	USHORT usAddr;       //地址
+    USHORT usPreVal;     //先前值
+    USHORT usMinVal;     //最小值
+    USHORT usMaxVal;     //最大值
+    UCHAR  ucDataType;   //数据类型
+    UCHAR  ucAccessMode; //访问权限
+    UCHAR  ucTmitMult;   //传输因子
+    void*  pvValue;      //变量指针    
 }sMasterRegHoldData;     		
 
 typedef struct        /* 主栈字典保持寄存器数据结构 */
 {
-	USHORT    usAddr;             //地址
-    UCHAR     ucDataType;         //数据类型
-    LONG      lMinVal;            //最小值
-    LONG      lMaxVal;            //最大值
-    UCHAR     ucAccessMode;       //访问权限
-    float     fTransmitMultiple;  //传输因子
-    void*     pvValue;            //变量指针    
+	USHORT    usAddr;       //地址
+    USHORT    usMinVal;     //最小值
+    USHORT    usMaxVal;     //最大值
+    UCHAR     ucDataType;   //数据类型
+    UCHAR     ucAccessMode; //访问权限
+    UCHAR     ucTmitMult;   //传输因子
+    void*     pvValue;      //变量指针    
 }sMasterRegInData; 
 
 typedef struct       /* 主栈字典线圈数据结构 */
 {
-    USHORT          usAddr;           //地址
-    volatile UCHAR  ucPreVal;         //先前值
-    UCHAR           ucAccessMode;     //访问权限
-	UCHAR*          pvValue;          //变量指针   
+    USHORT  usAddr;           //地址
+    UCHAR   ucPreVal;         //先前值
+    UCHAR   ucAccessMode;     //访问权限
+	UCHAR*  pvValue;          //变量指针   
 }sMasterBitCoilData;  
 
 typedef struct       /* 主栈字典离散量数据结构 */
@@ -100,48 +109,41 @@ typedef BOOL (*pxMBDevDataMapIndex)(eDataType eDataType, UCHAR ucProtocolID, USH
 
 typedef struct sMBSlaveDevCommData   /* 从设备通讯字典数据结构 */  
 {
-#if MB_FUNC_READ_INPUT_ENABLED > 0
-	sMBDevDataTable      sMBRegInTable;       //输入寄存器数据表
+#if MB_FUNC_READ_INPUT_ENABLED
+    sMBDevDataTable sMBRegInTable;       //输入寄存器数据表
 #endif
 
-#if MB_FUNC_WRITE_HOLDING_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0 \
-    || MB_FUNC_READ_HOLDING_ENABLED > 0 || MB_FUNC_READWRITE_HOLDING_ENABLED > 0
+#if MB_FUNC_WRITE_HOLDING_ENABLED || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED \
+    || MB_FUNC_READ_HOLDING_ENABLED || MB_FUNC_READWRITE_HOLDING_ENABLED
 
     sMBDevDataTable sMBRegHoldTable;     //保持寄存器数据表
 #endif
 
-#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
     sMBDevDataTable sMBCoilTable;        //线圈数据表
 #endif
 
-#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
 	sMBDevDataTable      sMBDiscInTable;      //离散量数据表
 #endif
     sMBTestDevCmd sMBDevCmdTable;      //用于测试从设备状态命令表
 
-#if  MB_UCOSIII_ENABLED
-    pxMBDevDataMapIndex  pxDevDataMapIndex;   //字典映射函数
-
-#elif MB_LINUX_ENABLED
-
-#if MB_FUNC_READ_INPUT_ENABLED > 0
+#if MB_FUNC_READ_INPUT_ENABLED
     uint16_t  *pRegInIndex;       //输入寄存器数据域映射
 #endif
 
-#if MB_FUNC_WRITE_HOLDING_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0 \
-    || MB_FUNC_READ_HOLDING_ENABLED > 0 || MB_FUNC_READWRITE_HOLDING_ENABLED > 0
+#if MB_FUNC_WRITE_HOLDING_ENABLED || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED \
+    || MB_FUNC_READ_HOLDING_ENABLED || MB_FUNC_READWRITE_HOLDING_ENABLED
 
     uint16_t  *pRegHoldIndex;     //保持寄存器数据域映射
 #endif
 
-#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
     uint16_t  *pBitCoilIndex;     //线圈数据域映射
 #endif
 
 #if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
      uint16_t  *pBitDiscIndex;     //离散量数据表数据域映射
-#endif
-
 #endif
 
     pxMBDevDataMapIndex  pxDevDataMapIndex;   //字典映射函数
@@ -165,8 +167,6 @@ typedef struct sMBSlaveDev   /* 从设备信息列表 */
     BOOL      xDevOnTimeout;         //是否处于延时
     BOOL      xOnLine;               //是否在线
     
-//    eScanMode eScanMode;             //当前轮询模式
-    
 #if  MB_UCOSIII_ENABLED
     OS_TMR  sDevOfflineTmr;          //设备掉线定时器
 
@@ -179,13 +179,21 @@ typedef struct sMBSlaveDev   /* 从设备信息列表 */
     timer_t sDevOfflineTmr;          //设备掉线定时器
 #endif
 
-    sMBSlaveDevCommData* psDevDataInfo;     //从设备数据域
-    sMBSlaveDevCommData* psDevCurData;      //从设备当前数据域
+#if MB_MASTER_TCP_ENABLED
+    struct sockaddr_in tSocketServerAddr;
     
-    struct sMBSlaveDev*  pNext;             //下一个设备节点
-    struct sMBSlaveDev*  pLast;             //尾设备节点
+    int iSocketClient;        //接口对应Socket
+    int iSocketOfflines;      //掉线次数
+    uint16_t uiMBServerPort;  //服务端TCP端口
+
+    const CHAR* pcMBServerIP;  //服务端IP
+    BOOL xSocketConnected;     //socket是否链接
+#endif
+    sMBSlaveDevCommData* psDevDataInfo;   //从设备数据域
+    sMBSlaveDevCommData* psDevCurData;    //从设备当前数据域
     
-    struct sMBMasterInfo* psMBMasterInfo;   //所属的主栈  
+    struct sMBSlaveDev*  pNext;           //下一个设备节点
+    struct sMBSlaveDev*  pLast;           //尾设备节点
 }sMBSlaveDev; 
 
 typedef struct    /* 主栈从设备状态结构  */
@@ -197,12 +205,11 @@ typedef struct    /* 主栈从设备状态结构  */
     sMBSlaveDev*  psMBSlaveDevsList;  //当前在线从设备列表
     sMBSlaveDev*  psMBSlaveDevCur;    //当前活动的设备
 
-#if MB_MASTER_DTU_ENABLED > 0     //GPRS模块功能支持
+#if MB_MASTER_DTU_ENABLED     //GPRS模块功能支持
     sMBSlaveDev*  psMBDTUDev247;
     sMBSlaveDev*  psMBDTUDev200;
 #endif
 
-       
 }sMBMasterDevsInfo; 
 
 #endif

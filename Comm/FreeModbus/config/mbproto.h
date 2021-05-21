@@ -82,9 +82,9 @@ typedef enum
 
 typedef enum
 {
-    MB_RTU,                     /*!< RTU transmission mode. */
-    MB_ASCII,                   /*!< ASCII transmission mode. */
-    MB_TCP,                     /*!< TCP mode. */
+    MB_RTU,      /*!< RTU transmission mode. */
+    MB_ASCII,    /*!< ASCII transmission mode. */
+    MB_TCP       /*!< TCP transmission mode. */
 }eMBMode;
 
 /*! \ingroup modbus

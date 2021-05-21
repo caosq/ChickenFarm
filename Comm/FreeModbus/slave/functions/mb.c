@@ -27,14 +27,6 @@
  *
  * File: $Id: mb.c,v 1.27 2007/02/18 23:45:41 wolti Exp $
  */
-
-/* ----------------------- System includes ----------------------------------*/
-#include "stdlib.h"
-#include "string.h"
-
-/* ----------------------- Platform includes --------------------------------*/
-#include "port.h"
-
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "mb.h"
 #include "mbconfig.h"
@@ -51,47 +43,24 @@
 #include <pthread.h>
 #endif
 
-#if MB_SLAVE_RTU_ENABLED == 1
+#if MB_SLAVE_RTU_ENABLED
 #include "mbrtu.h"
 #endif
-#if MB_SLAVE_ASCII_ENABLED == 1
+#if MB_SLAVE_ASCII_ENABLED
 #include "mbascii.h"
 #endif
-#if MB_SLAVE_TCP_ENABLED == 1
+#if MB_SLAVE_TCP_ENABLED
 #include "mbtcp.h"
 #endif
-
-
-#if MB_SLAVE_RTU_ENABLED > 0 || MB_SLAVE_ASCII_ENABLED > 0
 
 #ifndef MB_PORT_HAS_CLOSE
 #define MB_PORT_HAS_CLOSE 0
 #endif
 
-#define MB_SLAVE_POLL_INTERVAL_MS           30
+#define MB_SLAVE_POLL_INTERVAL_MS           50
 
 /* ----------------------- Static variables ---------------------------------*/ 
-static sMBSlaveInfo*      psMBSlaveList = NULL; 
-
-/* Functions pointer which are initialized in eMBInit( ). Depending on the
- * mode (RTU or ASCII) the are set to the correct implementations.
- */
-static peMBSlaveFrameSend         peMBSlaveFrameSendCur;
-static peMBSlaveFrameReceive      peMBSlaveFrameReceiveCur;
-static pvMBSlaveFrameStart        pvMBSlaveFrameStartCur;
-static pvMBSlaveFrameStop         pvMBSlaveFrameStopCur;
-static pvMBSlaveFrameClose        pvMBSlaveFrameCloseCur;
-
-/* Callback functions required by the porting layer. They are called when
- * an external event has happend which includes a timeout or the reception
- * or transmission of a character.
- */
-pxMBSlaveFrameCBByteReceived      pxMBSlaveFrameCBByteReceivedCur;
-pxMBSlaveFrameCBTransmitterEmpty  pxMBSlaveFrameCBTransmitterEmptyCur;
-pxMBSlaveFrameCBTimerExpired      pxMBSlaveFrameCBTimerExpiredCur;
-
-pvMBSlaveFrameReceiveCallback     pvMBSlaveReceiveCallback;
-pvMBSlaveFrameSendCallback        pvMBSlaveSendCallback;
+static sMBSlaveInfo* psMBSlaveList = NULL; 
 
 /* An array of Modbus functions handlers which associates Modbus function
  * codes with implementing functions.
@@ -140,18 +109,15 @@ static xMBSlaveFunctionHandler xFuncHandlers[MB_FUNC_HANDLERS_MAX] = {
  *********************************************************************/
 eMBErrorCode eMBSlaveInit(sMBSlaveInfo* psMBSlaveInfo)
 {
-    eMBErrorCode           eStatus = MB_ENOERR;
-    sMBSlavePort*         psMBPort = &psMBSlaveInfo->sMBPort;
+    eMBErrorCode eStatus = MB_ENOERR;
+    sMBSlavePort* psMBPort = &psMBSlaveInfo->sMBPort;
     sMBSlaveCommInfo* psMBCommInfo = &psMBSlaveInfo->sMBCommInfo;
     
-#if MB_UCOSIII_ENABLED
-    UCHAR ucSlaveAddr = *psMBCommInfo->pcSlaveAddr;
-#elif MB_LINUX_ENABLED
     UCHAR ucSlaveAddr = psMBCommInfo->ucSlaveAddr;
-#endif
+
     /* check preconditions */
-    if( (ucSlaveAddr == MB_ADDRESS_BROADCAST) ||
-        (ucSlaveAddr < MB_ADDRESS_MIN) || (ucSlaveAddr > MB_ADDRESS_MAX) )
+    if(ucSlaveAddr == MB_ADDRESS_BROADCAST ||
+       ucSlaveAddr < MB_ADDRESS_MIN || ucSlaveAddr > MB_ADDRESS_MAX)
     {
        return MB_EINVAL;
     }
@@ -159,34 +125,43 @@ eMBErrorCode eMBSlaveInit(sMBSlaveInfo* psMBSlaveInfo)
     {
         switch (psMBSlaveInfo->eMode)
         {
-
         case MB_RTU:
-#if MB_SLAVE_RTU_ENABLED > 0
+#if MB_SLAVE_RTU_ENABLED
     /* 协议栈核心函数指针的赋值，包括Modbus协议栈的使能和禁止、报文的接收和响应、
         3.5T定时器中断回调函数、串口发送和接收中断回调函数 */
-            pvMBSlaveFrameStartCur      = eMBSlaveRTUStart;                              // 开启协议栈 
-            pvMBSlaveFrameStopCur       = eMBSlaveRTUStop;                               // 终止协议栈 
-            peMBSlaveFrameSendCur       = eMBSlaveRTUSend;                               // 发送消息帧 
-            peMBSlaveFrameReceiveCur    = eMBSlaveRTUReceive;                            // 接收消息帧 
-        
-            pvMBSlaveFrameCloseCur      = MB_PORT_HAS_CLOSE ? vMBSlavePortClose : NULL;  // 关闭协议栈串口
-        
-            pxMBSlaveFrameCBByteReceivedCur     = xMBSlaveRTUReceiveFSM;                 //接收状态机，串口接受中断最终调用此函数接收数据
-            pxMBSlaveFrameCBTransmitterEmptyCur = xMBSlaveRTUTransmitFSM;                //发送状态机，串口发送中断最终调用此函数发送数据
-            pxMBSlaveFrameCBTimerExpiredCur     = xMBSlaveRTUTimerT35Expired;            //T35超时， 报文到达间隔检查，定时器中断函数最终调                                                                                //用次函数完成定时器中断
+            psMBSlaveInfo->pvMBSlaveFrameStartCur   = vMBSlaveRTUStart;      // 开启协议栈
+            psMBSlaveInfo->pvMBSlaveFrameStopCur    = vMBSlaveRTUStop;       // 终止协议栈
+            psMBSlaveInfo->peMBSlaveFrameSendCur    = eMBSlaveRTUSend;       // 发送消息帧
+            psMBSlaveInfo->peMBSlaveFrameReceiveCur = eMBSlaveRTUReceive;    // 接收消息帧
+            psMBSlaveInfo->pvMBSlaveFrameGetRequestCur = vMBSlaveRTUGetRequest; //等待数据请求
+
+//            psMBSlaveInfo->pvMBSlaveFrameCloseCur   = MB_PORT_HAS_CLOSE ? vMBSlavePortClose : NULL;  // 关闭协议栈串口
+//        
+            psMBSlaveInfo->pxMBSlaveFrameCBByteReceivedCur     = xMBSlaveRTUReceiveFSM;       //接收数据
+            psMBSlaveInfo->pxMBSlaveFrameCBTransmitterEmptyCur = xMBSlaveRTUTransmitFSM;      //发送数据
+            psMBSlaveInfo->pxMBSlaveFrameCBTimerExpiredCur = xMBSlaveRTUTimerExpired;  //T35超时
+            
+            psMBSlaveInfo->pvMBSlaveReceiveCallback = NULL;
+            psMBSlaveInfo->pvMBSlaveSendCallback = NULL;
+
             eStatus = eMBSlaveRTUInit(psMBSlaveInfo);
 #endif
             break;
         case MB_ASCII:
-#if MB_SLAVE_ASCII_ENABLED > 0
-            pvMBSlaveFrameStartCur = eMBASCIIStart;
-            pvMBSlaveFrameStopCur = eMBASCIIStop;
-            peMBSlaveFrameSendCur = eMBASCIISend;
-            peMBSlaveFrameReceiveCur = eMBASCIIReceive;
-            pvMBSlaveFrameCloseCur = MB_PORT_HAS_CLOSE ? vMBPortClose : NULL;
-            pxMBSlaveFrameCBByteReceived = xMBASCIIReceiveFSM;
-            pxMBSlaveFrameCBTransmitterEmpty = xMBASCIITransmitFSM;
-            pxMBSlaveFrameCBTimerExpired = xMBASCIITimerT1SExpired;
+#if MB_SLAVE_ASCII_ENABLED
+            psMBSlaveInfo->pvMBSlaveFrameStartCur = eMBASCIIStart;
+            psMBSlaveInfo->pvMBSlaveFrameStopCur = eMBASCIIStop;
+            psMBSlaveInfo->peMBSlaveFrameSendCur = eMBASCIISend;
+            psMBSlaveInfo->peMBSlaveFrameReceiveCur = eMBASCIIReceive;
+        
+            psMBSlaveInfo->pvMBSlaveFrameCloseCur = MB_PORT_HAS_CLOSE ? vMBPortClose : NULL;
+        
+            psMBSlaveInfo->pxMBSlaveFrameCBByteReceived = xMBASCIIReceiveFSM;
+            psMBSlaveInfo->pxMBSlaveFrameCBTransmitterEmpty = xMBASCIITransmitFSM;
+            psMBSlaveInfo->pxMBSlaveFrameCBTimerExpired = xMBASCIITimerT1SExpired;
+
+            psMBSlaveInfo->pvMBSlaveReceiveCallback = NULL;
+            psMBSlaveInfo->pvMBSlaveSendCallback = NULL;
 
             eStatus = eMBASCIIInit(ucMBAddress, ucPort, ulBaudRate, eParity);
 #endif
@@ -202,39 +177,37 @@ eMBErrorCode eMBSlaveInit(sMBSlaveInfo* psMBSlaveInfo)
             }
             else
             {
-                psMBSlaveInfo->eMBState = STATE_DISABLED;    //modbus协议栈初始化状态,在此初始化为禁止
+                psMBSlaveInfo->eMBState = STATE_DISABLED; //modbus协议栈初始化状态,在此初始化为禁止
             }
         }
     }
     return MB_ENOERR;
 }
 
-#if MB_SLAVE_TCP_ENABLED > 0
-
-eMBErrorCode eMBSlaveTCPInit( USHORT ucTCPPort )
+#if MB_SLAVE_TCP_ENABLED
+eMBErrorCode eMBSlaveTCPInit(sMBSlaveInfo* psMBSlaveInfo)
 {
-    eMBErrorCode    eStatus = MB_ENOERR;
+    psMBSlaveInfo->pvMBSlaveFrameStartCur   = vMBSlaveTCPStart;
+    psMBSlaveInfo->pvMBSlaveFrameStopCur    = vMBSlaveTCPStop;
+    psMBSlaveInfo->peMBSlaveFrameReceiveCur = eMBSlaveTCPReceive;
+    psMBSlaveInfo->peMBSlaveFrameSendCur    = eMBSlaveTCPSend;
+    psMBSlaveInfo->pvMBSlaveFrameGetRequestCur = vMBSlaveTCPGetRequest; //等待数据请求
 
-    if( (eStatus = eMBTCPDoInit(ucTCPPort)) != MB_ENOERR )
+    psMBSlaveInfo->pvMBSlaveReceiveCallback = NULL;
+    psMBSlaveInfo->pvMBSlaveSendCallback = NULL;
+
+    //pvMBSlaveFrameCloseCur = MB_PORT_HAS_CLOSE ? vMBTCPPortClose : NULL;
+
+    //eStatus = eMBSlaveTCPInit(psMBSlaveInfo);
+    if(xMBSlavePortEventInit(&psMBSlaveInfo->sMBPort) == FALSE)
     {
-        eMBState = STATE_DISABLED;
-    }
-    else if( !xMBPortEventInit() )
-    {
-        /* Port dependent event module initalization failed. */
-        eStatus = MB_EPORTERR;
+        return MB_EPORTERR; /* port dependent event module initalization failed. */
     }
     else
     {
-        pvMBFrameStartCur = eMBTCPStart;
-        pvMBFrameStopCur = eMBTCPStop;
-        peMBFrameReceiveCur = eMBTCPReceive;
-        peMBFrameSendCur = eMBTCPSend;
-        pvMBFrameCloseCur = MB_PORT_HAS_CLOSE ? vMBTCPPortClose : NULL;
-        ucMBAddress = MB_TCP_PSEUDO_ADDRESS;
-        eMBState = STATE_DISABLED;
+        psMBSlaveInfo->eMBState = STATE_DISABLED; //modbus协议栈初始化状态,在此初始化为禁止
     }
-    return eStatus;
+    return MB_ENOERR;
 }
 #endif
 
@@ -250,9 +223,9 @@ eMBErrorCode eMBSlaveClose( sMBSlaveInfo* psMBSlaveInfo )
     
     if(psMBSlaveInfo->eMBState == STATE_DISABLED)
     {
-        if(pvMBSlaveFrameCloseCur != NULL)
+        if(psMBSlaveInfo->pvMBSlaveFrameCloseCur != NULL)
         {
-            pvMBSlaveFrameCloseCur(psMBPort);
+            psMBSlaveInfo->pvMBSlaveFrameCloseCur(psMBPort);
         }
     }
     else
@@ -273,8 +246,8 @@ eMBErrorCode eMBSlaveEnable(sMBSlaveInfo* psMBSlaveInfo)
     if(psMBSlaveInfo->eMBState == STATE_DISABLED)
     {
         /* Activate the protocol stack. */
-        pvMBSlaveFrameStartCur(psMBSlaveInfo);       //激活协议栈
-        psMBSlaveInfo->eMBState = STATE_ENABLED;    //设置Modbus协议栈工作状态eMBState为STATE_ENABLED
+        psMBSlaveInfo->pvMBSlaveFrameStartCur(psMBSlaveInfo);
+        psMBSlaveInfo->eMBState = STATE_ENABLED; //设置Modbus协议栈工作状态eMBState为STATE_ENABLED
     }
     else
     {
@@ -293,7 +266,7 @@ eMBErrorCode eMBSlaveDisable( sMBSlaveInfo* psMBSlaveInfo )
 {
     if(psMBSlaveInfo->eMBState == STATE_ENABLED)
     {
-        pvMBSlaveFrameStopCur(psMBSlaveInfo);
+        psMBSlaveInfo->pvMBSlaveFrameStopCur(psMBSlaveInfo);
         psMBSlaveInfo->eMBState = STATE_DISABLED;
         
         return MB_ENOERR;
@@ -320,16 +293,14 @@ eMBErrorCode eMBSlaveDisable( sMBSlaveInfo* psMBSlaveInfo )
  *********************************************************************/
 eMBErrorCode eMBSlavePoll(sMBSlaveInfo* psMBSlaveInfo)
 {
-    static UCHAR   *pucMBFrame;            //接收和发送报文数据缓存区
-    static UCHAR    ucRcvAddress;         //modbus从机地址
-    static UCHAR    ucFunctionCode;       //功能码
-    static USHORT   usLength;             //报文长度
-    static eMBException eException;       //错误码响应 枚举
-    USHORT          i;
+    UCHAR ucFunctionCode; //功能码
 
-	eMBSlaveEventType      eEvent;              //错误码
-    eMBErrorCode           eStatus = MB_ENOERR;
-    sMBSlavePort*         psMBPort = &psMBSlaveInfo->sMBPort;
+    eMBException eException; //错误码响应 枚举
+    USHORT  i;
+
+    eMBSlaveEventType eEvent;   //错误码
+    eMBErrorCode      eStatus = MB_ENOERR;
+    sMBSlavePort*     psMBPort = &psMBSlaveInfo->sMBPort;
     sMBSlaveCommInfo* psMBCommInfo = &psMBSlaveInfo->sMBCommInfo;
 
     /* Check if the protocol stack is ready. */
@@ -337,72 +308,68 @@ eMBErrorCode eMBSlavePoll(sMBSlaveInfo* psMBSlaveInfo)
     {
         return MB_EILLSTATE;             //协议栈未使能，返回协议栈无效错误码
     }
-     /* 检查是否有事件发生。 若没有事件发生，将控制权交还主调函数. 否则，将处理该事件 */
-    if(xMBSlavePortEventGet(psMBPort, &eEvent) == TRUE)              
+    if(xMBSlavePortEventGet(psMBPort, &eEvent) == TRUE)  /* 检查是否有事件发生。 若没有事件发生，将控制权交还主调函数. 否则，将处理该事件 */
     {
-        switch (eEvent)
+        switch(eEvent)
         {
         case EV_READY:
+            psMBSlaveInfo->pvMBSlaveFrameGetRequestCur(psMBSlaveInfo);
             break;
-
-        case EV_FRAME_RECEIVED:                    //接收到一帧数据，此事件发生
-
+        case EV_FRAME_RECEIVED:   //接收到一帧数据，此事件发生
             /*CRC校验、提取地址、有效数据指针和有效数据长度*/
-            eStatus = peMBSlaveFrameReceiveCur(psMBSlaveInfo, &ucRcvAddress, &pucMBFrame, &usLength); /*ucRcvAddress 主站要读取的从站的地址，
-                                                                                                     ucMBFrame 指向PDU的头部，usLength PDU的长度*/    
+            eStatus = psMBSlaveInfo->peMBSlaveFrameReceiveCur(psMBSlaveInfo, &psMBSlaveInfo->ucRcvAddress, &psMBSlaveInfo->pucMBFrame,
+                                                              &psMBSlaveInfo->usLength); /*ucRcvAddress 主站要读取的从站的地址，*/
 		    if(eStatus == MB_ENOERR)
             {
                 /* Check if the frame is for us. If not ignore the frame. */
-                if( (ucRcvAddress == psMBCommInfo->ucSlaveAddr) || (ucRcvAddress == MB_ADDRESS_BROADCAST) )
+                if((psMBSlaveInfo->ucRcvAddress == psMBCommInfo->ucSlaveAddr) || (psMBSlaveInfo->ucRcvAddress == MB_ADDRESS_BROADCAST))
                 {
-                    (void)xMBSlavePortEventPost(psMBPort, EV_EXECUTE);      //修改事件标志为EV_EXECUTE执行事件
+                    (void)xMBSlavePortEventPost(psMBPort, EV_EXECUTE);   //修改事件标志为EV_EXECUTE执行事件
                 }
             }
-			if(pvMBSlaveReceiveCallback != NULL)
+            else
             {
-                pvMBSlaveReceiveCallback((void*)psMBSlaveInfo);
+                (void)xMBSlavePortEventPost(psMBPort, EV_ERROR_RCV);
             }
-		break;
-			
+		break;	
         case EV_EXECUTE:	
-		    ucFunctionCode = *(pucMBFrame + MB_PDU_FUNC_OFF);              //提取功能码
+            ucFunctionCode = *(psMBSlaveInfo->pucMBFrame + MB_PDU_FUNC_OFF);    //提取功能码
             eException = MB_EX_ILLEGAL_FUNCTION;
 		
             for(i = 0; i < MB_FUNC_HANDLERS_MAX; i++)
             {
-                /* No more function handlers registered. Abort. */
                 if( xFuncHandlers[i].ucFunctionCode == 0 )
                 {
-                    break;
+                    break; /* No more function handlers registered. Abort. */
                 }
                 else if(xFuncHandlers[i].ucFunctionCode == ucFunctionCode)
                 {
-                    eException = xFuncHandlers[i].pxHandler(psMBSlaveInfo, pucMBFrame, &usLength); //该结构体将功能码和相应功能的处理函数捆绑在一起。 
+                    eException = xFuncHandlers[i].pxHandler(psMBSlaveInfo, psMBSlaveInfo->pucMBFrame,
+                                                            &psMBSlaveInfo->usLength); //该结构体将功能码和相应功能的处理函数捆绑在一起。
                     break;                                                            
                 }
             }
             /*若不是广播命令，则需要发出响应。*/
-            if( ucRcvAddress != MB_ADDRESS_BROADCAST )     
+            if(psMBSlaveInfo->ucRcvAddress != MB_ADDRESS_BROADCAST)
             {
                 if(eException != MB_EX_NONE)
                 {
                     /*发生异常，建立一个错误报告帧*/
-                    usLength = 0;
-                    *(pucMBFrame + (usLength++)) = (UCHAR)(ucFunctionCode | MB_FUNC_ERROR);    //响应发送数据帧的第二个字节，功能码最高位置1
-                    *(pucMBFrame + (usLength++)) = (UCHAR)eException;                                 //响应发送数据帧的第三个字节为错误码标识
+                    psMBSlaveInfo->usLength = 0;
+                    *(psMBSlaveInfo->pucMBFrame + (psMBSlaveInfo->usLength++)) = (UCHAR)(ucFunctionCode | MB_FUNC_ERROR);    //响应发送数据帧的第二个字节，功能码最高位置1
+                    *(psMBSlaveInfo->pucMBFrame + (psMBSlaveInfo->usLength++)) = (UCHAR)eException;                                 //响应发送数据帧的第三个字节为错误码标识
                 }
                  /* eMBRTUSend()进行必要的发送预设后，禁用RX，使能TX。发送操作由USART_DATA（UDR空）中断实现。*/			
-                eStatus = peMBSlaveFrameSendCur(psMBSlaveInfo, psMBCommInfo->ucSlaveAddr, pucMBFrame, usLength); //modbus从机响应函数,发送响应给主机
+                eStatus = psMBSlaveInfo->peMBSlaveFrameSendCur(psMBSlaveInfo, psMBCommInfo->ucSlaveAddr, psMBSlaveInfo->pucMBFrame,
+                                                               psMBSlaveInfo->usLength); //modbus从机响应函数,发送响应给主机
             }
         break;
         case EV_FRAME_SENT:
-			vMBSlavePortSerialEnable(psMBPort, TRUE, FALSE);      //使能接收，禁止发送
-        
-            if(pvMBSlaveSendCallback != NULL)
-            {
-                pvMBSlaveSendCallback((void*)psMBSlaveInfo);
-            }
-        break;	
+            psMBSlaveInfo->pvMBSlaveFrameGetRequestCur(psMBSlaveInfo);
+        break;
+        case EV_ERROR_RCV:
+            psMBSlaveInfo->pvMBSlaveFrameGetRequestCur(psMBSlaveInfo);
+        break;
         }
     }
     return MB_ENOERR;
@@ -417,29 +384,33 @@ eMBErrorCode eMBSlavePoll(sMBSlaveInfo* psMBSlaveInfo)
  *********************************************************************/
 BOOL xMBSlaveRegistNode(sMBSlaveInfo* psMBSlaveInfo, sMBSlaveNodeInfo* psSlaveNode)
 {
-    sMBSlaveInfo*         psMBInfo = NULL;
-    sMBSlavePort*         psMBPort = &psMBSlaveInfo->sMBPort;   //从栈硬件接口信息
-	sMBSlaveTask*         psMBTask = &psMBSlaveInfo->sMBTask;   //从栈状态机任务信息
+    sMBSlaveInfo* psMBInfo = NULL;
+    sMBSlavePort* psMBPort = &psMBSlaveInfo->sMBPort;   //从栈硬件接口信息
+    sMBSlaveTask* psMBTask = &psMBSlaveInfo->sMBTask;   //从栈状态机任务信息
     sMBSlaveCommInfo* psMBCommInfo = &psMBSlaveInfo->sMBCommInfo;   //从栈通讯信息
     
-    if(psMBSlaveInfo == NULL || psSlaveNode == NULL)
+    if(psMBSlaveInfo == NULL || psSlaveNode == NULL || psSlaveNode->pcMBPortName == NULL)
     {
         return FALSE;
     }
-	if( (psMBInfo = psMBSlaveFindNodeByPort(psSlaveNode->pcMBPortName)) == NULL)
+    if((psMBInfo = psMBSlaveFindNodeByPort(psSlaveNode->pcMBPortName)) == NULL)
     {
-        psMBSlaveInfo->pNext = NULL;
         psMBSlaveInfo->eMode = psSlaveNode->eMode;
-        
+        psMBSlaveInfo->pNext = NULL;
+
         /***************************硬件接口设置***************************/
         psMBPort = (sMBSlavePort*)(&psMBSlaveInfo->sMBPort);
         if(psMBPort != NULL)
         {
             psMBPort->psMBSlaveInfo = psMBSlaveInfo;
-            psMBPort->psMBSlaveUart = psSlaveNode->psSlaveUart;
             psMBPort->pcMBPortName  = psSlaveNode->pcMBPortName;
+#if MB_SLAVE_TCP_ENABLED            
+            psMBPort->fd = psSlaveNode->iSocketClient;
+#endif        
+#if MB_SLAVE_RTU_ENABLED || MB_SLAVE_ASCII_ENABLED
+            psMBPort->psMBSlaveUart = psSlaveNode->psSlaveUart;
+#endif
         }
-        
         /***************************通讯参数信息设置***************************/
         psMBCommInfo = (sMBSlaveCommInfo*)(&psMBSlaveInfo->sMBCommInfo);
         if(psMBCommInfo != NULL)
@@ -448,10 +419,9 @@ BOOL xMBSlaveRegistNode(sMBSlaveInfo* psMBSlaveInfo, sMBSlaveNodeInfo* psSlaveNo
         }
         /***************************从栈状态机任务块设置***************************/
 #if MB_UCOSIII_ENABLED
-        psMBTask   = (sMBSlaveTask*)(&psMBSlaveInfo->sMBTask);
+        psMBTask =(sMBSlaveTask*)(&psMBSlaveInfo->sMBTask);
         if(psMBTask != NULL)
         {
-
             psMBTask->ucSlavePollPrio = psSlaveNode->ucSlavePollPrio;
         }
 #endif
@@ -488,6 +458,18 @@ void vMBSlaveRegistCommData(sMBSlaveInfo* psMBSlaveInfo, sMBSlaveCommData* psSla
 }
 
 /**********************************************************************
+ * @brief  MODBUS设置从站通讯地址
+ * @param  psMBSlaveInfo  从栈信息块
+ * @return BOOL
+ * @author laoc
+ * @date 2019.01.22
+ *********************************************************************/
+void vMBSlaveSetAddr(sMBSlaveInfo* psMBSlaveInfo, UCHAR ucSlaveAddr)
+{
+    psMBSlaveInfo->sMBCommInfo.ucSlaveAddr = ucSlaveAddr;
+}
+
+/**********************************************************************
  * @brief  MODBUS通过硬件找到所属从栈
  * @param  pcMBPortName    硬件名称
  * @return sMBMasterInfo   从栈信息块
@@ -498,9 +480,14 @@ sMBSlaveInfo* psMBSlaveFindNodeByPort(const CHAR* pcMBPortName)
 {
 	sMBSlaveInfo*  psMBSlaveInfo = NULL;
 
-	for( psMBSlaveInfo = psMBSlaveList; psMBSlaveInfo != NULL; psMBSlaveInfo = psMBSlaveInfo->pNext )
+    if(pcMBPortName == NULL)
+    {
+        return NULL;
+    }
+    for(psMBSlaveInfo = psMBSlaveList; psMBSlaveInfo != NULL && psMBSlaveInfo->sMBPort.pcMBPortName != NULL;
+        psMBSlaveInfo = psMBSlaveInfo->pNext)
 	{
-        if( strcmp(psMBSlaveInfo->sMBPort.pcMBPortName, pcMBPortName) == 0 )
+        if(strcmp(psMBSlaveInfo->sMBPort.pcMBPortName, pcMBPortName) == 0)
         {
             return psMBSlaveInfo;
         }
@@ -515,32 +502,45 @@ sMBSlaveInfo* psMBSlaveFindNodeByPort(const CHAR* pcMBPortName)
  * @author  laoc
  * @date    2019.01.22
  *********************************************************************/
+#if MB_SLAVE_RTU_ENABLED || MB_SLAVE_ASCII_ENABLED
+
 #if MB_UCOSIII_ENABLED
-void vMBSlavePollTask(void *p_arg)
+void vMBSlavePollTask(void *p_arg) 
+    
+#elif MB_LINUX_ENABLED
+void* vMBSlavePollTask(void *p_arg)
+#endif    
 {
-    sMBSlaveInfo* psMBSlaveInfo = (sMBSlaveInfo*)p_arg;;
+    sMBSlaveInfo* psMBSlaveInfo = (sMBSlaveInfo*)p_arg;
     if(eMBSlaveInit(psMBSlaveInfo) == MB_ENOERR && eMBSlaveEnable(psMBSlaveInfo) == MB_ENOERR)
     {
         while(1)
         {
-//          (void)OSTimeDlyHMSM(0, 0, 0, MB_SLAVE_POLL_INTERVAL_MS, OS_OPT_TIME_HMSM_STRICT, &err);
+            (void)vMBTimeDly(0, MB_SLAVE_POLL_INTERVAL_MS);
             (void)eMBSlavePoll(psMBSlaveInfo);
         }
     }
 }
+#endif
+
+#if MB_SLAVE_TCP_ENABLED
+
+#if MB_UCOSIII_ENABLED
+void vMBSlaveTCPPollTask(void *p_arg) 
+    
 #elif MB_LINUX_ENABLED
-void* vMBSlavePollTask(void *p_arg)
+void* vMBSlaveTCPPollTask(void *p_arg)
+#endif 
 {
-    sMBSlaveInfo* psMBSlaveInfo = (sMBSlaveInfo*)p_arg;;
-    if(eMBSlaveInit(psMBSlaveInfo) == MB_ENOERR && eMBSlaveEnable(psMBSlaveInfo) == MB_ENOERR)
+    sMBSlaveInfo* psMBSlaveInfo = (sMBSlaveInfo*)p_arg;
+    if(eMBSlaveTCPInit(psMBSlaveInfo) == MB_ENOERR && eMBSlaveEnable(psMBSlaveInfo) == MB_ENOERR)
     {
         while(1)
         {
-//          (void)OSTimeDlyHMSM(0, 0, 0, MB_SLAVE_POLL_INTERVAL_MS, OS_OPT_TIME_HMSM_STRICT, &err);
             (void)eMBSlavePoll(psMBSlaveInfo);
         }
     }
-    return NULL;
+    //return NULL;
 }
 #endif
 /**********************************************************************
@@ -558,17 +558,43 @@ BOOL xMBSlaveCreatePollTask(sMBSlaveInfo* psMBSlaveInfo)
     CPU_STK_SIZE  stk_size = MB_SLAVE_POLL_TASK_STK_SIZE; 
     sMBSlaveTask* psMBTask = &psMBSlaveInfo->sMBTask;
     
-    OS_PRIO             prio = psMBTask->ucSlavePollPrio;
-    OS_TCB*            p_tcb = (OS_TCB*)(&psMBTask->sSlavePollTCB);  
-    CPU_STK*      p_stk_base = (CPU_STK*)(psMBTask->usSlavePollStk);
+    OS_PRIO prio = psMBTask->ucSlavePollPrio;
+    OS_TCB* p_tcb = (OS_TCB*)(&psMBTask->sSlavePollTCB);  
+    CPU_STK* p_stk_base = (CPU_STK*)(psMBTask->usSlavePollStk);
     
-    OSTaskCreate(p_tcb, "vMBSlavePollTask", vMBSlavePollTask, (void*)psMBSlaveInfo, prio, p_stk_base, 
-                 stk_size/10u, stk_size, 0u, 0u, 0u, (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR ), &err);
+if(psMBSlaveInfo->eMode == MB_RTU || psMBSlaveInfo->eMode == MB_ASCII)
+    {
+#if MB_SLAVE_RTU_ENABLED || MB_SLAVE_ASCII_ENABLED
+         OSTaskCreate(p_tcb, "vMBSlavePollTask", vMBSlavePollTask, (void*)psMBSlaveInfo, prio, p_stk_base, 
+                      stk_size/10u, stk_size, 0u, 0u, 0u, (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), &err);
+#endif
+    }
+    else if(psMBSlaveInfo->eMode == MB_TCP)
+    {
+#if MB_SLAVE_TCP_ENABLED
+         OSTaskCreate(p_tcb, "vMBSlavePollTask", vMBSlaveTCPPollTask, (void*)psMBSlaveInfo, prio, p_stk_base, 
+                      stk_size/10u, stk_size, 0u, 0u, 0u, (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), &err);
+#endif
+    }   
     return (err == OS_ERR_NONE);
+    
 #elif MB_LINUX_ENABLED
-    int ret = pthread_create(&psMBSlaveInfo->sMBTask.sMBPollTask, NULL, vMBSlavePollTask, (void*)psMBSlaveInfo);    //创建线程
+    int ret = -1;
+
+    if(psMBSlaveInfo->eMode == MB_RTU || psMBSlaveInfo->eMode == MB_ASCII)
+    {
+#if MB_SLAVE_RTU_ENABLED || MB_SLAVE_ASCII_ENABLED
+        ret = pthread_create(&psMBSlaveInfo->sMBTask.sMBPollTask, NULL, vMBSlavePollTask, (void*)psMBSlaveInfo);
+#endif
+    }
+    else if(psMBSlaveInfo->eMode == MB_TCP)
+    {
+#if MB_SLAVE_TCP_ENABLED
+        ret = pthread_create(&psMBSlaveInfo->sMBTask.sMBPollTask, NULL, vMBSlaveTCPPollTask, (void*)psMBSlaveInfo);
+#endif
+    }
     return ret == 0;
 #endif
 }
 
-#endif
+

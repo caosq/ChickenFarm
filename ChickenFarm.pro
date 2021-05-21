@@ -22,9 +22,11 @@ INCLUDEPATH += /usr/local/qwt-6.1.2-arm/include \
             Comm/FreeModbus/master/functions \
             Comm/FreeModbus/master/port \
             Comm/FreeModbus/master/rtu \
+            Comm/FreeModbus/master/tcp \
             Comm/FreeModbus/slave/functions \
             Comm/FreeModbus/slave/port \
             Comm/FreeModbus/slave/rtu \
+            Comm/FreeModbus/slave/tcp \
             Widget/Label \
             Widget/Button \
             Widget/Keyboard \
@@ -186,7 +188,11 @@ SOURCES += \
         Window/Page/sensorpage.cpp \
         Window/Page/tempsetpage.cpp \
         Window/Page/userparampage.cpp \
-        Window/Page/valvepage.cpp
+        Window/Page/valvepage.cpp \
+    Comm/FreeModbus/master/tcp/mbtcp_m.c \
+    Device/bms.cpp \
+    Comm/FreeModbus/slave/port/mbporttcp.c \
+    Comm/FreeModbus/master/port/mbporttcp_m.c
 
 HEADERS += \
         Comm/FreeModbus/config/mbdebug.h \
@@ -303,7 +309,9 @@ HEADERS += \
         Window/Page/sensorpage.h \
         Window/Page/tempsetpage.h \
         Window/Page/userparampage.h \
-        Window/Page/valvepage.h
+        Window/Page/valvepage.h \
+    Device/bms.h \
+    Comm/FreeModbus/master/tcp/mbtcp_m.h
 
 FORMS += \
         Widget/Temp/tempunit.ui \

@@ -1,8 +1,9 @@
 #include "mbmap_m.h"
 #include "mbdict_m.h"
 
-#if MB_FUNC_READ_INPUT_ENABLED > 0
+#if MB_MASTER_RTU_ENABLED || MB_MASTER_ASCII_ENABLED || MB_MASTER_TCP_ENABLED
 
+#if MB_FUNC_READ_INPUT_ENABLED
 /***********************************************************************************
  * @brief  输入寄存器字典映射
 * @param   ucSndAddr             从栈地址
@@ -15,9 +16,9 @@
 eMBMasterReqErrCode eMBMasterRegInMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, 
                                       USHORT usRegAddr, sMasterRegInData ** pvRegInValue)
 {
-	USHORT usIndex;
-    sMBSlaveDev*        psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;     //当前从设备
-    sMBDevDataTable*     psMBRegInTable = &psMBSlaveDevCur->psDevCurData->sMBRegInTable;
+    USHORT usIndex = 0;
+    sMBSlaveDev* psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;     //当前从设备
+    sMBDevDataTable* psMBRegInTable = &psMBSlaveDevCur->psDevCurData->sMBRegInTable;
 
     if(psMBSlaveDevCur->ucDevAddr != ucSndAddr) //如果当前从设备地址与要轮询从设备地址不一致，则更新从设备
     {
@@ -34,7 +35,7 @@ eMBMasterReqErrCode eMBMasterRegInMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSnd
     {
          return MB_MRE_EILLSTATE;
     }
-    if(psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(RegInputData, psMBSlaveDevCur->ucProtocolID, usRegAddr, &usIndex))  //字典映射函数
+    if(psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(RegInputData, psMBSlaveDevCur->usProtocolID, usRegAddr, &usIndex))  //字典映射函数
     {
         *pvRegInValue = (sMasterRegInData*)(psMBRegInTable->pvDataBuf) + usIndex; //指针赋值，这里传递的是个地址，指向目标寄存器所在数组位置
     }
@@ -62,8 +63,8 @@ eMBMasterReqErrCode eMBMasterRegInMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSnd
 }
 #endif
 
-#if MB_FUNC_WRITE_HOLDING_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0 \
-    || MB_FUNC_READ_HOLDING_ENABLED > 0 || MB_FUNC_READWRITE_HOLDING_ENABLED > 0
+#if MB_FUNC_WRITE_HOLDING_ENABLED || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED \
+    || MB_FUNC_READ_HOLDING_ENABLED || MB_FUNC_READWRITE_HOLDING_ENABLED
 
 /***********************************************************************************
  * @brief  保持寄存器字典映射
@@ -96,7 +97,7 @@ eMBMasterReqErrCode eMBMasterRegHoldingMap(sMBMasterInfo* psMBMasterInfo, UCHAR 
     {
          return MB_MRE_EILLSTATE;
     }
-    if( psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(RegHoldData, psMBSlaveDevCur->ucProtocolID, usRegAddr, &usIndex))  //字典映射函数
+    if( psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(RegHoldData, psMBSlaveDevCur->usProtocolID, usRegAddr, &usIndex))  //字典映射函数
     {
         *pvRegHoldValue = (sMasterRegHoldData*)(psMBRegHoldTable->pvDataBuf) + usIndex;
     }
@@ -125,7 +126,7 @@ eMBMasterReqErrCode eMBMasterRegHoldingMap(sMBMasterInfo* psMBMasterInfo, UCHAR 
 } 
 #endif
 
-#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
 
 /***********************************************************************************
  * @brief  线圈字典映射
@@ -139,9 +140,9 @@ eMBMasterReqErrCode eMBMasterRegHoldingMap(sMBMasterInfo* psMBMasterInfo, UCHAR 
 eMBMasterReqErrCode eMBMasterCoilMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr, 
                                      USHORT usCoilAddr, sMasterBitCoilData ** pvCoilValue)
 {
-    USHORT usIndex;
-    sMBSlaveDev*         psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;     //当前从设备
-    sMBDevDataTable*       psMBCoilTable = &psMBSlaveDevCur->psDevCurData->sMBCoilTable;
+    USHORT usIndex = 0;
+    sMBSlaveDev* psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;     //当前从设备
+    sMBDevDataTable* psMBCoilTable = &psMBSlaveDevCur->psDevCurData->sMBCoilTable;
 	
     if(psMBSlaveDevCur->ucDevAddr != ucSndAddr) //如果当前从设备地址与要轮询从设备地址不一致，则更新从设备
     {
@@ -153,12 +154,12 @@ eMBMasterReqErrCode eMBMasterCoilMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndA
 	{
 		return MB_MRE_ILL_ARG;
 	}  
-#if   MB_UCOSIII_ENABLED
+#if MB_UCOSIII_ENABLED
     if(psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex == NULL || psMBCoilTable == NULL || psMBCoilTable->pvDataBuf == NULL)
     {
          return MB_MRE_EILLSTATE;
     }
-    if( psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(CoilData, psMBSlaveDevCur->ucProtocolID, usCoilAddr, &usIndex) )  //字典映射函数
+    if( psMBSlaveDevCur->psDevCurData->pxDevDataMapIndex(CoilData, psMBSlaveDevCur->usProtocolID, usCoilAddr, &usIndex) )  //字典映射函数
     {
         *pvCoilValue = (sMasterBitCoilData*)(psMBCoilTable->pvDataBuf) + usIndex;
     }
@@ -186,7 +187,7 @@ eMBMasterReqErrCode eMBMasterCoilMap(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndA
 }    
 #endif
 
-#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
 /***********************************************************************************
  * @brief  离散量字典映射
  * @param  ucSndAddr       从栈地址
@@ -247,23 +248,24 @@ eMBMasterReqErrCode eMBMasterDiscreteMap(sMBMasterInfo* psMBMasterInfo, UCHAR uc
 
 #endif
 
+#endif
+
 /***********************************************************************************
  * @brief  保持寄存器数据点初始化
  * @author laoc
  * @date 2019.01.22
  *************************************************************************************/
-void vMBMasterDevRegHoldDataInit(sMasterRegHoldData* pData, USHORT usAddr, UCHAR ucDataType, LONG lMinVal, LONG lMaxVal, 
-                                 USHORT usPreVal, UCHAR ucAccessMode, float fTransmitMultiple, void* pvValue)                                  
-
+void vMBMasterDevRegHoldDataInit(sMasterRegHoldData* pData, USHORT usAddr, UCHAR ucDataType, USHORT usMinVal, USHORT usMaxVal, 
+                                 USHORT usPreVal, UCHAR ucAccessMode, UCHAR ucTmitMult, void* pvValue)                                  
 {
-    pData->usAddr            = usAddr;              //地址
-    pData->ucDataType        = ucDataType;          //数据类型
-    pData->usPreVal          = usPreVal;            //先前值
-    pData->lMinVal           = lMinVal;             //最小值
-    pData->lMaxVal           = lMaxVal;             //最大值
-    pData->ucAccessMode      = ucAccessMode;        //访问权限
-    pData->fTransmitMultiple = fTransmitMultiple;   //传输因子
-    pData->pvValue           = pvValue;             //变量指针 	
+    pData->usAddr       = usAddr;        //地址
+    pData->ucDataType   = ucDataType;    //数据类型
+    pData->usPreVal     = usPreVal;      //先前值
+    pData->usMinVal     = usMinVal;      //最小值
+    pData->usMaxVal     = usMaxVal;      //最大值
+    pData->ucAccessMode = ucAccessMode;  //访问权限
+    pData->ucTmitMult   = ucTmitMult;    //传输因子
+    pData->pvValue      = pvValue;       //变量指针 	
 }
 
 /***********************************************************************************
@@ -271,16 +273,16 @@ void vMBMasterDevRegHoldDataInit(sMasterRegHoldData* pData, USHORT usAddr, UCHAR
  * @author laoc
  * @date 2019.01.22
  *************************************************************************************/
-void vMBMasterDevRegInDataInit(sMasterRegInData* pData, USHORT usAddr, UCHAR ucDataType, LONG lMinVal, 
-                               LONG lMaxVal, UCHAR ucAccessMode, float fTransmitMultiple, void* pvValue)                                  
+void vMBMasterDevRegInDataInit(sMasterRegInData* pData, USHORT usAddr, UCHAR ucDataType, USHORT usMinVal, 
+                               USHORT usMaxVal, UCHAR ucAccessMode, UCHAR ucTmitMult, void* pvValue)                                  
 {
-    pData->usAddr            = usAddr;              //地址  
-    pData->ucDataType        = ucDataType;          //数据类型         
-    pData->lMinVal           = lMinVal;             //最小值
-    pData->lMaxVal           = lMaxVal;             //最大值
-    pData->ucAccessMode      = ucAccessMode;        //访问权限
-    pData->fTransmitMultiple = fTransmitMultiple;   //传输因子
-    pData->pvValue           = pvValue;             //变量指针	
+    pData->usAddr       = usAddr;       //地址  
+    pData->ucDataType   = ucDataType;   //数据类型         
+    pData->usMinVal     = usMinVal;     //最小值
+    pData->usMaxVal     = usMaxVal;     //最大值
+    pData->ucAccessMode = ucAccessMode; //访问权限
+    pData->ucTmitMult   = ucTmitMult;   //传输因子
+    pData->pvValue      = pvValue;      //变量指针	
 }
 
 /***********************************************************************************
@@ -353,6 +355,21 @@ void vMBMasterDevDataTableInit(sMBDevDataTable* pDataTable, void* pvDataBuf, USH
     pDataTable->pvDataBuf   = pvDataBuf;        //协议数据域
     pDataTable->usStartAddr = usStartAddr;      //起始地址
     pDataTable->usEndAddr   = usEndAddr;        //末尾地址
-    pDataTable->usDataCount = usDataCount;      //协议点位总数
-    
+    pDataTable->usDataCount = usDataCount;      //协议点位总数  
+}
+
+void vMBMasterCommDataTableInit(sMBSlaveDevCommData *pDevCommData)
+{
+#if MB_FUNC_READ_HOLDING_ENABLED || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED  || MB_FUNC_WRITE_HOLDING_ENABLED
+        pDevCommData->sMBRegHoldTable.usDataCount = 0;
+#endif
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED  || MB_FUNC_WRITE_COIL_ENABLED
+        pDevCommData->sMBCoilTable.usDataCount = 0;
+#endif
+#if MB_FUNC_READ_INPUT_ENABLED
+        pDevCommData->sMBRegInTable.usDataCount = 0;
+#endif
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
+        pDevCommData->sMBDiscInTable.usDataCount = 0;
+#endif
 }

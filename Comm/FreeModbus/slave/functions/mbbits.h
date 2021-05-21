@@ -31,7 +31,6 @@
 #ifndef _MB_BITS_H
 #define _MB_BITS_H
 
-#include "mbframe.h"
 #include "mb.h"
 
 #ifdef __cplusplus

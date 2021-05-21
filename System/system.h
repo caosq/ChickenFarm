@@ -19,6 +19,15 @@
 #include "controller.h"
 #include "messagebox.h"
 #include "dtu.h"
+#include "modbus.h"
+#include "bms.h"
+
+#define MB_MASTER_RTU_ENABLE   1
+#define MB_MASTER_TCP_ENABLE   0
+#define MB_MASTER_DTU_ENABLE   1
+
+#define MB_SLAVE_RTU_ENABLE    0
+#define MB_SLAVE_TCP_ENABLE    0
 
 #define MODULAR_AIR_NUM          2
 #define MODULAR_CHILLER_NUM      2
@@ -228,10 +237,25 @@ public:
     Meter       *m_pChillerMeter;                //机组电表
     Meter       *m_pBumpMeter;                   //水泵电表
 
-    Modbus      m_Modbus;                        //协议栈
-    Modbus      m_ModbusDTU;                     //协议栈
-    Controller  m_Controller;                    //控制器
-    DTU         m_DTU;                           //GPRS模块
+#if MB_MASTER_TCP_ENABLE
+    MBMaster    m_ModbusTCP;   //TCP协议栈
+#endif
+
+#if MB_MASTER_RTU_ENABLE
+    MBMaster    m_Modbus;       //RTU协议栈
+#endif
+
+#if MB_MASTER_DTU_ENABLE
+    MBMaster    m_ModbusDTU;   //DTU协议栈
+#endif
+
+#if MB_SLAVE_RTU_ENABLE || MB_SLAVE_TCP_ENABLE
+    MBSlave     m_ModbusBMS;   //BMS协议栈
+    BMS         m_BMS;         //BMS接口
+#endif
+
+    Controller  m_Controller;   //控制器
+    DTU         m_DTU;         //GPRS模块
 
     Monitor     *m_pSysModeCmdMonitor;          //系统模式监控
     Monitor     *m_pExAirFanRatedVolMonitor_H;  //系统排风机额定风量监控

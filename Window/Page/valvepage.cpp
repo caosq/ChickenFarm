@@ -133,7 +133,7 @@ void ValvePage::paramSetBtnValChanged(void*)
              if(m_pErrorCleanCmdBtn->getCurrentValue() == 1)
              {
                  pButterflyValve->m_xErrClean = true;
-                 pButterflyValve->m_xErrorFlag = false;
+                 //pButterflyValve->m_xErrorFlag = false;
              }
              else
              {

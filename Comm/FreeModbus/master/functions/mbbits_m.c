@@ -45,7 +45,7 @@
 /* ----------------------- Defines ------------------------------------------*/
 #define BITS_UCHAR      8
 
-/* ----------------------- Start implementation -----------------------------*/
+#if MB_MASTER_RTU_ENABLED || MB_MASTER_ASCII_ENABLED || MB_MASTER_TCP_ENABLED
 
 /***********************************************************************************
  * @brief  线圈和离散量置位函数
@@ -90,7 +90,7 @@ eMBErrorCode eMBMasterUtilSetBits(sMBMasterInfo* psMBMasterInfo, UCHAR* ucByteBu
             	switch(eDataType)
             	{	
                 case CoilData:                  
-#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0 
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
                 
                     pucBitCoilData = NULL;
                     (void)eMBMasterCoilMap(psMBMasterInfo, ucMBDestAddr, usAddress, &pucBitCoilData);   //扫描，找到对应点位   
@@ -111,7 +111,7 @@ eMBErrorCode eMBMasterUtilSetBits(sMBMasterInfo* psMBMasterInfo, UCHAR* ucByteBu
                 break;
                     
                 case DiscInData:             
-#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0  
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
                     pucBitDiscreteData = NULL;
                     (void)eMBMasterDiscreteMap(psMBMasterInfo, ucMBDestAddr, usAddress, &pucBitDiscreteData);
                     if( (pucBitDiscreteData != NULL) && (pucBitDiscreteData->pvValue != NULL) && (pucBitDiscreteData->ucAccessMode != WO))
@@ -136,7 +136,7 @@ eMBErrorCode eMBMasterUtilSetBits(sMBMasterInfo* psMBMasterInfo, UCHAR* ucByteBu
             switch(eDataType)
             {	
             case CoilData:                  
-#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0 
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
                 
                 (void)eMBMasterCoilMap(psMBMasterInfo, ucMBDestAddr, usAddress, &pucBitCoilData);   //扫描，找到对应点位   
                 if( (pucBitCoilData != NULL) && (pucBitCoilData->pvValue != NULL) && (pucBitCoilData->ucAccessMode != RO))
@@ -147,12 +147,12 @@ eMBErrorCode eMBMasterUtilSetBits(sMBMasterInfo* psMBMasterInfo, UCHAR* ucByteBu
             break;
                     
             case DiscInData:             
-#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0  
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
                 
                 (void)eMBMasterDiscreteMap(psMBMasterInfo, ucMBDestAddr, usAddress, &pucBitDiscreteData);
                 if( (pucBitDiscreteData != NULL) && (pucBitDiscreteData->pvValue != NULL) && (pucBitDiscreteData->ucAccessMode != WO))
                 {
-                    (*(UCHAR*)(pucBitDiscreteData->pvValue)) = *(UCHAR*)(pucBitDiscreteData->pvValue);
+                    *(UCHAR*)(pucBitDiscreteData->pvValue) = *(UCHAR*)(pucBitDiscreteData->pvValue);
                 }
 #endif  
             break;
@@ -206,7 +206,7 @@ eMBErrorCode eMBMasterUtilGetBits(sMBMasterInfo* psMBMasterInfo, UCHAR* ucByteBu
         {
             switch(eDataType)
             {
-#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0						
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
                 
 				case CoilData:
 				    //通过映射找到对应的点位
@@ -251,5 +251,4 @@ eMBErrorCode eMBMasterUtilGetBits(sMBMasterInfo* psMBMasterInfo, UCHAR* ucByteBu
 	}
     return eStatus;
 }
-
-
+#endif

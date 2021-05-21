@@ -70,9 +70,9 @@
 #define MB_PDU_FUNC_WRITE_MUL_SIZE          ( 5 )
 
 /* ----------------------- Start implementation -----------------------------*/
-#if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
+#if MB_MASTER_RTU_ENABLED || MB_MASTER_ASCII_ENABLED || MB_MASTER_TCP_ENABLED
  
-#if MB_FUNC_READ_COILS_ENABLED > 0
+#if MB_FUNC_READ_COILS_ENABLED
 /***********************************************************************************
  * @brief  主栈读线圈
  * @param  psMBMasterInfo  主栈信息块
@@ -193,7 +193,7 @@ eMBMasterFuncReadCoils( sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT 
 }
 #endif
 
-#if MB_FUNC_WRITE_COIL_ENABLED > 0
+#if MB_FUNC_WRITE_COIL_ENABLED
 /***********************************************************************************
  * @brief  主栈写单个线圈
  * @param  psMBMasterInfo  主栈信息块
@@ -302,7 +302,7 @@ eMBMasterFuncWriteCoil(sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame, USHORT *
 }
 #endif
 
-#if MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
+#if MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
  /***********************************************************************************
  * @brief  主栈写多个线圈
  * @param  psMBMasterInfo  主栈信息块
@@ -435,7 +435,7 @@ eMBMasterFuncWriteMultipleCoils(sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame,
 }
 #endif
 
-#if MB_FUNC_READ_COILS_ENABLED > 0 || MB_FUNC_WRITE_COIL_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
 /**
  * Modbus master coils callback function.
  *
@@ -449,15 +449,17 @@ eMBMasterFuncWriteMultipleCoils(sMBMasterInfo* psMBMasterInfo, UCHAR * pucFrame,
 eMBErrorCode 
 eMBMasterRegCoilsCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegBuffer, USHORT usAddress, USHORT usNCoils, eMBBitMode eMode)
 {
-    USHORT          COIL_START, COIL_END;
-    sMBSlaveDev*    psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;  //当前从设备
+    USHORT COIL_START, COIL_END;
+    UCHAR ucMBDestAddr = 0;
+    sMBDevDataTable* psCoilTable = NULL;
+    sMBSlaveDev* psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;  //当前从设备
 
     if(psMBSlaveDevCur == NULL) //从设备模式
     {
         return MB_ENOERR;
     }
-    sMBDevDataTable*    psCoilTable = &psMBSlaveDevCur->psDevCurData->sMBCoilTable; //从设备通讯协议表
-    UCHAR              ucMBDestAddr = ucMBMasterGetDestAddr(psMBMasterInfo);        //从设备通讯地址
+    psCoilTable = &psMBSlaveDevCur->psDevCurData->sMBCoilTable; //从设备通讯协议表
+    ucMBDestAddr = ucMBMasterGetDestAddr(psMBMasterInfo);        //从设备通讯地址
     
     if(psMBSlaveDevCur->ucDevAddr != ucMBDestAddr) //如果当前从设备地址与要轮询从设备地址不一致，则更新从设备
     {
@@ -465,11 +467,11 @@ eMBMasterRegCoilsCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegBuffer, USHORT u
         psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur = psMBSlaveDevCur;
         psCoilTable = &psMBSlaveDevCur->psDevCurData->sMBCoilTable;
     }
-	if( (psCoilTable->pvDataBuf == NULL) || (psCoilTable->usDataCount == 0)) //非空且数据点不为0
+    if( (psCoilTable == NULL) || (psCoilTable->pvDataBuf == NULL) ||
+        (psCoilTable->usDataCount == 0)) //非空且数据点不为0
 	{
 		return MB_ENOREG;
-	}
-    
+	} 
     COIL_START = psCoilTable->usStartAddr;
     COIL_END = psCoilTable->usEndAddr;
 

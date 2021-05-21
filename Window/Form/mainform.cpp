@@ -158,7 +158,7 @@ void MainForm::systemLogChangedSlot(bool)
 {
     if(!System::getInstance()->m_xIsLogIn)
     {
-        ui->mainStackedWidget->setCurrentWidget(&m_Home);
+        //ui->mainStackedWidget->setCurrentWidget(&m_Home);
          //system("echo 0 > /sys/class/pwm/ehrpwm.1:0/run");
     }
 }

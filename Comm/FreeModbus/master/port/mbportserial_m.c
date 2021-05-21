@@ -23,9 +23,9 @@
 #include "mb_m.h"
 #include "mbconfig.h"
 #include "mbport_m.h"
+#include "mbdriver.h"
 
 #if MB_UCOSIII_ENABLED
-#include "mbdriver.h"
 
 #elif MB_LINUX_ENABLED
 #include <sys/types.h>
@@ -35,10 +35,10 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <linux/serial.h>
+
 #endif
 
-
-#if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
+#if MB_MASTER_RTU_ENABLED || MB_MASTER_ASCII_ENABLED
 
 /* ----------------------- Start implementation -----------------------------*/
 BOOL xMBMasterPortSerialInit(sMBMasterPort* psMBPort)     //初始化
@@ -47,18 +47,24 @@ BOOL xMBMasterPortSerialInit(sMBMasterPort* psMBPort)     //初始化
      * set 485 mode receive and transmit control IO
      * @note MODBUS_MASTER_RT_CONTROL_PIN_INDEX need be defined by user
      */
-#if MB_LINUX_ENABLED 
+#if MB_UCOSIII_ENABLED
+    return xMB_UartInit(psMBPort->psMBMasterUart);
+    
+#elif MB_LINUX_ENABLED 
 
-    psMBPort->psMBMasterUart->fd = open(psMBPort->pcMBPortName,  O_RDWR | O_NOCTTY);  // O_NOCTTY | O_NDELAY | O_NONBLOCK
-    if(psMBPort->psMBMasterUart->fd < 0){return FALSE;}
+    psMBPort->fd = open(psMBPort->pcMBPortName,  O_RDWR | O_NOCTTY);  // O_NOCTTY | O_NDELAY | O_NONBLOCK
+    debug("xMBMasterPortSerialInit fd %d\n", psMBPort->fd);
 
-    struct serial_rs485 rs485conf;    //485延时设置
-
+    if(psMBPort->fd < 0){
+        return FALSE;
+    }
+    struct serial_rs485 rs485conf;    //485TCSAFLUSH延时设置
     rs485conf.flags |= SER_RS485_ENABLED;
     rs485conf.flags |= SER_RS485_RTS_ON_SEND;
-
+    
+    return xMB_UartInit(psMBPort->psMBMasterUart, psMBPort->fd);
 #endif
-    return xMB_UartInit(psMBPort->psMBMasterUart);
+    
 }
 
 void vMBMasterPortSerialEnable(sMBMasterPort* psMBPort, BOOL xRxEnable, BOOL xTxEnable)      
@@ -95,10 +101,12 @@ void vMBMasterPortSerialEnable(sMBMasterPort* psMBPort, BOOL xRxEnable, BOOL xTx
     if(xRxEnable)
     {
         //tcflush(psMBPort->psMBMasterUart->fd, TCIFLUSH);
+        //MB_SendOrRecive(psMBPort->psMBMasterUart, UART_RX_EN);
     }
     if(xTxEnable)
     {
         //tcflush(psMBPort->psMBMasterUart->fd, TCOFLUSH);
+        //MB_SendOrRecive(psMBPort->psMBMasterUart, UART_TX_EN);
     }
 #endif    
 }
@@ -112,7 +120,7 @@ void vMBMasterPortClose(sMBMasterPort* psMBPort)   //关闭串口
     
 #elif MB_LINUX_ENABLED
     
-    close(psMBPort->psMBMasterUart->fd);
+    close(psMBPort->fd);
 #endif      
 }
 
@@ -134,12 +142,11 @@ BOOL xMBMasterPortSerialPutByte(sMBMasterPort* psMBPort, UCHAR ucByte)   //发�
     return TRUE;
 }
 
-BOOL xMBMasterPortSerialPutBytes(sMBMasterPort* psMBPort, UCHAR* pucSndBufferCur, USHORT usBytes)
+BOOL xMBMasterPortSerialWriteBytes(sMBMasterPort* psMBPort, UCHAR* pucSndBufferCur, USHORT usBytes)
 {
 #if MB_LINUX_ENABLED
-
-    ssize_t ret = write(psMBPort->psMBMasterUart->fd, pucSndBufferCur, usBytes);
-    return ((ret == -1) || (ret != usBytes)) ? FALSE : TRUE;
+    ssize_t ret = write(psMBPort->fd, pucSndBufferCur, usBytes);
+    return ret >= usBytes ? TRUE : FALSE;
 #endif
 }
 
@@ -160,24 +167,22 @@ BOOL xMBMasterPortSerialGetByte(const sMBMasterPort* psMBPort, UCHAR* pucByte)  
     return TRUE;
 }
 
-BOOL xMBMasterPortSerialGetBytes(const sMBMasterPort* psMBPort, UCHAR* pucRcvBuf, USHORT* psReadBytes)
+BOOL xMBMasterPortSerialReadBytes(const sMBMasterPort* psMBPort, UCHAR* pucRcvBuf, USHORT* psReadBytes)
 {
 #if MB_LINUX_ENABLED
-
     ssize_t sReadBytes = 0;
     *psReadBytes = 0;
 
-    while( (sReadBytes = read(psMBPort->psMBMasterUart->fd, pucRcvBuf + sReadBytes, 255)) > 0)
+    while((sReadBytes = read(psMBPort->fd, pucRcvBuf + *psReadBytes, 255)) > 0)
     {
         *psReadBytes += (USHORT)sReadBytes;
     }
-
-    while(sReadBytes < *psReadBytes)
+   /* while(sReadBytes < *psReadBytes)
     {
          debug("%d ", *(pucRcvBuf + sReadBytes));
          sReadBytes++;
     }
-    debug("\n ");
+    debug("\n ");*/
     return *psReadBytes > 0 ? TRUE:FALSE;
 #endif
 }
@@ -191,10 +196,10 @@ BOOL xMBMasterPortSerialGetBytes(const sMBMasterPort* psMBPort, UCHAR* pucRcvBuf
  */
 void prvvMasterUARTTxReadyISR(const sMBMasterPort* psMBPort)   //串口服务函数
 {
-	sMBMasterInfo*   psMBMasterInfo = psMBPort->psMBMasterInfo;
-	if( psMBMasterInfo != NULL )
+    sMBMasterInfo *psMBMasterInfo = psMBPort->psMBMasterInfo;
+    if( psMBMasterInfo != NULL && psMBMasterInfo->pxMBMasterFrameCBTransmitterEmptyCur != NULL)
 	{
-		(void)pxMBMasterFrameCBTransmitterEmptyCur(psMBMasterInfo);
+        (void)psMBMasterInfo->pxMBMasterFrameCBTransmitterEmptyCur(psMBMasterInfo);
 	} 
 }
 
@@ -207,9 +212,9 @@ void prvvMasterUARTTxReadyISR(const sMBMasterPort* psMBPort)   //串口服务函
 void prvvMasterUARTRxISR(const sMBMasterPort* psMBPort)
 {
 	sMBMasterInfo*   psMBMasterInfo = psMBPort->psMBMasterInfo;
-	if(psMBMasterInfo != NULL)
+    if(psMBMasterInfo != NULL && psMBMasterInfo->pxMBMasterFrameCBByteReceivedCur != NULL)
 	{
-		(void)pxMBMasterFrameCBByteReceivedCur(psMBMasterInfo);
+        (void)psMBMasterInfo->pxMBMasterFrameCBByteReceivedCur(psMBMasterInfo);
 	} 
     //debug("prvvMasterUARTRxISR\n");
 }

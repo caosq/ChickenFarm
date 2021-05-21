@@ -31,24 +31,18 @@
 #ifndef _MB_FUNC_H
 #define _MB_FUNC_H
 
+#include "mb.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
-#include "mbframe.h"
-#include "mbproto.h"
-#include "mb.h"
-
-typedef  eMBException (*pxMBSlaveFunctionHandler) (sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USHORT* pusLength);
-
+    
+typedef eMBException (*pxMBSlaveFunctionHandler)(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USHORT* pusLength);    
 typedef struct
 {
-    UCHAR                    ucFunctionCode;
+    UCHAR ucFunctionCode;
     pxMBSlaveFunctionHandler pxHandler;
 }xMBSlaveFunctionHandler;
-
-
 
 /* ----------------------- Callback Functions-----------------------------------------*/
 #if MB_FUNC_OTHER_REP_SLAVEID_BUF > 0
@@ -73,7 +67,6 @@ eMBSlaveFuncWriteHoldingRegister(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, U
 #if MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0
 eMBException 
 eMBSlaveFuncWriteMultipleHoldingRegister(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USHORT* usLen);
-
 #endif
 
 #if MB_FUNC_READ_COILS_ENABLED > 0
@@ -85,19 +78,16 @@ eMBSlaveFuncReadCoils(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USHORT* usLe
 #if MB_FUNC_WRITE_COIL_ENABLED > 0
 eMBException 
 eMBSlaveFuncWriteCoil(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USHORT* usLen);
-
 #endif
 
 #if MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
 eMBException 
 eMBSlaveFuncWriteMultipleCoils(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USHORT* usLen);
-
 #endif
 
 #if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
 eMBException 
 eMBSlaveFuncReadDiscreteInputs(sMBSlaveInfo* psMBSlaveInfo, UCHAR* pucFrame, USHORT* usLen);
-
 #endif
 
 #if MB_FUNC_READWRITE_HOLDING_ENABLED > 0

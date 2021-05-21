@@ -27,11 +27,6 @@
  *
  * File: $Id: mbfuncholding_m.c,v 1.60 2013/09/02 14:13:40 Armink Add Master Functions  Exp $
  */
-
-/* ----------------------- System includes ----------------------------------*/
-#include "stdlib.h"
-#include "string.h"
-
 /* ----------------------- Platform includes --------------------------------*/
 #include "port.h"
 
@@ -85,9 +80,9 @@
 #define MB_PDU_FUNC_READWRITE_SIZE_MIN          ( 1 )
 
 /* ----------------------- Start implementation -----------------------------*/
-#if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
+#if MB_MASTER_RTU_ENABLED || MB_MASTER_ASCII_ENABLED || MB_MASTER_TCP_ENABLED
 
-#if MB_FUNC_WRITE_HOLDING_ENABLED > 0
+#if MB_FUNC_WRITE_HOLDING_ENABLED
  /***********************************************************************************
  * @brief  主栈写单个保持寄存器
  * @param  ucSndAddr      从栈地址
@@ -169,7 +164,7 @@ eMBMasterFuncWriteHoldingRegister(sMBMasterInfo* psMBMasterInfo, UCHAR* pucFrame
 }
 #endif
 
-#if MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0
+#if MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED
  /***********************************************************************************
  * @brief  主栈写多个保持寄存器
  * @param  ucSndAddr      从栈地址
@@ -278,7 +273,7 @@ eMBMasterFuncWriteMultipleHoldingRegister(sMBMasterInfo* psMBMasterInfo, UCHAR* 
 }
 #endif
 
-#if MB_FUNC_READ_HOLDING_ENABLED > 0
+#if MB_FUNC_READ_HOLDING_ENABLED
  /***********************************************************************************
  * @brief  主栈读保持寄存器
  * @param  ucSndAddr      从栈地址
@@ -294,8 +289,8 @@ eMBMasterReqReadHoldingRegister(sMBMasterInfo* psMBMasterInfo, UCHAR ucSndAddr,
 {
     UCHAR* pucMBFrame = NULL;
 
-    sMBMasterPort*            psMBPort = &psMBMasterInfo->sMBPort;      //硬件结构
-    sMBMasterDevsInfo*    psMBDevsInfo = &psMBMasterInfo->sMBDevsInfo;  //从设备状态信息
+    sMBMasterPort* psMBPort = &psMBMasterInfo->sMBPort;      //硬件结构
+    sMBMasterDevsInfo* psMBDevsInfo = &psMBMasterInfo->sMBDevsInfo;  //从设备状态信息
 
     if( (ucSndAddr < psMBDevsInfo->ucSlaveDevMinAddr) || (ucSndAddr > psMBDevsInfo->ucSlaveDevMaxAddr) )
     {
@@ -387,7 +382,7 @@ eMBMasterFuncReadHoldingRegister(sMBMasterInfo* psMBMasterInfo, UCHAR  *pucRcvFr
 }
 #endif
 
-#if MB_FUNC_READWRITE_HOLDING_ENABLED > 0
+#if MB_FUNC_READWRITE_HOLDING_ENABLED
  /***********************************************************************************
  * @brief  主栈读写多个保持寄存器
  * @param  ucSndAddr            从栈地址
@@ -515,8 +510,8 @@ eMBMasterFuncReadWriteMultipleHoldingRegister(sMBMasterInfo* psMBMasterInfo, UCH
 }
 #endif
 
-#if MB_FUNC_WRITE_HOLDING_ENABLED > 0 || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0 \
-    || MB_FUNC_READ_HOLDING_ENABLED > 0 || MB_FUNC_READWRITE_HOLDING_ENABLED > 0
+#if MB_FUNC_WRITE_HOLDING_ENABLED || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED \
+    || MB_FUNC_READ_HOLDING_ENABLED || MB_FUNC_READWRITE_HOLDING_ENABLED
 /**
  * Modbus master holding register callback function.
  *
@@ -535,20 +530,23 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
     USHORT usRegHoldValue = 0;
     SHORT  sRegHoldValue = 0;
     int8_t cRegHoldValue = 0;
-
+    
+    sMasterRegHoldData* pvRegHoldValue  = NULL;
+    sMBSlaveDev* psMBSlaveDevCur = NULL;
+    sMBDevDataTable *psMBRegHoldTable = NULL;
+    UCHAR ucMBDestAddr = 1;
     if(psMBMasterInfo->eMBRunMode != STATE_SCAN_DEV) //非轮询从设备模式
     {
         return MB_ENOERR;
     }
-    sMasterRegHoldData* pvRegHoldValue  = NULL;
-    sMBSlaveDev*        psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;    //当前从设备
+    psMBSlaveDevCur = psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur;    //当前从设备
 
     if(psMBSlaveDevCur == NULL) //从设备模式
     {
         return MB_ENOERR;
     }
-    sMBDevDataTable*    psMBRegHoldTable = &psMBSlaveDevCur->psDevCurData->sMBRegHoldTable; //从设备通讯协议表
-    UCHAR               ucMBDestAddr     = ucMBMasterGetDestAddr(psMBMasterInfo);           //从设备通讯地址
+    psMBRegHoldTable = &psMBSlaveDevCur->psDevCurData->sMBRegHoldTable; //从设备通讯协议表
+    ucMBDestAddr = ucMBMasterGetDestAddr(psMBMasterInfo);  //从设备通讯地址
 
     if(psMBSlaveDevCur->ucDevAddr != ucMBDestAddr) //如果当前从设备地址与要轮询从设备地址不一致，则更新从设备
     {
@@ -556,7 +554,8 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
         psMBMasterInfo->sMBDevsInfo.psMBSlaveDevCur = psMBSlaveDevCur;
         psMBRegHoldTable = &psMBSlaveDevCur->psDevCurData->sMBRegHoldTable;
     }
-    if( (psMBRegHoldTable->pvDataBuf  == NULL) || (psMBRegHoldTable->usDataCount == 0)) //非空且数据点不为0
+    if( (psMBRegHoldTable == NULL) || (psMBRegHoldTable->pvDataBuf  == NULL) ||
+        (psMBRegHoldTable->usDataCount == 0)) //非空且数据点不为0
     {
         return MB_ENOREG;
     }
@@ -587,13 +586,13 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
 
             if( (pvRegHoldValue != NULL) && (pvRegHoldValue->pvValue != NULL) && (pvRegHoldValue->ucAccessMode != WO) )
             {
-                if( (pvRegHoldValue->fTransmitMultiple != 0.0f) && (pvRegHoldValue->fTransmitMultiple != 1.0f) )
+                if( (pvRegHoldValue->ucTmitMult != 0) && (pvRegHoldValue->ucTmitMult != 1) )
                 {
-                    usRegHoldValue = (USHORT)((float)usRegHoldValue / (float)pvRegHoldValue->fTransmitMultiple);     //传输因子
+                    usRegHoldValue = (USHORT)(usRegHoldValue / pvRegHoldValue->ucTmitMult);     //传输因子
                 }
                 if (pvRegHoldValue->ucDataType == uint16)
                 {
-                    if( (usRegHoldValue >= (USHORT)pvRegHoldValue->lMinVal ) && (usRegHoldValue <= (USHORT)pvRegHoldValue->lMaxVal))
+                    if( (usRegHoldValue >= (USHORT)pvRegHoldValue->usMinVal ) && (usRegHoldValue <= (USHORT)pvRegHoldValue->usMaxVal))
                     {
                         if( (pvRegHoldValue->ucAccessMode == RW) && (*(USHORT*)pvRegHoldValue->pvValue != (USHORT)pvRegHoldValue->usPreVal) &&
                             (psMBMasterInfo->eMBRunMode == STATE_SCAN_DEV) )
@@ -609,7 +608,7 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
                 }
                 else if(pvRegHoldValue->ucDataType == uint8)
                 {
-                    if( ((UCHAR)usRegHoldValue >= (UCHAR)pvRegHoldValue->lMinVal ) && ((UCHAR)usRegHoldValue <= (UCHAR)pvRegHoldValue->lMaxVal) )
+                    if( ((UCHAR)usRegHoldValue >= (UCHAR)pvRegHoldValue->usMinVal ) && ((UCHAR)usRegHoldValue <= (UCHAR)pvRegHoldValue->usMaxVal) )
                     {
                         if( (pvRegHoldValue->ucAccessMode == RW) && (*(UCHAR*)pvRegHoldValue->pvValue != (UCHAR)pvRegHoldValue->usPreVal) &&
                             (psMBMasterInfo->eMBRunMode == STATE_SCAN_DEV) )
@@ -626,7 +625,7 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
                 else if (pvRegHoldValue->ucDataType == int16)
                 {
                     sRegHoldValue = (SHORT)usRegHoldValue;
-                    if( (sRegHoldValue >= (SHORT)pvRegHoldValue->lMinVal ) && (sRegHoldValue <= (SHORT)pvRegHoldValue->lMaxVal) )
+                    if( (sRegHoldValue >= (SHORT)pvRegHoldValue->usMinVal ) && (sRegHoldValue <= (SHORT)pvRegHoldValue->usMaxVal) )
                     {
                          if( (pvRegHoldValue->ucAccessMode == RW) && (*(SHORT*)pvRegHoldValue->pvValue != (SHORT)pvRegHoldValue->usPreVal) &&
                              (psMBMasterInfo->eMBRunMode == STATE_SCAN_DEV) )
@@ -643,7 +642,7 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
                 else if(pvRegHoldValue->ucDataType == int8)
                 {
                     cRegHoldValue = (int8_t)usRegHoldValue;
-                    if( (cRegHoldValue >= (int8_t)pvRegHoldValue->lMinVal ) && (cRegHoldValue <= (int8_t)pvRegHoldValue->lMaxVal) )
+                    if( (cRegHoldValue >= (int8_t)pvRegHoldValue->usMinVal ) && (cRegHoldValue <= (int8_t)pvRegHoldValue->usMaxVal) )
                     {
                         if( (pvRegHoldValue->ucAccessMode == RW) && (*(int8_t*)pvRegHoldValue->pvValue != (int8_t)pvRegHoldValue->usPreVal) &&
                             (psMBMasterInfo->eMBRunMode == STATE_SCAN_DEV) )
@@ -674,7 +673,7 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
                 if (pvRegHoldValue->ucDataType == uint16)
                 {
                     usRegHoldValue = *(USHORT*)pvRegHoldValue->pvValue;
-                    if( (usRegHoldValue >= (USHORT)pvRegHoldValue->lMinVal ) && (usRegHoldValue <= (USHORT)pvRegHoldValue->lMaxVal))
+                    if( (usRegHoldValue >= (USHORT)pvRegHoldValue->usMinVal ) && (usRegHoldValue <= (USHORT)pvRegHoldValue->usMaxVal))
                     {
                         pvRegHoldValue->usPreVal = (USHORT)usRegHoldValue;		 //更新对应点位
                     }
@@ -682,7 +681,7 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
                 else if(pvRegHoldValue->ucDataType == uint8)
                 {
                     usRegHoldValue = *(UCHAR*)pvRegHoldValue->pvValue;
-                    if( ((UCHAR)usRegHoldValue >= (UCHAR)pvRegHoldValue->lMinVal ) && ((UCHAR)usRegHoldValue <= (UCHAR)pvRegHoldValue->lMaxVal) )
+                    if( ((UCHAR)usRegHoldValue >= (UCHAR)pvRegHoldValue->usMinVal ) && ((UCHAR)usRegHoldValue <= (UCHAR)pvRegHoldValue->usMaxVal) )
                     {
                         pvRegHoldValue->usPreVal = (USHORT)usRegHoldValue;
                     }
@@ -690,7 +689,7 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
                 else if (pvRegHoldValue->ucDataType == int16)
                 {
                     sRegHoldValue = *(SHORT*)pvRegHoldValue->pvValue;
-                    if( (sRegHoldValue >= (SHORT)pvRegHoldValue->lMinVal ) && (sRegHoldValue <= (SHORT)pvRegHoldValue->lMaxVal) )
+                    if( (sRegHoldValue >= (SHORT)pvRegHoldValue->usMinVal ) && (sRegHoldValue <= (SHORT)pvRegHoldValue->usMaxVal) )
                     {
                         pvRegHoldValue->usPreVal = (USHORT)sRegHoldValue;
                     }
@@ -698,7 +697,7 @@ eMBErrorCode eMBMasterRegHoldingCB(sMBMasterInfo* psMBMasterInfo, UCHAR* pucRegB
                 else if(pvRegHoldValue->ucDataType == int8)
                 {
                     cRegHoldValue = *(int8_t*)pvRegHoldValue->pvValue;
-                    if( (cRegHoldValue >= (int8_t)pvRegHoldValue->lMinVal ) && (cRegHoldValue <= (int8_t)pvRegHoldValue->lMaxVal) )
+                    if( (cRegHoldValue >= (int8_t)pvRegHoldValue->usMinVal ) && (cRegHoldValue <= (int8_t)pvRegHoldValue->usMaxVal) )
                     {
                         pvRegHoldValue->usPreVal = (USHORT)cRegHoldValue;
                     }

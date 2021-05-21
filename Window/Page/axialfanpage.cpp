@@ -152,8 +152,8 @@ void AxialFanPage::paramSetBtnValChanged(void*)
              if(m_pErrorCleanCmdBtn->getCurrentValue() == 1)
              {
                  pAxialFan->m_xErrClean = true;
-                 pAxialFan->m_xErrorFlag = false;
-                 pAxialFan->m_xControlFlag = false;
+                 //pAxialFan->m_xErrorFlag = false;
+                 //pAxialFan->m_xControlFlag = false;
              }
              else
              {

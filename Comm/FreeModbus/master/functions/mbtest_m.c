@@ -11,7 +11,9 @@
 #include <time.h>
 #endif
 
-#define MB_MASTER_DEV_OFFLINE_TMR_S      3
+#if MB_MASTER_RTU_ENABLED || MB_MASTER_ASCII_ENABLED || MB_MASTER_TCP_ENABLED
+
+#define MB_MASTER_DEV_OFFLINE_TMR_S      5
 #define MB_TEST_RETRY_TIMES              2
 #define MB_TEST_OFFLINE_TIMES            2
 
@@ -97,7 +99,6 @@ BOOL xMBMasterDevOfflineTmrEnable(sMBSlaveDev* psMBDev, LONG lOffline_S)
     ts.it_value.tv_nsec = 0;
     ret = timer_settime(psMBDev->sDevOfflineTmr, 0, &ts, NULL);
 
-
     time(&timep);
     p = localtime(&timep);
 
@@ -115,10 +116,10 @@ BOOL xMBMasterDevOfflineTmrEnable(sMBSlaveDev* psMBDev, LONG lOffline_S)
  * @author  laoc
  * @date    2019.01.22
  *********************************************************************/
-eMBMasterReqErrCode eMBDevCmdTest(sMBSlaveDev* psMBSlaveDev, sMBTestDevCmd* psMBDevCmd)
+eMBMasterReqErrCode eMBDevCmdTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev, const sMBTestDevCmd* psMBDevCmd)
 {
     eMBMasterReqErrCode errorCode = MB_MRE_EILLSTATE;
-    sMBMasterInfo* psMBMasterInfo = psMBSlaveDev->psMBMasterInfo;
+    //sMBMasterInfo* psMBMasterInfo = psMBSlaveDev->psMBMasterInfo;
 
     if(psMBDevCmd == NULL)
     {
@@ -129,28 +130,28 @@ eMBMasterReqErrCode eMBDevCmdTest(sMBSlaveDev* psMBSlaveDev, sMBTestDevCmd* psMB
 
     if(psMBDevCmd->eCmdMode == WRITE_REG_HOLD)
     {
-#if MB_FUNC_WRITE_HOLDING_ENABLED > 0 
+#if MB_FUNC_WRITE_HOLDING_ENABLED
         errorCode = eMBMasterReqWriteHoldingRegister(psMBMasterInfo, psMBSlaveDev->ucDevAddr, psMBDevCmd->usAddr, 
                                                      psMBDevCmd->usValue, MB_MASTER_TIMEOUT_MS_RESPOND);   //测试从设备
 #endif						
     }   
     if(psMBDevCmd->eCmdMode == READ_REG_HOLD)
     {
-#if MB_FUNC_READ_HOLDING_ENABLED > 0 
+#if MB_FUNC_READ_HOLDING_ENABLED 
         errorCode = eMBMasterReqReadHoldingRegister(psMBMasterInfo, psMBSlaveDev->ucDevAddr, psMBDevCmd->usAddr,
                                                     1, MB_MASTER_TIMEOUT_MS_RESPOND);
 #endif						
     }
     if(psMBDevCmd->eCmdMode == READ_REG_IN)
     {				
-#if MB_FUNC_READ_INPUT_ENABLED > 0						
+#if MB_FUNC_READ_INPUT_ENABLED						
         errorCode = eMBMasterReqReadInputRegister(psMBMasterInfo, psMBSlaveDev->ucDevAddr, psMBDevCmd->usAddr,
                                                   1, MB_MASTER_TIMEOUT_MS_RESPOND);
 #endif						
     }
     psMBMasterInfo->eMBRunMode = STATE_SCAN_DEV;  //退出测试从设备状态
 
-   // debug("eMBDevCmdTest ucDevAddr %d errorCode %d\n", psMBSlaveDev->ucDevAddr, errorCode);
+    debug("eMBDevCmdTest ucDevAddr %d errorCode %d\n", psMBSlaveDev->ucDevAddr, errorCode);
     return errorCode;
 }
 
@@ -163,7 +164,7 @@ eMBMasterReqErrCode eMBDevCmdTest(sMBSlaveDev* psMBSlaveDev, sMBTestDevCmd* psMB
  * @author  laoc
  * @date    2019.01.22
  *********************************************************************/
-void vMBDevTest(sMBSlaveDev* psMBSlaveDev)
+void vMBDevTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev)
 {
     USHORT    n,usDataVal;
 
@@ -171,7 +172,7 @@ void vMBDevTest(sMBSlaveDev* psMBSlaveDev)
     sMBSlaveDevCommData* psMBDevData  = NULL;  //某从设备数据域
     sMBTestDevCmd*       psMBCmd      = NULL;  //某从设备测试命令表
     eMBMasterReqErrCode  errorCode    = MB_MRE_NO_ERR;
-    sMBMasterInfo* psMBMasterInfo = psMBSlaveDev->psMBMasterInfo;
+    //sMBMasterInfo* psMBMasterInfo = psMBSlaveDev->psMBMasterInfo;
 
     UCHAR ucMaxAddr = psMBMasterInfo->sMBDevsInfo.ucSlaveDevMaxAddr;
     UCHAR ucMinAddr = psMBMasterInfo->sMBDevsInfo.ucSlaveDevMinAddr;
@@ -192,10 +193,10 @@ void vMBDevTest(sMBSlaveDev* psMBSlaveDev)
 
         for(n=0; n<MB_TEST_RETRY_TIMES; n++)
         {
-            errorCode = eMBDevCmdTest(psMBSlaveDev, psMBCmd);
+            errorCode = eMBDevCmdTest(psMBMasterInfo, psMBSlaveDev, psMBCmd);
             if(errorCode != MB_MRE_TIMEDOUT){break;}
 
-            //debug("eMBDevCmdTest ucDevAddr %d errorCode %d pucMasterPDUCur %d\n", psMBSlaveDev->ucDevAddr, errorCode, psMBMasterInfo->pucMasterPDUCur);
+            debug("eMBDevCmdTest ucDevAddr %d errorCode %d \n", psMBSlaveDev->ucDevAddr, errorCode);
         }
         if(errorCode != MB_MRE_TIMEDOUT)
         {
@@ -211,7 +212,6 @@ void vMBDevTest(sMBSlaveDev* psMBSlaveDev)
                     usDataVal  = ( (USHORT)(*pcPDUDataCur++) ) << 8;   //数据
                     usDataVal |= ( (USHORT)(*pcPDUDataCur++) ) & 0xFF;
                 }
-
                 if(usDataVal == psMBCmd->usValue)
                 {
                     psMBSlaveDev->xOnLine           = TRUE;                       //从设备反馈正确，则设备在线
@@ -219,6 +219,7 @@ void vMBDevTest(sMBSlaveDev* psMBSlaveDev)
                     psMBSlaveDev->usProtocolID      = psMBDevData->usProtocolID;  //从设备协议ID
                     psMBSlaveDev->xDataReady        = TRUE;                       //从设备数据准备好
                     psMBSlaveDev->xStateTestRequest = FALSE;                      //状态测试请求
+                    psMBSlaveDev->ucOfflineTimes    = 0;                          //测试次数清零
                 }
                 else
                 {
@@ -232,6 +233,7 @@ void vMBDevTest(sMBSlaveDev* psMBSlaveDev)
                 psMBSlaveDev->usProtocolID      = psMBDevData->usProtocolID;  //从设备协议ID
                 psMBSlaveDev->xDataReady        = TRUE;                       //从设备数据准备好
                 psMBSlaveDev->xStateTestRequest = FALSE;                      //状态测试请求
+                psMBSlaveDev->ucOfflineTimes    = 0;                           //测试次数清零
             }
             break;
         }
@@ -252,14 +254,14 @@ void vMBDevTest(sMBSlaveDev* psMBSlaveDev)
  * @author  laoc
  * @date    2019.01.22
  *********************************************************************/
-void vMBDevCurStateTest(sMBSlaveDev* psMBSlaveDev)
+void vMBDevCurStateTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev)
 {
     USHORT  n, usDataVal;
     
-    UCHAR*                pcPDUDataCur = NULL;
-    const sMBTestDevCmd*       psMBCmd = NULL;
+    UCHAR* pcPDUDataCur = NULL;
+    const sMBTestDevCmd* psMBCmd = NULL;
     eMBMasterReqErrCode  errorCode = MB_MRE_EILLSTATE;
-    sMBMasterInfo* psMBMasterInfo = psMBSlaveDev->psMBMasterInfo;
+    //sMBMasterInfo* psMBMasterInfo = psMBSlaveDev->psMBMasterInfo;
 
     UCHAR ucMaxAddr = psMBMasterInfo->sMBDevsInfo.ucSlaveDevMaxAddr;
     UCHAR ucMinAddr = psMBMasterInfo->sMBDevsInfo.ucSlaveDevMinAddr;
@@ -276,7 +278,7 @@ void vMBDevCurStateTest(sMBSlaveDev* psMBSlaveDev)
     psMBMasterInfo->eMBRunMode = STATE_TEST_DEV;  //接口处于测试从设备状态
     for(n=0; n<MB_TEST_RETRY_TIMES; n++)
     {
-        errorCode = eMBDevCmdTest(psMBSlaveDev, psMBCmd);
+        errorCode = eMBDevCmdTest(psMBMasterInfo, psMBSlaveDev, psMBCmd);
         if(errorCode != MB_MRE_TIMEDOUT){break;}
     }
     if(errorCode != MB_MRE_TIMEDOUT) //证明从设备有反应
@@ -331,5 +333,6 @@ void vMBDevCurStateTest(sMBSlaveDev* psMBSlaveDev)
             (void)xMBMasterDevOfflineTmrEnable(psMBSlaveDev, MB_MASTER_DEV_OFFLINE_TMR_S);
         }
     }
-    psMBMasterInfo->eMBRunMode = STATE_SCAN_DEV;  //退出测试从设备状态    
 }
+#endif
+

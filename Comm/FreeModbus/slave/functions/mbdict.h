@@ -1,7 +1,6 @@
-#ifndef _USER_MB_DICT_H
-#define _USER_MB_DICT_H
+#ifndef _MB_DICT_H
+#define _MB_DICT_H
 
-#include "port.h"
 #include "mbconfig.h"
 #include "mbframe.h"
 
@@ -9,21 +8,20 @@
 
 typedef struct        /* 从栈寄存器数据结构 */
 {
-	USHORT  usAddr;             //地址
-    UCHAR   ucDataType;         //数据类型
-    LONG    lMinVal;            //最小值
-    LONG    lMaxVal;            //最大值
-    UCHAR   ucAccessMode;       //访问权限
-    void*   pvValue;            //变量指针  
-    float   fTransmitMultiple;  //传输因子
-	     
+    USHORT  usAddr;        //地址
+    USHORT  usMinVal;      //最小值
+    USHORT  usMaxVal;      //最大值
+    UCHAR   ucTmitMult;    //传输因子
+    UCHAR   ucDataType;    //数据类型
+    UCHAR   ucAccessMode;  //访问权限
+    void*   pvValue;       //变量指针     
 }sMBSlaveRegData;     		
 
 typedef struct       /* 从栈线圈和离散量数据结构 */
 {
-    USHORT    usAddr;           //地址
-    UCHAR     ucAccessMode;     //访问权限
-	UCHAR*    pvValue;          //变量指针     
+    USHORT usAddr;        //地址
+    UCHAR  ucAccessMode;  //访问权限
+	UCHAR* pvValue;       //变量指针     
 }sMBSlaveBitData;  
 
 typedef struct   /* 从栈字典数据列表结构 */
@@ -38,13 +36,43 @@ typedef BOOL (*pxMBSlaveDataMapIndex)(eDataType eDataType, USHORT usAddr, USHORT
 
 typedef struct            /*从栈通讯字典数据结构*/  
 {
-	sMBSlaveDataTable   sMBRegInTable;       //输入寄存器数据表
-	sMBSlaveDataTable   sMBRegHoldTable;     //保持寄存器数据表
-	sMBSlaveDataTable   sMBCoilTable;        //线圈数据表
-	sMBSlaveDataTable   sMBDiscInTable;      //离散量数据表
-                            
+#if MB_FUNC_READ_INPUT_ENABLED
+    sMBSlaveDataTable      sMBRegInTable;       //输入寄存器数据表
+#endif
+
+#if MB_FUNC_WRITE_HOLDING_ENABLED || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED \
+    || MB_FUNC_READ_HOLDING_ENABLED || MB_FUNC_READWRITE_HOLDING_ENABLED
+
+    sMBSlaveDataTable sMBRegHoldTable;     //保持寄存器数据表
+#endif
+
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
+    sMBSlaveDataTable sMBCoilTable;        //线圈数据表
+#endif
+
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
+    sMBSlaveDataTable      sMBDiscInTable;      //离散量数据表
+#endif
+
+#if MB_FUNC_READ_INPUT_ENABLED
+    uint16_t  *pRegInIndex;       //输入寄存器数据域映射
+#endif
+
+#if MB_FUNC_WRITE_HOLDING_ENABLED || MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED \
+    || MB_FUNC_READ_HOLDING_ENABLED || MB_FUNC_READWRITE_HOLDING_ENABLED
+
+    uint16_t  *pRegHoldIndex;     //保持寄存器数据域映射
+#endif
+
+#if MB_FUNC_READ_COILS_ENABLED || MB_FUNC_WRITE_COIL_ENABLED || MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
+    uint16_t  *pBitCoilIndex;     //线圈数据域映射
+#endif
+
+#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
+     uint16_t  *pBitDiscIndex;     //离散量数据表数据域映射
+#endif
     pxMBSlaveDataMapIndex  pxSlaveDataMapIndex; //从栈字典映射函数
-    
+                              
 }sMBSlaveCommData; 
 
 typedef struct          /*从栈通讯参数信息*/   

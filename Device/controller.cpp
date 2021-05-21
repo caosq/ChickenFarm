@@ -17,7 +17,7 @@ Controller::Controller(QObject *parent) :
     m_sMBSlaveDev.xStateTestRequest = 0;
     m_sMBSlaveDev.xDataReady = 0;
     m_sMBSlaveDev.xOnLine = 0;
-    m_sMBSlaveDev.psMBMasterInfo = nullptr;
+    //m_sMBSlaveDev.psMBMasterInfo = nullptr;
     m_sMBSlaveDev.psDevDataInfo = nullptr;
     m_sMBSlaveDev.psDevCurData = nullptr;
     m_sMBSlaveDev.pLast = nullptr;
@@ -99,7 +99,7 @@ void Controller::registDevCommData()
     AxialFan       *pAxialFan    = nullptr;
     ButterflyValve *pValve       = nullptr;
 
-MASTER_PBUF_INDEX_ALLOC
+MASTER_DEV_INIT(m_sDevCommData)
 
 MASTER_TEST_CMD_INIT(m_sDevCommData.sMBDevCmdTable, 0, READ_REG_HOLD, 0x302A, FALSE)
 
@@ -210,8 +210,8 @@ MASTER_BEGIN_DATA_BUF(m_psRegHoldBuf, m_sDevCommData.sMBRegHoldTable, m_usRegHol
 
     MASTER_REG_HOLD_DATA(140,  uint16,    0, 100,   50,  RW, 1, pSystem->m_usCHWBCoolPlusFreqTempDeviat);
     MASTER_REG_HOLD_DATA(141,  uint16,    0,  50,   10,  RW, 1, pSystem->m_usCHWBCoolPlusFreqTempDiff_1);
-    MASTER_REG_HOLD_DATA(142,  uint16,    0,  50,    5,   RW, 1, pSystem->m_usCHWBCoolPlusFreqTempDiff_2);
-    MASTER_REG_HOLD_DATA(143,  uint16,    0,  100,   50,  RW, 1, pSystem->m_usCHWBHeatPlusFreqTempDeviat);
+    MASTER_REG_HOLD_DATA(142,  uint16,    0,  50,    5,  RW, 1, pSystem->m_usCHWBCoolPlusFreqTempDiff_2);
+    MASTER_REG_HOLD_DATA(143,  uint16,    0, 100,   50,  RW, 1, pSystem->m_usCHWBHeatPlusFreqTempDeviat);
     MASTER_REG_HOLD_DATA(144,  uint16,    0,  50,   10,  RW, 1, pSystem->m_usCHWBHeatPlusFreqTempDiff_1);
     MASTER_REG_HOLD_DATA(145,  uint16,    0,  50,    5,  RW, 1, pSystem->m_usCHWBHeatPlusFreqTempDiff_2);
 
@@ -430,7 +430,7 @@ MASTER_BEGIN_DATA_BUF(m_psBitCoilBuf, m_sDevCommData.sMBCoilTable, m_usBitCoilIn
     {
         pChilledBump = pSystem->m_pChilledBumps[i];
         MASTER_COIL_BIT_DATA(176+i*8, 0, RW, pChilledBump->m_xSwitchCmd);
-        MASTER_COIL_BIT_DATA(177+i*8, 0, RW, pChilledBump->m_xErrClean);
+        MASTER_COIL_BIT_DATA(177+i*8, 0, WO, pChilledBump->m_xErrClean);
         MASTER_COIL_BIT_DATA(178+i*8, 0, RO, pChilledBump->m_xRunningFlag);
         MASTER_COIL_BIT_DATA(179+i*8, 0, RO, pChilledBump->m_xControlFlag);
         MASTER_COIL_BIT_DATA(180+i*8, 0, RO, pChilledBump->m_xErrorFlag);
@@ -441,7 +441,7 @@ MASTER_BEGIN_DATA_BUF(m_psBitCoilBuf, m_sDevCommData.sMBCoilTable, m_usBitCoilIn
     {
         pAxialFan = pSystem->m_pAxialFans[i];
         MASTER_COIL_BIT_DATA(200+i*8, 0, RW, pAxialFan->m_xSwitchCmd);
-        MASTER_COIL_BIT_DATA(201+i*8, 0, RW, pAxialFan->m_xErrClean);
+        MASTER_COIL_BIT_DATA(201+i*8, 0, WO, pAxialFan->m_xErrClean);
         MASTER_COIL_BIT_DATA(202+i*8, 0, RO, pAxialFan->m_xRunningFlag);
         MASTER_COIL_BIT_DATA(203+i*8, 0, RO, pAxialFan->m_xControlFlag);
         MASTER_COIL_BIT_DATA(204+i*8, 0, RO, pAxialFan->m_xErrorFlag);
@@ -452,7 +452,7 @@ MASTER_BEGIN_DATA_BUF(m_psBitCoilBuf, m_sDevCommData.sMBCoilTable, m_usBitCoilIn
     {
         pValve = pSystem->m_pButterflyValves[i];
         MASTER_COIL_BIT_DATA(232+i*8, 0, RW, pValve->m_xSwitchCmd);
-        MASTER_COIL_BIT_DATA(233+i*8, 0, RW, pValve->m_xErrClean);
+        MASTER_COIL_BIT_DATA(233+i*8, 0, WO, pValve->m_xErrClean);
         MASTER_COIL_BIT_DATA(234+i*8, 0, RO, pValve->m_xOpened);
         MASTER_COIL_BIT_DATA(235+i*8, 0, RO, pValve->m_xClosed);
         MASTER_COIL_BIT_DATA(236+i*8, 0, RO, pValve->m_xRemote);

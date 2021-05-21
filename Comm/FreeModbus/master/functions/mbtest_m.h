@@ -3,8 +3,8 @@
 
 #include "mb_m.h"
 
-void vMBDevTest(sMBSlaveDev* psMBSlaveDev);
-void vMBDevCurStateTest(sMBSlaveDev* psMBSlaveDev);
+void vMBDevTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev);
+void vMBDevCurStateTest(sMBMasterInfo* psMBMasterInfo, sMBSlaveDev* psMBSlaveDev);
 
 BOOL xMBMasterCreateDevHeartBeatTask(sMBMasterInfo* psMBMasterInfo);
 

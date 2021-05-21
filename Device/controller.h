@@ -1,7 +1,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "modbus.h"
+#include "mb_m.h"
 #include "datamonitor.h"
 #include <QTimer>
 
@@ -14,7 +14,6 @@
 class Controller : public QObject
 {
     Q_OBJECT
-
 public:
     sMBSlaveDev  m_sMBSlaveDev;   //本通讯设备
     bool m_xCommErr = false;      //通讯故障

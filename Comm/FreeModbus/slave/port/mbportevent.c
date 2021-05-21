@@ -23,8 +23,6 @@
 #include "mb.h"
 #include "mbport.h"
 
-#if MB_SLAVE_RTU_ENABLED > 0 || MB_SLAVE_ASCII_ENABLED > 0
-
 #define TIME_TICK_OUT 0
 
 /* ----------------------- Start implementation -----------------------------*/
@@ -144,4 +142,4 @@ eMBException prveMBSlaveError2Exception(eMBErrorCode eErrorCode)
     }
     return eStatus;
 }
-#endif
+
