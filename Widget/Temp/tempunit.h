@@ -19,14 +19,15 @@ class TempUnit : public QWidget
 
 public:
     int16_t       m_sDayIndex;            //第几天
-    bool          m_xIsToday = false;     //是否为当天
     uint16_t      m_usTemp = 190;           //温度
+    bool          m_xIsToday = false;     //是否为当天
 
     static uint8_t  m_usDayCount;    //天数
 
 private:
-    QVector<QWidget*>   m_Widgets;
-    AnalogValButton     *m_pTempBtn;    //温度设定
+    QVector<QWidget*>  m_Widgets;
+    AnalogValButton   *m_pTempBtn;    //温度设定
+    DataLabel         *m_pDayLabel;
 
 private:
     void initLabel();
@@ -38,7 +39,7 @@ signals:
 private slots:
     void valChangedSlot(void*);
 
-public: 
+public:
     explicit TempUnit(QWidget *parent = nullptr);
     ~TempUnit();
 

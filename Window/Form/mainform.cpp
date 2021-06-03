@@ -3,7 +3,7 @@
 #include "ui_mainform.h"
 
 #include <QTextCodec>
-//#include <QWSServer>
+#include <QWSServer>
 #include <QBrush>
 #include <QLocale>
 #include "password.h"
@@ -79,7 +79,7 @@ void MainForm::initButton()
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf-8"));
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("utf-8"));
 
-    //QWSServer::setCursorVisible(false);
+    QWSServer::setCursorVisible(false);
 
     AnalogValButton::forefather()->setFatherPixmap(AnalogValButton::press,AB_PRESS_PIX);
     AnalogValButton::forefather()->setFatherPixmap(AnalogValButton::release,AB_RELEASE_PIX);

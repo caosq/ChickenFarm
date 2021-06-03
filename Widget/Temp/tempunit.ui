@@ -47,9 +47,9 @@ border-image: url(:/UI/Widget/System_Sensor_5.png);}</string>
        <colorrole role="WindowText">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>252</red>
-          <green>175</green>
-          <blue>62</blue>
+          <red>255</red>
+          <green>170</green>
+          <blue>0</blue>
          </color>
         </brush>
        </colorrole>
@@ -58,9 +58,9 @@ border-image: url(:/UI/Widget/System_Sensor_5.png);}</string>
        <colorrole role="WindowText">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>252</red>
-          <green>175</green>
-          <blue>62</blue>
+          <red>255</red>
+          <green>170</green>
+          <blue>0</blue>
          </color>
         </brush>
        </colorrole>
@@ -69,9 +69,9 @@ border-image: url(:/UI/Widget/System_Sensor_5.png);}</string>
        <colorrole role="WindowText">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>190</red>
-          <green>190</green>
-          <blue>190</blue>
+          <red>153</red>
+          <green>153</green>
+          <blue>153</blue>
          </color>
         </brush>
        </colorrole>
@@ -80,7 +80,7 @@ border-image: url(:/UI/Widget/System_Sensor_5.png);}</string>
     </property>
     <property name="font">
      <font>
-      <pointsize>16</pointsize>
+      <pointsize>14</pointsize>
      </font>
     </property>
     <property name="text">

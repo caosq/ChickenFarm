@@ -161,7 +161,7 @@ void Curve::setCurrCurve()
     //功率曲线窗口
     curvePower = new qrealTimeCurve;
     curvePower->setYAxisScale(0,10000,500);
-    curvePower->setCurveAttribute(0," kW");
+    curvePower->setCurveAttribute(1," kW");
     curvePower->enableTouchMark(true);
     curvePower->setCurve(0, &m_usChillerPower, "ChillerPower",Qt::red);
     curvePower->setCurve(1, &m_usBumpPower,    "BumpPower",   Qt::yellow);
